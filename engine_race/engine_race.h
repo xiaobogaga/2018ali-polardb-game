@@ -3,6 +3,7 @@
 #define ENGINE_RACE_ENGINE_RACE_H_
 #include <string>
 #include "include/engine.h"
+#include <hash_map>
 
 namespace polar_race {
 
@@ -11,6 +12,8 @@ class EngineRace : public Engine  {
   static RetCode Open(const std::string& name, Engine** eptr);
 
   explicit EngineRace(const std::string& dir) {
+	  PATH = dir;
+	  filename(PATH + "/mydata");
   }
 
   ~EngineRace();
@@ -30,7 +33,9 @@ class EngineRace : public Engine  {
       Visitor &visitor) override;
 
  private: 
-
+	std::string& PATH;
+	std::string filename;
+	
 };
 
 }  // namespace polar_race

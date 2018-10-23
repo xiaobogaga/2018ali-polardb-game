@@ -2,7 +2,7 @@
 #include "engine_race.h"
 
 namespace polar_race {
-
+	
 RetCode Engine::Open(const std::string& name, Engine** eptr) {
   return EngineRace::Open(name, eptr);
 }
@@ -18,7 +18,6 @@ Engine::~Engine() {
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
-
   *eptr = engine_race;
   return kSucc;
 }
