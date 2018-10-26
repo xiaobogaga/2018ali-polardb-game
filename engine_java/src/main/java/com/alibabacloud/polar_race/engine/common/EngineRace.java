@@ -105,7 +105,7 @@ public class EngineRace extends AbstractEngine {
     private byte[] getData(long l) {
         try {
             byte[] ans = new byte[(int) VALUE_SIZE];
-            System.out.println("get key : " + l + " , p : " + maps.get(l));
+           // System.out.println("get key : " + l + " , p : " + maps.get(l));
             file.seek(maps.get(l));
             file.readFully(ans);
             return ans;
