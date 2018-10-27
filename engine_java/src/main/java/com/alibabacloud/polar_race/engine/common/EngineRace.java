@@ -3,153 +3,52 @@ package com.alibabacloud.polar_race.engine.common;
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 import com.alibabacloud.polar_race.engine.common.exceptions.RetCodeEnum;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
 
 /**
- * a engine race implementation. this implementation doesn't holds a index for data, instead, it just
- * use a data file, and it would init index when reading. this strategy would decrease IO times, which
- * I think is more efficient than using index.
- *
- * Note that this class assume that there is no same key. for example, its update use no same key.
- * and its range query would iterate all keys, if there are same key, it would iterator twice.
  */
 public class EngineRace extends AbstractEngine {
 
-    private final String DATA_FILE = "/mydata/";
+    private final String P = "/mydata/";
+    private final String fileName = "data";
+   // private MappedByteBuffer buffer;
+    private RandomAccessFile file;
     private String PATH;
-    private HashMap<Long, Holder> fileOffsetMaps;
-    private HashMap<Long, Integer> keyVersionMaps;
-    private RandomAccessFile[] readFiles;
-    private ThreadLocal<RandomAccessFile> datafileThreadLocal = new
-            ThreadLocal<RandomAccessFile>();
-    private ConcurrentLinkedQueue<RandomAccessFile> writeFiles =
-            new ConcurrentLinkedQueue<RandomAccessFile>();
-    private ThreadLocal<Ans> ansThreadLocal = new ThreadLocal<Ans>();
-    private long VALUE_SIZE = 1024 * 4;
+    private final long WRITE_MAPED_SIZE = 1024 * 1024 * 1024;
+    private HashMap<Long, Long> maps;
     private long KEY_SIZE = 8;
-    private AtomicInteger fileCounter;
-
-    class Ans {
-        public byte[] ans = new byte[(int) VALUE_SIZE];
-        public Ans() {}
-    }
-
-    class Holder {
-        long offset;
-        int file;
-        public Holder(long offset, int file) { this.offset = offset; this.file = file; }
-    }
+    private long VALUE_SIZE = 1024 * 4;
+    private volatile boolean finished = false;
+    private long waiting_read_time = 100;
+    private long writing_size = 0l;
 
     @Override
     public void open(String path) throws EngineException {
         if (PATH == null) PATH = path;
-        // init the key-version maps from this offset.
-        if (keyVersionMaps == null) {
-            initKeyVersionMaps();
-        }
     }
 
-    private void initKeyVersionMaps() {
-        File f = new File(PATH + DATA_FILE);
-        if (!f.exists()) {
-            System.out.println("start open path " + PATH + " and mkdir since its doesn't exist");
-            f.mkdirs();
-        } else {
-            System.out.println("start open path " + PATH + " file size : " + f.listFiles().length);
-        }
-        fileOffsetMaps = new HashMap<Long, Holder>();
-        keyVersionMaps = new HashMap<Long, Integer>();
-        File[] fs = f.listFiles();
-        readFiles = new RandomAccessFile[fs.length];
-        fileCounter = new AtomicInteger(fs.length);
-        int i = 0;
-        int dataCounter = 0;
-        for (File temp : fs) {
-            System.out.println("start reading file : " + temp.getName() + " and file length : "
-                + temp.length());
-            RandomAccessFile reader = null;
+    private void initFile() {
+        if (file == null) {
             try {
-                reader = new RandomAccessFile(temp, "r");
-                byte[] key = new byte[(int) KEY_SIZE];
-                while (reader.length() > reader.getFilePointer()) {
-                    dataCounter ++;
-                    reader.readFully(key);
-                    long l = keyToLong(key);
-                    int version = reader.readInt();
-                    long p = reader.getFilePointer();
-                    if (keyVersionMaps.get(l) == null || (keyVersionMaps.get(l) < version)) {
-                        keyVersionMaps.put(l, version);
-                        fileOffsetMaps.put(l, new Holder(p, i));
-                    }
-                    reader.seek(p + VALUE_SIZE);
-                }
-                readFiles[i++] = reader;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                File path = new File(PATH + P);
+                if (!path.exists()) path.mkdirs();
+                file = new RandomAccessFile(new File(PATH + P + fileName), "rw");
+//                buffer = file.getChannel().map(FileChannel.MapMode.READ_WRITE, file.length(), file.length());
+//                System.out.println("file length : " + file.length() +
+//                        " , position : " + buffer.position()
+//                    + " , limit : " + buffer.limit());
+//                buffer.flip();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("end reading file " + temp.getName());
-        }
-
-        if (keyVersionMaps.size() > 5000000) {
-            System.out.println("finish reading " + PATH + ". we have write " +
-                    keyVersionMaps.size() + " different keys under " +
-                    fs.length + " different files " + " and total size : " + dataCounter);
-            try {
-                Thread.sleep(10000l);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.exit(1);
-        }
-
-        System.out.println("finish reading " + PATH + ". we have write " +
-                keyVersionMaps.size() + " different keys under " +
-                fs.length + " different files " + " and total size : " + dataCounter);
-    }
-
-    public RandomAccessFile getDataFile() throws IOException {
-        if (datafileThreadLocal.get() == null) {
-            RandomAccessFile file = new RandomAccessFile(new File(PATH + DATA_FILE +
-                    fileCounter.getAndIncrement()), "rw");
-            datafileThreadLocal.set(file);
-            writeFiles.add(file);
-        }
-        return datafileThreadLocal.get();
-    }
-
-    @Override
-    public void write(byte[] key, byte[] value) throws EngineException {
-        try {
-            long l = keyToLong(key);
-            int version = updateKeyVersionMaps(l);
-            RandomAccessFile dataFile = getDataFile();
-            dataFile.write(key);
-            dataFile.writeInt(version);
-            dataFile.write(value);
-        } catch (IOException e) {
-
         }
     }
 
-    private synchronized int updateKeyVersionMaps(long l) { // we can avoid using lock here.
-            Integer version = keyVersionMaps.get(l);
-            if (version != null) {
-                version ++;
-                keyVersionMaps.put(l, version);
-            } else {
-                version = 0;
-                keyVersionMaps.put(l, version);
-            }
-            return version;
-    }
-
-    private long keyToLong(byte[] key) {
+    private static long keyToLong(byte[] key) {
         long ans = 0;
         for (int i = 0; i < 64; i++) {
             ans |= (((long) (key[i / 8] >>> (i % 8))) << i);
@@ -157,86 +56,129 @@ public class EngineRace extends AbstractEngine {
         return ans;
     }
 
-    // byte[] ans1 = new byte[(int) VALUE_SIZE];
-
-    private byte[] getAns() {
-        if (ansThreadLocal.get() == null) {
-            ansThreadLocal.set(new Ans());
+    private static byte[] parse(long key, byte[] ans) {
+        for (int i = 0; i < 64; i++) {
+            ans[i / 8] |= (((key >>> i) & 1) << (i % 8));
         }
-        return ansThreadLocal.get().ans;
+        return ans;
     }
 
     @Override
-    public byte[] read(byte[] key) throws EngineException {
+    public synchronized void write(byte[] key, byte[] value) throws EngineException {
+        if (file == null) initFile();
         try {
-            long k = keyToLong(key);
-            Holder h = fileOffsetMaps.get(k);
-            if (h == null) throw new EngineException(RetCodeEnum.NOT_FOUND, "not found" );
-            long loc = h.offset;
-            int f = h.file;
-            RandomAccessFile file = readFiles[f];
-            // byte[] ans1 = new byte[(int) VALUE_SIZE];
-            byte[] ans1 = getAns();
-            synchronized (file) {
-                file.seek(loc);
-                file.readFully(ans1);
-            }
-            return ans1;
+            file.write(key);
+            file.write(value);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // writing_size += KEY_SIZE + VALUE_SIZE;
+    }
 
+    private void initMaps() {
+        if (maps == null) {
+            maps = new HashMap<Long, Long>();
+            try {
+                file = new RandomAccessFile(new File(PATH + P + fileName), "r");
+                byte[] key = new byte[(int) KEY_SIZE];
+                // byte[] value = new byte[VALUE_SIZE];
+                long totalSize = 0;
+                while (file.length() > file.getFilePointer()) {
+                    file.readFully(key);
+                    totalSize++;
+                    long k = keyToLong(key);
+                    long p = file.getFilePointer();
+                    file.seek(p + VALUE_SIZE);
+                    maps.put(k, p);
+                }
+
+                finished = true;
+                if (maps.size() > 5000000) {
+                    System.out.println("Finished. we have " + maps.size() +
+                            " different keys and totalSize : " + totalSize);
+                    System.exit(1);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private byte[] getData(long l) {
+        try {
+            byte[] ans = new byte[(int) VALUE_SIZE];
+            System.out.println("get key : " + l + " , p : " + maps.get(l));
+            file.seek(maps.get(l));
+            file.readFully(ans);
+            return ans;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    /**
-     * todo : optimization.
-     *
-     * @param lower start key
-     * @param upper end key
-     * @param visitor is check key-value pair,you just call visitor.visit(String key, String value)
-     *                function in your own engine.
-     * @throws EngineException
-     */
     @Override
-    public synchronized void range(byte[] lower, byte[] upper, AbstractVisitor visitor)
-            throws EngineException {
-//        try {
-//            File p = new File(PATH + DATA_FILE);
-//            // int i = 0;
-//            byte[] key = new byte[(int) KEY_SIZE];
-//            byte[] value = new byte[(int) VALUE_SIZE];
-//            for (File file : p.listFiles()) {
-//                RandomAccessFile reader = new RandomAccessFile(file, "r"); // how about direct buffer.
-//                // readFiles.put(i++, reader);
-//                // how about using buffered reader here.
-//                // BufferedInputStream read = new BufferedInputStream(new FileInputStream(file));
-//                while (true) {
-//                    long loc = reader.getFilePointer();
-//                    reader.readFully(key);
-//                    reader.readInt();
-//                    reader.readFully(value);
-//                    visitor.visit(key, value);
-//                }
+    public synchronized byte[] read(byte[] key) throws EngineException {
+        if (maps == null) initMaps();
+//        while (!finished) { // waiting for finish.
+//            try {
+//                Thread.sleep(waiting_read_time);
+//            } catch (InterruptedException e) {
 //            }
-//        } catch (IOException e) {}
-        return;
+//        }
+        long l = keyToLong(key);
+        if (maps.containsKey(l))
+            return getData(l);
+        else throw new EngineException(RetCodeEnum.NOT_FOUND, "not found");
     }
+
+    @Override
+    public void range(byte[] lower, byte[] upper, AbstractVisitor visitor) throws EngineException {
+        visitAll(visitor);
+    }
+
+    private synchronized void visitAll(AbstractVisitor visitor) {
+        if (maps == null) {
+            initMaps();
+        }
+        try {
+            byte[] key = new byte[(int) KEY_SIZE];
+            byte[] value = new byte[(int) VALUE_SIZE];
+            for (Map.Entry<Long, Long> entry : maps.entrySet()) {
+                long offset = entry.getValue();
+                file.seek(offset);
+                file.readFully(value);
+                visitor.visit(parse(entry.getKey(), key), value);
+            }
+        } catch (IOException e) {
+        }
+    }
+
 
     @Override
     public void close() {
         try {
-            if (writeFiles != null) {
-                for (RandomAccessFile file : writeFiles) {
-                    file.close();
-				}
-            }
-            if (readFiles != null) {
-                for (RandomAccessFile file : readFiles)
-                    file.close();
-            }
-        } catch (Exception e) {
-
+            // if (buffer != null) cleanBuffer();
+            if (file != null) file.close();
+        } catch (IOException e) {
         }
     }
+
+//    private void cleanBuffer() {
+//        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+//            public Object run() {
+//                try {
+//                    // System.out.println(buffer.getClass().getName());
+//                    Method getCleanerMethod = buffer.getClass().getMethod("cleaner", new Class[0]);
+//                    getCleanerMethod.setAccessible(true);
+//                    sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(buffer, new Object[0]);
+//                    cleaner.clean();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//        });
+//    }
 
 }
