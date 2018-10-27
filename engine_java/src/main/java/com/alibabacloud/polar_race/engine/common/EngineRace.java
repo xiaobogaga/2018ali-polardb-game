@@ -79,7 +79,7 @@ public class EngineRace extends AbstractEngine {
                 e.printStackTrace();
             }
         }
-        System.out.println("finish reading" + PATH + ". we have write " + keyVersionMaps.size() + " different keys under " +
+        System.out.println("finish reading " + PATH + ". we have write " + keyVersionMaps.size() + " different keys under " +
                 fs.length + " different files " + " and total size : " + dataCounter);
     }
 
