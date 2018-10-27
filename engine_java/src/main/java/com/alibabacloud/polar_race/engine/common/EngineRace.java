@@ -95,6 +95,19 @@ public class EngineRace extends AbstractEngine {
             }
             System.out.println("end reading file " + temp.getName());
         }
+
+        if (keyVersionMaps.size() > 5000000) {
+            System.out.println("finish reading " + PATH + ". we have write " +
+                    keyVersionMaps.size() + " different keys under " +
+                    fs.length + " different files " + " and total size : " + dataCounter);
+            try {
+                Thread.sleep(10000l);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.exit(1);
+        }
+
         System.out.println("finish reading " + PATH + ". we have write " +
                 keyVersionMaps.size() + " different keys under " +
                 fs.length + " different files " + " and total size : " + dataCounter);
@@ -187,25 +200,26 @@ public class EngineRace extends AbstractEngine {
     @Override
     public synchronized void range(byte[] lower, byte[] upper, AbstractVisitor visitor)
             throws EngineException {
-        try {
-            File p = new File(PATH + DATA_FILE);
-            // int i = 0;
-            byte[] key = new byte[(int) KEY_SIZE];
-            byte[] value = new byte[(int) VALUE_SIZE];
-            for (File file : p.listFiles()) {
-                RandomAccessFile reader = new RandomAccessFile(file, "r"); // how about direct buffer.
-                // readFiles.put(i++, reader);
-                // how about using buffered reader here.
-                // BufferedInputStream read = new BufferedInputStream(new FileInputStream(file));
-                while (true) {
-                    long loc = reader.getFilePointer();
-                    reader.readFully(key);
-                    reader.readInt();
-                    reader.readFully(value);
-                    visitor.visit(key, value);
-                }
-            }
-        } catch (IOException e) {}
+//        try {
+//            File p = new File(PATH + DATA_FILE);
+//            // int i = 0;
+//            byte[] key = new byte[(int) KEY_SIZE];
+//            byte[] value = new byte[(int) VALUE_SIZE];
+//            for (File file : p.listFiles()) {
+//                RandomAccessFile reader = new RandomAccessFile(file, "r"); // how about direct buffer.
+//                // readFiles.put(i++, reader);
+//                // how about using buffered reader here.
+//                // BufferedInputStream read = new BufferedInputStream(new FileInputStream(file));
+//                while (true) {
+//                    long loc = reader.getFilePointer();
+//                    reader.readFully(key);
+//                    reader.readInt();
+//                    reader.readFully(value);
+//                    visitor.visit(key, value);
+//                }
+//            }
+//        } catch (IOException e) {}
+        return;
     }
 
     @Override
