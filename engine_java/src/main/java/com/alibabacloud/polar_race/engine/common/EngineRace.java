@@ -15,6 +15,7 @@ public class EngineRace extends AbstractEngine {
 
     private final String P = "/mydata/";
     private final String fileName = "data";
+    private final String MMAP_PATH = "/mmap/";
    // private MappedByteBuffer buffer;
     private RandomAccessFile file;
     private String PATH;
@@ -160,20 +161,21 @@ public class EngineRace extends AbstractEngine {
     }
 
     private synchronized void visitAll(AbstractVisitor visitor) {
-        if (maps == null) {
-            initMaps();
-        }
-        try {
-            byte[] key = new byte[(int) KEY_SIZE];
-            byte[] value = new byte[(int) VALUE_SIZE];
-            for (Map.Entry<Long, Long> entry : maps.entrySet()) {
-                long offset = entry.getValue();
-                file.seek(offset);
-                file.readFully(value);
-                visitor.visit(parse(entry.getKey(), key), value);
-            }
-        } catch (IOException e) {
-        }
+//        if (maps == null) {
+//            initMaps();
+//        }
+//        try {
+//            byte[] key = new byte[(int) KEY_SIZE];
+//            byte[] value = new byte[(int) VALUE_SIZE];
+//            for (Map.Entry<Long, Long> entry : maps.entrySet()) {
+//                long offset = entry.getValue();
+//                file.seek(offset);
+//                file.readFully(value);
+//                visitor.visit(parse(entry.getKey(), key), value);
+//            }
+//        } catch (IOException e) {
+//        }
+        throw new UnsupportedOperationException("unsupported now");
     }
 
 
@@ -183,14 +185,18 @@ public class EngineRace extends AbstractEngine {
             // if (buffer != null) cleanBuffer();
             System.out.println("closing db");
             if (file != null) file.close();
-            if (new File(PATH + P + fileName).delete())
-                System.out.println("delete file " + PATH + "/" + fileName + " finish");
+            // if (new File(PATH + P + fileName).delete())
+               // System.out.println("delete file " + PATH + "/"
+                 //       + fileName + " finish");
+            // if (new File(PATH + MMAP_PATH + fileName).delete())
+               // System.out.println("delete mmap file " + PATH + "/"
+                 //       + fileName + " finish");
         } catch (IOException e) {
         }
     }
 
 //    private void cleanBuffer() {
-//        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+//        AccessController.doPrivilege  d(new PrivilegedAction<Object>() {
 //            public Object run() {
 //                try {
 //                    // System.out.println(buffer.getClass().getName());
