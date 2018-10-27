@@ -21,10 +21,9 @@ public class EngineRace extends AbstractEngine {
 
     private final String DATA_FILE = "/mydata/";
     private String PATH;
-    private HashMap<Long, Long> offsetMaps;
-    private HashMap<Long, Integer> fileMaps;
+    private HashMap<Long, Holder> fileOffsetMaps;
     private HashMap<Long, Integer> keyVersionMaps;
-    private static RandomAccessFile[] readFiles;
+    private RandomAccessFile[] readFiles;
     private ThreadLocal<RandomAccessFile> datafileThreadLocal = new
             ThreadLocal<RandomAccessFile>();
     private ConcurrentLinkedQueue<RandomAccessFile> writeFiles =
@@ -33,6 +32,11 @@ public class EngineRace extends AbstractEngine {
     private long KEY_SIZE = 8;
     private AtomicInteger fileCounter;
 
+    class Holder {
+        long offset;
+        int file;
+        public Holder(long offset, int file) { this.offset = offset; this.file = file; }
+    }
 
     @Override
     public void open(String path) throws EngineException {
@@ -46,8 +50,7 @@ public class EngineRace extends AbstractEngine {
     private void initKeyVersionMaps() {
         File f = new File(PATH + DATA_FILE);
         if (!f.exists()) f.mkdirs();
-        offsetMaps = new HashMap<Long, Long>();
-        fileMaps = new HashMap<Long, Integer>();
+        fileOffsetMaps = new HashMap<Long, Holder>();
         keyVersionMaps = new HashMap<Long, Integer>();
         File[] fs = f.listFiles();
         readFiles = new RandomAccessFile[fs.length];
@@ -67,8 +70,7 @@ public class EngineRace extends AbstractEngine {
                     long p = reader.getFilePointer();
                     if (keyVersionMaps.get(l) == null || keyVersionMaps.get(l) < version) {
                         keyVersionMaps.put(l, version);
-                        fileMaps.put(l, i);
-                        offsetMaps.put(l, p);
+                        fileOffsetMaps.put(l, new Holder(p, i));
                     }
                     reader.seek(p + VALUE_SIZE);
                 }
@@ -79,7 +81,8 @@ public class EngineRace extends AbstractEngine {
                 e.printStackTrace();
             }
         }
-        System.out.println("finish reading " + PATH + ". we have write " + keyVersionMaps.size() + " different keys under " +
+        System.out.println("finish reading " + PATH + ". we have write " +
+                keyVersionMaps.size() + " different keys under " +
                 fs.length + " different files " + " and total size : " + dataCounter);
     }
 
@@ -131,9 +134,11 @@ public class EngineRace extends AbstractEngine {
     public byte[] read(byte[] key) throws EngineException {
         try {
             long k = keyToLong(key);
-            Long loc = offsetMaps.get(k);
-            if (loc == null) throw new EngineException(RetCodeEnum.NOT_FOUND, "not found" );
-            RandomAccessFile file = readFiles[fileMaps.get(k)];
+            Holder h = fileOffsetMaps.get(k);
+            if (h == null) throw new EngineException(RetCodeEnum.NOT_FOUND, "not found" );
+            long loc = h.offset;
+            int f = h.file;
+            RandomAccessFile file = readFiles[f];
             byte[] ans = new byte[(int) VALUE_SIZE]; // how about using a constant.
             synchronized (file) {
                 file.seek(loc);
