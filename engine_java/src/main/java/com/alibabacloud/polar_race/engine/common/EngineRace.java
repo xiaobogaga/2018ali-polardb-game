@@ -34,6 +34,7 @@ public class EngineRace extends AbstractEngine {
 
     @Override
     public void open(String path) throws EngineException {
+        System.out.println("open db");
         if (PATH == null) PATH = path;
         ansThreadLocal = new ThreadLocal<Holder>();
         maps = null;
@@ -180,7 +181,10 @@ public class EngineRace extends AbstractEngine {
     public void close() {
         try {
             // if (buffer != null) cleanBuffer();
+            System.out.println("closing db");
             if (file != null) file.close();
+            if (new File(PATH + P + fileName).delete())
+                System.out.println("delete file " + PATH + "/" + fileName + " finish");
         } catch (IOException e) {
         }
     }
