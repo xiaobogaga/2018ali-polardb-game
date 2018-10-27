@@ -22,15 +22,21 @@ public class EngineRace extends AbstractEngine {
     private final String DATA_FILE = "/mydata/";
     private String PATH;
     private HashMap<Long, Holder> fileOffsetMaps;
-    private HashMap<Long, Integer> keyVersionMaps;
+    private ConcurrentHashMap<Long, AtomicInteger> keyVersionMaps;
     private RandomAccessFile[] readFiles;
     private ThreadLocal<RandomAccessFile> datafileThreadLocal = new
             ThreadLocal<RandomAccessFile>();
     private ConcurrentLinkedQueue<RandomAccessFile> writeFiles =
             new ConcurrentLinkedQueue<RandomAccessFile>();
+    private ThreadLocal<Ans> ansThreadLocal = new ThreadLocal<Ans>();
     private long VALUE_SIZE = 1024 * 4;
     private long KEY_SIZE = 8;
     private AtomicInteger fileCounter;
+
+    class Ans {
+        public byte[] ans = new byte[(int) VALUE_SIZE];
+        public Ans() {}
+    }
 
     class Holder {
         long offset;
@@ -51,7 +57,7 @@ public class EngineRace extends AbstractEngine {
         File f = new File(PATH + DATA_FILE);
         if (!f.exists()) f.mkdirs();
         fileOffsetMaps = new HashMap<Long, Holder>();
-        keyVersionMaps = new HashMap<Long, Integer>();
+        keyVersionMaps = new ConcurrentHashMap<Long, AtomicInteger>();
         File[] fs = f.listFiles();
         readFiles = new RandomAccessFile[fs.length];
         fileCounter = new AtomicInteger(fs.length);
@@ -68,8 +74,10 @@ public class EngineRace extends AbstractEngine {
                     long l = keyToLong(key);
                     int version = reader.readInt();
                     long p = reader.getFilePointer();
-                    if (keyVersionMaps.get(l) == null || keyVersionMaps.get(l) < version) {
-                        keyVersionMaps.put(l, version);
+                    AtomicInteger atomicInteger = null;
+                    if (keyVersionMaps.get(l) == null || (atomicInteger = keyVersionMaps.get(l)).get() < version) {
+                        if (atomicInteger == null) { keyVersionMaps.put(l, new AtomicInteger(version)); }
+                        else atomicInteger.set(version);
                         fileOffsetMaps.put(l, new Holder(p, i));
                     }
                     reader.seek(p + VALUE_SIZE);
@@ -110,16 +118,22 @@ public class EngineRace extends AbstractEngine {
         }
     }
 
-    private synchronized int updateKeyVersionMaps(long l) { // can we avoid using lock here.
-        Integer version = keyVersionMaps.get(l);
-        if (version != null) {
-            version ++;
-            keyVersionMaps.put(l, version);
-        } else {
-            version = 0;
-            keyVersionMaps.put(l, version);
-        }
-        return version;
+    private int updateKeyVersionMaps(long l) { // we can avoid using lock here.
+        /*
+            Integer version = keyVersionMaps.get(l);
+            if (version != null) {
+                version ++;
+                keyVersionMaps.put(l, version);
+            } else {
+                version = 0;
+                keyVersionMaps.put(l, version);
+            }
+            return version;
+        */
+        // if keyVersionMaps is concurrentHashMap.
+        // then we could do following
+		keyVersionMaps.putIfAbsent(l, new AtomicInteger(0));
+		return keyVersionMaps.get(l).getAndIncrement();
     }
 
     private long keyToLong(byte[] key) {
@@ -128,6 +142,15 @@ public class EngineRace extends AbstractEngine {
             ans |= (((long) (key[i / 8] >>> (i % 8))) << i);
         }
         return ans;
+    }
+
+    // byte[] ans1 = new byte[(int) VALUE_SIZE];
+
+    private byte[] getAns() {
+        if (ansThreadLocal.get() == null) {
+            ansThreadLocal.set(new Ans());
+        }
+        return ansThreadLocal.get().ans;
     }
 
     @Override
@@ -139,12 +162,13 @@ public class EngineRace extends AbstractEngine {
             long loc = h.offset;
             int f = h.file;
             RandomAccessFile file = readFiles[f];
-            byte[] ans = new byte[(int) VALUE_SIZE]; // how about using a constant.
+            // byte[] ans1 = new byte[(int) VALUE_SIZE];
+            byte[] ans1 = getAns();
             synchronized (file) {
                 file.seek(loc);
-                file.readFully(ans);
+                file.readFully(ans1);
             }
-            return ans;
+            return ans1;
         } catch (IOException e) {
 
         }
@@ -165,7 +189,7 @@ public class EngineRace extends AbstractEngine {
             throws EngineException {
         try {
             File p = new File(PATH + DATA_FILE);
-            int i = 0;
+            // int i = 0;
             byte[] key = new byte[(int) KEY_SIZE];
             byte[] value = new byte[(int) VALUE_SIZE];
             for (File file : p.listFiles()) {
@@ -176,6 +200,7 @@ public class EngineRace extends AbstractEngine {
                 while (true) {
                     long loc = reader.getFilePointer();
                     reader.readFully(key);
+                    reader.readInt();
                     reader.readFully(value);
                     visitor.visit(key, value);
                 }
