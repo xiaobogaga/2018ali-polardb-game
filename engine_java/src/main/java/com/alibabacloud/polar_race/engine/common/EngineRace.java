@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Note that this class assume that there is no same key. for example, its update use no same key.
  * and its range query would iterate all keys, if there are same key, it would iterator twice.
  */
-public class EngineRace extends AbstractEngine {
+public class EngineRace2 extends AbstractEngine {
 
     private final String DATA_FILE = "/mydata/";
     private String PATH;
@@ -79,7 +79,7 @@ public class EngineRace extends AbstractEngine {
                 e.printStackTrace();
             }
         }
-        System.out.println("finish reading. we have write " + keyVersionMaps.size() + " different keys under " +
+        System.out.println("finish reading" + PATH + ". we have write " + keyVersionMaps.size() + " different keys under " +
                 fs.length + " different files " + " and total size : " + dataCounter);
     }
 
@@ -107,7 +107,7 @@ public class EngineRace extends AbstractEngine {
         }
     }
 
-    private synchronized int updateKeyVersionMaps(long l) {
+    private synchronized int updateKeyVersionMaps(long l) { // can we avoid using lock here.
         Integer version = keyVersionMaps.get(l);
         if (version != null) {
             version ++;
@@ -156,7 +156,8 @@ public class EngineRace extends AbstractEngine {
      * @throws EngineException
      */
     @Override
-    public synchronized void range(byte[] lower, byte[] upper, AbstractVisitor visitor) throws EngineException {
+    public synchronized void range(byte[] lower, byte[] upper, AbstractVisitor visitor)
+            throws EngineException {
         try {
             File p = new File(PATH + DATA_FILE);
             int i = 0;
@@ -183,7 +184,7 @@ public class EngineRace extends AbstractEngine {
             if (writeFiles != null) {
                 for (RandomAccessFile file : writeFiles) {
                     file.close();
-                }
+				}
             }
             if (readFiles != null) {
                 for (RandomAccessFile file : readFiles)
