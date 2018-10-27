@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Note that this class assume that there is no same key. for example, its update use no same key.
  * and its range query would iterate all keys, if there are same key, it would iterator twice.
  */
-public class EngineRace2 extends AbstractEngine {
+public class EngineRace extends AbstractEngine {
 
     private final String DATA_FILE = "/mydata/";
     private String PATH;
