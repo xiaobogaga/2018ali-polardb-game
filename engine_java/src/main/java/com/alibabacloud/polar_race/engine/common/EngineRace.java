@@ -25,10 +25,19 @@ public class EngineRace extends AbstractEngine {
     private volatile boolean finished = false;
     private long waiting_read_time = 100;
     private long writing_size = 0l;
+    private ThreadLocal<Holder> ansThreadLocal;
+
+    class Holder {
+        byte[] ans;
+        public Holder(byte[] ans) { this.ans = ans; }
+    }
 
     @Override
     public void open(String path) throws EngineException {
         if (PATH == null) PATH = path;
+        ansThreadLocal = new ThreadLocal<Holder>();
+        maps = null;
+        file = null;
     }
 
     private void initFile() {
@@ -93,11 +102,14 @@ public class EngineRace extends AbstractEngine {
                 }
 
                 finished = true;
+                System.out.println("Finished. we have " + maps.size() +
+                        " different keys and totalSize : " + totalSize);
                 if (maps.size() > 5000000) {
                     System.out.println("Finished. we have " + maps.size() +
                             " different keys and totalSize : " + totalSize);
                     System.exit(1);
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -106,7 +118,7 @@ public class EngineRace extends AbstractEngine {
 
     private byte[] getData(long l) {
         try {
-            byte[] ans = new byte[(int) VALUE_SIZE];
+            byte[] ans = getAns();
            // System.out.println("get key : " + l + " , p : " + maps.get(l));
             file.seek(maps.get(l));
             file.readFully(ans);
@@ -115,6 +127,15 @@ public class EngineRace extends AbstractEngine {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+
+    private byte[] getAns() {
+        if (ansThreadLocal.get() == null) {
+            ansThreadLocal.set(new Holder(new byte[(int) VALUE_SIZE]));
+        }
+        return ansThreadLocal.get().ans;
     }
 
     @Override
