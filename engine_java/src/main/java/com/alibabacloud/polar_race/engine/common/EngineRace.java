@@ -55,7 +55,12 @@ public class EngineRace extends AbstractEngine {
 
     private void initKeyVersionMaps() {
         File f = new File(PATH + DATA_FILE);
-        if (!f.exists()) f.mkdirs();
+        if (!f.exists()) {
+            System.out.println("start open path " + PATH + " and mkdir since its doesn't exist");
+            f.mkdirs();
+        } else {
+            System.out.println("start open path " + PATH + " file size : " + f.listFiles().length);
+        }
         fileOffsetMaps = new HashMap<Long, Holder>();
         keyVersionMaps = new ConcurrentHashMap<Long, AtomicInteger>();
         File[] fs = f.listFiles();
@@ -64,6 +69,8 @@ public class EngineRace extends AbstractEngine {
         int i = 0;
         int dataCounter = 0;
         for (File temp : fs) {
+            System.out.println("start reading file : " + temp.getName() + " and file length : "
+                + temp.length());
             RandomAccessFile reader = null;
             try {
                 reader = new RandomAccessFile(temp, "r");
@@ -88,6 +95,7 @@ public class EngineRace extends AbstractEngine {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.out.println("end reading file " + temp.getName());
         }
         System.out.println("finish reading " + PATH + ". we have write " +
                 keyVersionMaps.size() + " different keys under " +
