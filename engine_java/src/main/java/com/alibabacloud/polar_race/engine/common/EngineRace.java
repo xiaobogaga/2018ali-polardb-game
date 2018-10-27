@@ -22,7 +22,7 @@ public class EngineRace extends AbstractEngine {
     private final String DATA_FILE = "/mydata/";
     private String PATH;
     private HashMap<Long, Holder> fileOffsetMaps;
-    private ConcurrentHashMap<Long, AtomicInteger> keyVersionMaps;
+    private HashMap<Long, Integer> keyVersionMaps;
     private RandomAccessFile[] readFiles;
     private ThreadLocal<RandomAccessFile> datafileThreadLocal = new
             ThreadLocal<RandomAccessFile>();
@@ -62,7 +62,7 @@ public class EngineRace extends AbstractEngine {
             System.out.println("start open path " + PATH + " file size : " + f.listFiles().length);
         }
         fileOffsetMaps = new HashMap<Long, Holder>();
-        keyVersionMaps = new ConcurrentHashMap<Long, AtomicInteger>();
+        keyVersionMaps = new HashMap<Long, Integer>();
         File[] fs = f.listFiles();
         readFiles = new RandomAccessFile[fs.length];
         fileCounter = new AtomicInteger(fs.length);
@@ -81,10 +81,8 @@ public class EngineRace extends AbstractEngine {
                     long l = keyToLong(key);
                     int version = reader.readInt();
                     long p = reader.getFilePointer();
-                    AtomicInteger atomicInteger = null;
-                    if (keyVersionMaps.get(l) == null || (atomicInteger = keyVersionMaps.get(l)).get() < version) {
-                        if (atomicInteger == null) { keyVersionMaps.put(l, new AtomicInteger(version)); }
-                        else atomicInteger.set(version);
+                    if (keyVersionMaps.get(l) == null || (keyVersionMaps.get(l) < version)) {
+                        keyVersionMaps.put(l, version);
                         fileOffsetMaps.put(l, new Holder(p, i));
                     }
                     reader.seek(p + VALUE_SIZE);
@@ -126,8 +124,7 @@ public class EngineRace extends AbstractEngine {
         }
     }
 
-    private int updateKeyVersionMaps(long l) { // we can avoid using lock here.
-        /*
+    private synchronized int updateKeyVersionMaps(long l) { // we can avoid using lock here.
             Integer version = keyVersionMaps.get(l);
             if (version != null) {
                 version ++;
@@ -137,11 +134,6 @@ public class EngineRace extends AbstractEngine {
                 keyVersionMaps.put(l, version);
             }
             return version;
-        */
-        // if keyVersionMaps is concurrentHashMap.
-        // then we could do following
-		keyVersionMaps.putIfAbsent(l, new AtomicInteger(0));
-		return keyVersionMaps.get(l).getAndIncrement();
     }
 
     private long keyToLong(byte[] key) {
