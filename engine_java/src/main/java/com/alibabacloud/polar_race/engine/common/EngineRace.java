@@ -45,6 +45,7 @@ public class EngineRace extends AbstractEngine {
 
     private void initKeyVersionMaps() {
         File f = new File(PATH + DATA_FILE);
+        if (!f.exists()) f.mkdirs();
         offsetMaps = new HashMap<Long, Long>();
         fileMaps = new HashMap<Long, Integer>();
         keyVersionMaps = new HashMap<Long, Integer>();
