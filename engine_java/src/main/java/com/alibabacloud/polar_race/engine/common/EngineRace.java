@@ -34,7 +34,7 @@ public class EngineRace extends AbstractEngine {
         public Holder(byte[] ans) { this.ans = ans; }
     }
 
-    public EngineRace1() {
+    public EngineRace() {
         System.out.println("creating an engineRace instance");
     }
 
