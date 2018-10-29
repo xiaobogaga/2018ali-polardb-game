@@ -119,11 +119,6 @@ public class EngineRace extends AbstractEngine {
             System.out.println("Finished. we have " + maps.size() +
                     " different keys and totalSize : " + totalSize + 
 					" under " + readFiles.length + " files");
-            if (maps.size() > 5000000) {
-                System.out.println("Finished. we have " + maps.size() +
-                        " different keys and totalSize : " + totalSize);
-                System.exit(1);
-            }
         }
     }
 
