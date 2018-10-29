@@ -185,8 +185,18 @@ public class EngineRace extends AbstractEngine {
                 for (RandomAccessFile f : readFiles)
                     f.close();
             }
+			clean();
         } catch (IOException e) {
+			e.printStackTrace();
         }
     }
+	
+	public void clean() {
+		ansThreadLocal = null;
+		maps = null;
+        writeFile = null;
+        keyFiles = null;
+        readFiles = null;
+	}
 
 }
