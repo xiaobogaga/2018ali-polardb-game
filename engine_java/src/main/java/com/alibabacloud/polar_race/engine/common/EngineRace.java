@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  */
-public class EngineRace extends AbstractEngine {
+public class EngineRace1 extends AbstractEngine {
 
     private final String P = "/mydata/";
     private final String MMAP_PATH = "/mmap/";
@@ -25,7 +25,7 @@ public class EngineRace extends AbstractEngine {
     private volatile boolean finished = false;
     private long waiting_read_time = 100;
     private long writing_size = 0l;
-    private ThreadLocal<Holder> ansThreadLocal;
+    // private ThreadLocal<Holder> ansThreadLocal;
     private RandomAccessFile[] readFiles;
     private HashMap<Long, Integer> keyFiles;
 
@@ -34,7 +34,7 @@ public class EngineRace extends AbstractEngine {
         public Holder(byte[] ans) { this.ans = ans; }
     }
 
-    public EngineRace() {
+    public EngineRace1() {
         System.out.println("creating an engineRace instance");
     }
 
@@ -42,7 +42,7 @@ public class EngineRace extends AbstractEngine {
     public void open(String path) throws EngineException {
         System.out.println("open db");
         if (PATH == null) PATH = path;
-        ansThreadLocal = new ThreadLocal<Holder>();
+        // ansThreadLocal = new ThreadLocal<Holder>();
         maps = null;
         writeFile = null;
         keyFiles = null;
@@ -124,7 +124,7 @@ public class EngineRace extends AbstractEngine {
 
     private byte[] getData(long l) {
         try {
-            byte[] ans = getAns();
+            byte[] ans = new byte[(int) VALUE_SIZE];
            // System.out.println("get key : " + l + " , p : " + maps.get(l));
             RandomAccessFile file = readFiles[keyFiles.get(l)];
             file.seek(maps.get(l));
@@ -137,13 +137,14 @@ public class EngineRace extends AbstractEngine {
     }
 
 
-
+/*
     private byte[] getAns() {
         if (ansThreadLocal.get() == null) {
             ansThreadLocal.set(new Holder(new byte[(int) VALUE_SIZE]));
         }
         return ansThreadLocal.get().ans;
     }
+*/
 
     @Override
     public synchronized byte[] read(byte[] key) throws EngineException {
@@ -187,7 +188,7 @@ public class EngineRace extends AbstractEngine {
     }
 	
 	public void clean() {
-		ansThreadLocal = null;
+		// ansThreadLocal = null;
 		maps = null;
         writeFile = null;
         keyFiles = null;
