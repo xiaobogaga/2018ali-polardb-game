@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  */
-public class EngineRace1 extends AbstractEngine {
+public class EngineRace extends AbstractEngine {
 
     private final String P = "/mydata/";
     private final String MMAP_PATH = "/mmap/";
@@ -34,7 +34,7 @@ public class EngineRace1 extends AbstractEngine {
         public Holder(byte[] ans) { this.ans = ans; }
     }
 
-    public EngineRace1() {
+    public EngineRace() {
         System.out.println("creating an engineRace instance");
     }
 
