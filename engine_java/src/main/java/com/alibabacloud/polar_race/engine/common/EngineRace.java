@@ -108,6 +108,7 @@ public class EngineRace extends AbstractEngine {
                         long p = file.getFilePointer();
                         file.seek(p + VALUE_SIZE);
                         maps.put(k, p);
+						keyFiles.put(k, i);
                     }
                     readFiles[i] = file;
                 } catch (IOException e) {
@@ -116,7 +117,8 @@ public class EngineRace extends AbstractEngine {
             }
             finished = true;
             System.out.println("Finished. we have " + maps.size() +
-                    " different keys and totalSize : " + totalSize);
+                    " different keys and totalSize : " + totalSize + 
+					" under " + readFiles.length + " files");
             if (maps.size() > 5000000) {
                 System.out.println("Finished. we have " + maps.size() +
                         " different keys and totalSize : " + totalSize);
