@@ -50,10 +50,6 @@ public class EngineRace extends AbstractEngine {
 		valueWriteFile = null;
         keyFiles = null;
         readFiles = null;
-		File tempF = new File(PATH + KEY_PATH);
-		System.out.println("key files : " + tempF.listFiles().length);
-		tempF = new File(PATH + VALUE_PATH);
-		System.out.println("value files : " + tempF.listFiles().length);
     }
 
     private void initFile() {
@@ -62,6 +58,8 @@ public class EngineRace extends AbstractEngine {
                 File keyPath = new File(PATH + KEY_PATH);
 				File valuePath = new File(PATH + VALUE_PATH);
                 if (!keyPath.exists()) { keyPath.mkdirs(); valuePath.mkdirs(); }
+				System.out.println("key files : " + keyPath.listFiles().length);
+				System.out.println("value files : " + valuePath.listFiles().length);
                 String keyFileName = String.valueOf(keyPath.listFiles().length);
 				String valueFileName = String.valueOf(valuePath.listFiles().length);
                 keyWriteFile = new RandomAccessFile(
