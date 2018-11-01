@@ -20,7 +20,6 @@ public class EngineRace1 extends AbstractEngine {
     private RandomAccessFile keyWriteFile;
 	private RandomAccessFile valueWriteFile;
     private String PATH;
-    private final long WRITE_MAPED_SIZE = 1024 * 1024 * 1024;
     private HashMap<Long, Long> maps;
     private long KEY_SIZE = 8;
     private long VALUE_SIZE = 1024 * 4;
@@ -30,7 +29,7 @@ public class EngineRace1 extends AbstractEngine {
     // private ThreadLocal<Holder> ansThreadLocal;
     private RandomAccessFile[] readFiles;
     private HashMap<Long, Integer> keyFiles;
-    private final int size = 1024 * 1024 * 32;
+    private final int size = 1024 * 1024;
     private float load_factor = 32f;
 
     class Holder {
@@ -178,7 +177,7 @@ public class EngineRace1 extends AbstractEngine {
     public void range(byte[] lower, byte[] upper, AbstractVisitor visitor) throws EngineException {
         visitAll(visitor);
     }
-268436208
+
     private synchronized void visitAll(AbstractVisitor visitor) {
         throw new UnsupportedOperationException("unsupported now");
     }

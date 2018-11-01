@@ -37,7 +37,7 @@ public class BigHashTable {
 		this.PATH = PATH;
 		File path = new File(this.PATH + filePath);
 		if (!path.exists()) path.mkdirs();
-		this.channel = FileChannel.open(P268436208aths.get(this.PATH + filePath + fileName));
+		this.channel = FileChannel.open(Paths.get(this.PATH + filePath + fileName));
 		this.hashTable = this.channel.map(FileChannel.MapMode.READ_WRITE, position, size * item_size);
 		this.buffer = this.hashTable.asLongBuffer();
 	}

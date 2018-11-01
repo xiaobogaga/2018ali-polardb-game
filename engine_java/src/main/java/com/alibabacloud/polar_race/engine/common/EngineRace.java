@@ -14,11 +14,11 @@ import java.util.Map;
 public class EngineRace extends AbstractEngine {
 
     private final String KEY_PATH = "/key/";
-	private final String VALUE_PATH = "/value/";
+    private final String VALUE_PATH = "/value/";
     private final String MMAP_PATH = "/mmap/";
-   // private MappedByteBuffer buffer;
+    // private MappedByteBuffer buffer;
     private RandomAccessFile keyWriteFile;
-	private RandomAccessFile valueWriteFile;
+    private RandomAccessFile valueWriteFile;
     private String PATH;
     private final long WRITE_MAPED_SIZE = 1024 * 1024 * 1024;
     private HashMap<Long, Long> maps;
@@ -30,6 +30,8 @@ public class EngineRace extends AbstractEngine {
     // private ThreadLocal<Holder> ansThreadLocal;
     private RandomAccessFile[] readFiles;
     private HashMap<Long, Integer> keyFiles;
+    private final int size = 1024 * 1024;
+    private float load_factor = 32f;
 
     class Holder {
         byte[] ans;
@@ -47,7 +49,7 @@ public class EngineRace extends AbstractEngine {
         // ansThreadLocal = new ThreadLocal<Holder>();
         maps = null;
         keyWriteFile = null;
-		valueWriteFile = null;
+        valueWriteFile = null;
         keyFiles = null;
         readFiles = null;
     }
@@ -56,16 +58,16 @@ public class EngineRace extends AbstractEngine {
         if (keyWriteFile == null) {
             try {
                 File keyPath = new File(PATH + KEY_PATH);
-				File valuePath = new File(PATH + VALUE_PATH);
+                File valuePath = new File(PATH + VALUE_PATH);
                 if (!keyPath.exists()) { keyPath.mkdirs(); valuePath.mkdirs(); }
-				System.out.println("key files : " + keyPath.listFiles().length);
-				System.out.println("value files : " + valuePath.listFiles().length);
+                System.out.println("key files : " + keyPath.listFiles().length);
+                System.out.println("value files : " + valuePath.listFiles().length);
                 String keyFileName = String.valueOf(keyPath.listFiles().length);
-				String valueFileName = String.valueOf(valuePath.listFiles().length);
+                String valueFileName = String.valueOf(valuePath.listFiles().length);
                 keyWriteFile = new RandomAccessFile(
-					new File(PATH + KEY_PATH + keyFileName), "rw");
-				valueWriteFile = new RandomAccessFile(
-					new File(PATH + VALUE_PATH + valueFileName), "rw");
+                        new File(PATH + KEY_PATH + keyFileName), "rw");
+                valueWriteFile = new RandomAccessFile(
+                        new File(PATH + VALUE_PATH + valueFileName), "rw");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -100,27 +102,27 @@ public class EngineRace extends AbstractEngine {
 
     private void initMaps() {
         if (maps == null) {
-            maps = new HashMap<Long, Long>();
-            keyFiles = new HashMap<Long, Integer>();
+            maps = new HashMap<Long, Long>(this.size, load_factor);
+            keyFiles = new HashMap<Long, Integer>(this.size, load_factor);
             long totalSize = 0;
             byte[] key = new byte[(int) KEY_SIZE];
             File[] fs = new File(PATH + KEY_PATH).listFiles();
             readFiles = new RandomAccessFile[fs.length];
             for (int i = 0; i < fs.length; i ++) {
                 File keyTemp = new File(PATH + KEY_PATH + String.valueOf(i));
-				File valueTemp = new File(PATH + VALUE_PATH + String.valueOf(i));
-				long pointer = 0l;
+                File valueTemp = new File(PATH + VALUE_PATH + String.valueOf(i));
+                long pointer = 0l;
                 try {
                     RandomAccessFile file = new RandomAccessFile(keyTemp, "r");
                     while (file.length() > file.getFilePointer()) {
                         file.readFully(key);
                         totalSize++;
                         long k = keyToLong(key);
-						keyFiles.put(k, i);
+                        keyFiles.put(k, i);
                         maps.put(k, pointer);
-						pointer += VALUE_SIZE;
+                        pointer += VALUE_SIZE;
                     }
-					file.close();
+                    file.close();
                     readFiles[i] = new RandomAccessFile(valueTemp, "r");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -128,15 +130,15 @@ public class EngineRace extends AbstractEngine {
             }
             // finished = true;
             System.out.println("Finished. we have " + maps.size() +
-                    " different keys and totalSize : " + totalSize + 
-					" under " + readFiles.length + " files");
+                    " different keys and totalSize : " + totalSize +
+                    " under " + readFiles.length + " files");
         }
     }
 
     private byte[] getData(long l) {
         try {
             byte[] ans = new byte[(int) VALUE_SIZE];
-           // System.out.println("get key : " + l + " , p : " + maps.get(l));
+            // System.out.println("get key : " + l + " , p : " + maps.get(l));
             RandomAccessFile file = readFiles[keyFiles.get(l)];
             file.seek(maps.get(l));
             file.readFully(ans);
@@ -164,7 +166,7 @@ public class EngineRace extends AbstractEngine {
 //            try {
 //                Thread.sleep(waiting_read_time);
 //            } catch (InterruptedException e) {
-//            }
+//            }268436208
 //        }
         long l = keyToLong(key);
         if (maps.containsKey(l))
@@ -188,26 +190,26 @@ public class EngineRace extends AbstractEngine {
             // if (buffer != null) cleanBuffer();
             System.out.println("closing db");
             if (keyWriteFile != null) {
-				keyWriteFile.close();
-				valueWriteFile.close();
-			}
+                keyWriteFile.close();
+                valueWriteFile.close();
+            }
             if (readFiles != null) {
                 for (RandomAccessFile f : readFiles)
                     f.close();
             }
-			clean();
+            clean();
         } catch (IOException e) {
-			e.printStackTrace();
+            e.printStackTrace();
         }
     }
-	
-	public void clean() {
-		// ansThreadLocal = null;
-		maps = null;
+
+    public void clean() {
+        // ansThreadLocal = null;
+        maps = null;
         keyWriteFile = null;
-		valueWriteFile = null;
+        valueWriteFile = null;
         keyFiles = null;
         readFiles = null;
-	}
+    }
 
 }
