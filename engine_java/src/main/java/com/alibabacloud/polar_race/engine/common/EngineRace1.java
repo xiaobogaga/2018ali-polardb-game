@@ -30,6 +30,8 @@ public class EngineRace1 extends AbstractEngine {
     // private ThreadLocal<Holder> ansThreadLocal;
     private RandomAccessFile[] readFiles;
     private HashMap<Long, Integer> keyFiles;
+    private final int size = 1024 * 1024 * 32;
+    private float load_factor = 32f;
 
     class Holder {
         byte[] ans;
@@ -100,8 +102,8 @@ public class EngineRace1 extends AbstractEngine {
 
     private void initMaps() {
         if (maps == null) {
-            maps = new HashMap<Long, Long>();
-            keyFiles = new HashMap<Long, Integer>();
+            maps = new HashMap<Long, Long>(this.size, load_factor);
+            keyFiles = new HashMap<Long, Integer>(this.size, load_factor);
             long totalSize = 0;
             byte[] key = new byte[(int) KEY_SIZE];
             File[] fs = new File(PATH + KEY_PATH).listFiles();
@@ -164,7 +166,7 @@ public class EngineRace1 extends AbstractEngine {
 //            try {
 //                Thread.sleep(waiting_read_time);
 //            } catch (InterruptedException e) {
-//            }
+//            }268436208
 //        }
         long l = keyToLong(key);
         if (maps.containsKey(l))
@@ -176,7 +178,7 @@ public class EngineRace1 extends AbstractEngine {
     public void range(byte[] lower, byte[] upper, AbstractVisitor visitor) throws EngineException {
         visitAll(visitor);
     }
-
+268436208
     private synchronized void visitAll(AbstractVisitor visitor) {
         throw new UnsupportedOperationException("unsupported now");
     }

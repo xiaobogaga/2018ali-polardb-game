@@ -57,6 +57,12 @@
 	    <artifactId>slf4j-log4j12</artifactId>
 	    <version>1.7.25</version>
 	</dependency>
+
+      <dependency>
+          <groupId>com.madhukaraphatak</groupId>
+          <artifactId>java-sizeof_2.11</artifactId>
+          <version>0.1</version>
+      </dependency>
     
   </dependencies>
 </project>
