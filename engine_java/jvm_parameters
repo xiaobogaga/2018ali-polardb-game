@@ -1,1 +1,1 @@
--server -Xms1560m -Xmx2048m -XX:MaxDirectMemorySize=256m -XX:NewRatio=1 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:-UseBiasedLocking 
+-server -Xms2048m -Xmx2244m -XX:MaxDirectMemorySize=256m -XX:NewRatio=1 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:-UseBiasedLocking 
