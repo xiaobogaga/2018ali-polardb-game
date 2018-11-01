@@ -44,6 +44,7 @@ RetCode DoorPlate::Init() {
 
   if (!FileExists(dir_)
       && 0 != mkdir(dir_.c_str(), 0755)) {
+		  printf("init %s dir failed \n" , dir_);
     return kIOError;
   }
 
@@ -62,6 +63,7 @@ RetCode DoorPlate::Init() {
     }
   }
   if (fd < 0) {
+	printf("mmap failed\n");
     return kIOError;
   }
   fd_ = fd;
@@ -107,11 +109,13 @@ int DoorPlate::CalcIndex(const std::string& key) {
 
 RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
   if (key.size() > kMaxKeyLen) {
+	  printf("key too large\n");
     return kInvalidArgument;
   }
 
   int index = CalcIndex(key);
   if (index < 0) {
+	  printf("cannot add, full\n");
     return kFull;
   }
 
@@ -130,6 +134,7 @@ RetCode DoorPlate::Find(const std::string& key, Location *location) {
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
+	// printf("not found\n");
     return kNotFound;
   }
 
@@ -150,6 +155,7 @@ RetCode DoorPlate::GetRangeLocation(const std::string& lower,
         && (key < upper || upper.empty())) {
       locations->insert(std::pair<std::string, Location>(key, it->location));
       if (++count > kMaxRangeBufCount) {
+		  printf("out of memory\n");
         return kOutOfMemory;
       }
     }

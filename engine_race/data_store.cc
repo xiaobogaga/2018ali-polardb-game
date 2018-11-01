@@ -19,11 +19,13 @@ static std::string FileName(const std::string &dir, uint32_t fileno) {
 RetCode DataStore::Init() {
   if (!FileExists(dir_)
       && 0 != mkdir(dir_.c_str(), 0755)) {
+		  printf("init data_store failed\n");
     return kIOError;
   }
 
   std::vector<std::string> files;
   if (0 != GetDirFiles(dir_, &files)) {
+	  printf("init dir failed, datastore\n");
     return kIOError;
   }
 
@@ -58,6 +60,7 @@ RetCode DataStore::Init() {
 
 RetCode DataStore::Append(const std::string& value, Location* location) {
   if (value.size() > kSingleFileSize) {
+	  printf("value too large\n");
     return kInvalidArgument;
   }
 
@@ -71,6 +74,7 @@ RetCode DataStore::Append(const std::string& value, Location* location) {
 
   // Append write
   if (0 != FileAppend(fd_, value)) {
+	  printf("append failed\n");
     return kIOError;
   }
   location->file_no = next_location_.file_no;
@@ -84,6 +88,7 @@ RetCode DataStore::Append(const std::string& value, Location* location) {
 RetCode DataStore::Read(const Location& l, std::string* value) {
   int fd = open(FileName(dir_, l.file_no).c_str(), O_RDONLY, 0644);
   if (fd < 0) {
+	  printf("read failed\n");
     return kIOError;
   }
   lseek(fd, l.offset, SEEK_SET);
@@ -99,6 +104,7 @@ RetCode DataStore::Read(const Location& l, std::string* value) {
         continue;  // Retry
       }
       close(fd);
+	  printf("io failed when read\n");
       return kIOError;
     }
     pos += r;
@@ -115,6 +121,7 @@ RetCode DataStore::OpenCurFile() {
   std::string file_name = FileName(dir_, next_location_.file_no);
   int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
   if (fd < 0) {
+	  printf("open new file failed\n");
     return kIOError;
   }
   fd_ = fd;

@@ -28,6 +28,7 @@ int GetDirFiles(const std::string& dir, std::vector<std::string>* result) {
   result->clear();
   DIR* d = opendir(dir.c_str());
   if (d == NULL) {
+	  printf("open dir failed, getdirfiles\n");
     return errno;
   }
   struct dirent* entry;
@@ -59,6 +60,7 @@ int FileAppend(int fd, const std::string& value) {
       if (errno == EINTR) {
         continue;  // Retry
       }
+	  printf("write data failed, fileappend\n");
       return -1;
     }
     pos += r;

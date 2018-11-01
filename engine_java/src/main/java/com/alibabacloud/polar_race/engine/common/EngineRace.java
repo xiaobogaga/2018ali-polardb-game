@@ -32,6 +32,7 @@ public class EngineRace extends AbstractEngine {
     private HashMap<Long, Integer> keyFiles;
     private final int size = 1024 * 1024;
     private float load_factor = 32f;
+    private long counter = 0;
 
     class Holder {
         byte[] ans;
@@ -52,6 +53,7 @@ public class EngineRace extends AbstractEngine {
         valueWriteFile = null;
         keyFiles = null;
         readFiles = null;
+        counter = 0;
     }
 
     private void initFile() {
@@ -68,6 +70,7 @@ public class EngineRace extends AbstractEngine {
                         new File(PATH + KEY_PATH + keyFileName), "rw");
                 valueWriteFile = new RandomAccessFile(
                         new File(PATH + VALUE_PATH + valueFileName), "rw");
+                System.out.println("initFile finished");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -95,6 +98,8 @@ public class EngineRace extends AbstractEngine {
         try {
             keyWriteFile.write(key);
             valueWriteFile.write(value);
+            counter ++;
+            if (counter > 1000000) System.out.println("writing 1000000 data");
         } catch (IOException e) {
             e.printStackTrace();
         }

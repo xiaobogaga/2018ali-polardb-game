@@ -2,6 +2,8 @@ package com.tomzhu.test;
 
 import com.alibabacloud.polar_race.engine.common.EngineRace1;
 import com.alibabacloud.polar_race.engine.common.EngineRace2;
+import com.alibabacloud.polar_race.engine.common.EngineRace;
+
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 
 import java.util.Arrays;
@@ -11,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class ReaderPro {
 
-    public static EngineRace1 engine;
+    public static EngineRace engine;
 	// public static EngineRace2 engine;
     public static int THREAD_SIZE = 0;
     public static CountDownLatch countDownLatch;
@@ -75,7 +77,7 @@ public class ReaderPro {
         return ans;
     }
 
-    public static void startReader(EngineRace1 engine1, HashMap<Long, WriterPro.Holder> data,
+    public static void startReader(EngineRace engine1, HashMap<Long, WriterPro.Holder> data,
                                    int thread_size, int reading_times)
             throws EngineException, InterruptedException {
 		THREAD_SIZE = thread_size;
@@ -92,7 +94,7 @@ public class ReaderPro {
         // engine.close();
     }
 
-    public static void testPerformance(EngineRace1 engine1, HashMap<Long, WriterPro.Holder> data,
+    public static void testPerformance(EngineRace engine1, HashMap<Long, WriterPro.Holder> data,
                                    int thread_size, int reading_times)
             throws EngineException, InterruptedException {
 		THREAD_SIZE = thread_size;

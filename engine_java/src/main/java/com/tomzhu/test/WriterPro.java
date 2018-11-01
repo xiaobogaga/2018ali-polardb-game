@@ -2,6 +2,7 @@ package com.tomzhu.test;
 
 import com.alibabacloud.polar_race.engine.common.EngineRace1;
 import com.alibabacloud.polar_race.engine.common.EngineRace2;
+import com.alibabacloud.polar_race.engine.common.EngineRace;
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class WriterPro {
     private static long seed = 7409172834l;
     private static Random random = new Random(seed);
     // public static EngineRace2 engine;
-	public static EngineRace1 engine;
+	public static EngineRace engine;
     private static String PATH = "C://tmp/midware/test";
     public static HashMap<Long, Holder> maps;
     public static volatile boolean shutdown = false;
@@ -99,7 +100,7 @@ public class WriterPro {
             BrokenBarrierException, EngineException {
 		countDownLatch = new CountDownLatch(thread_s);
         maps = new HashMap<Long, Holder>();
-        engine = new EngineRace1();
+        engine = new EngineRace();
 		// engine = new EngineRace2();
         engine.open(PATH);
         thread_size = thread_s;
@@ -114,7 +115,7 @@ public class WriterPro {
         long startTime = System.currentTimeMillis();
 		maps2 = maps;
         maps = new HashMap<Long, Holder>();
-        engine = new EngineRace1();
+        engine = new EngineRace();
 		// engine = new EngineRace2();
         engine.open(PATH);
         thread_size = thread_s;
