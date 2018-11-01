@@ -1,9 +1,12 @@
 // Copyright [2018] Alibaba Cloud All rights reserved
 #ifndef ENGINE_RACE_ENGINE_RACE_H_
 #define ENGINE_RACE_ENGINE_RACE_H_
+#include <pthread.h>
 #include <string>
 #include "include/engine.h"
-#include <hash_map>
+#include "util.h"
+#include "door_plate.h"
+#include "data_store.h"
 
 namespace polar_race {
 
@@ -11,10 +14,10 @@ class EngineRace : public Engine  {
  public:
   static RetCode Open(const std::string& name, Engine** eptr);
 
-  explicit EngineRace(const std::string& dir) {
-	  PATH = dir;
-	  filename(PATH + "/mydata");
-  }
+  explicit EngineRace(const std::string& dir)
+    : mu_(PTHREAD_MUTEX_INITIALIZER),
+    db_lock_(NULL), plate_(dir), store_(dir) {
+    }
 
   ~EngineRace();
 
@@ -33,9 +36,10 @@ class EngineRace : public Engine  {
       Visitor &visitor) override;
 
  private: 
-	std::string& PATH;
-	std::string filename;
-	
+  pthread_mutex_t mu_;
+  FileLock* db_lock_;
+  DoorPlate plate_;
+  DataStore store_;
 };
 
 }  // namespace polar_race
