@@ -7,6 +7,8 @@
 #include "engine_race.h"
 
 namespace polar_race {
+
+static const char kLockFile[] = "LOCK";
 	
 RetCode Engine::Open(const std::string& name, Engine** eptr) {
 	printf("open db\n");
@@ -24,25 +26,25 @@ Engine::~Engine() {
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 	printf("open engine\n");
   *eptr = NULL;
-  EngineExample *engine_example = new EngineExample(name);
+  EngineRace *engine_race = new EngineRace(name);
 
-  RetCode ret = engine_example->plate_.Init();
+  RetCode ret = engine_race->plate_.Init();
   if (ret != kSucc) {
-    delete engine_example;
+    delete engine_race;
     return ret;
   }
-  ret = engine_example->store_.Init();
+  ret = engine_race->store_.Init();
   if (ret != kSucc) {
-    delete engine_example;
+    delete engine_race;
     return ret;
   }
 
-  if (0 != LockFile(name + "/" + kLockFile, &(engine_example->db_lock_))) {
-    delete engine_example;
+  if (0 != LockFile(name + "/" + kLockFile, &(engine_race->db_lock_))) {
+    delete engine_race;
     return kIOError;
   }
 
-  *eptr = engine_example;
+  *eptr = engine_race;
   return kSucc;
 }
 
