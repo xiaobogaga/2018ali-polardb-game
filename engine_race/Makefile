@@ -116,6 +116,8 @@ INCLUDE_PATH += -I$(EXEC_DIR)
 	  $(AM_V_CC)$(CXX) $(CXXFLAGS) -c $< -o $@
 
 all: $(LIBRARY)
+	g++ -std=c++11 -o test -g -I.. test.cc -L../lib -lengine -lpthread -lrt -lz
+	g++ -std=c++11 -o test_with_kill -g -I.. test_with_kill.cc -L../lib -lengine -lpthread -lrt -lz
 
 dbg: $(LIBRARY)
 

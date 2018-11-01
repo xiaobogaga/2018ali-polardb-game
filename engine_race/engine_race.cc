@@ -113,4 +113,8 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   return ret;
 }
 
+int EngineRace::size() {
+  return 0;
+}
+
 }  // namespace polar_race

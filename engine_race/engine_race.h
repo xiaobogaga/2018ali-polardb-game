@@ -27,6 +27,8 @@ class EngineRace : public Engine  {
   RetCode Read(const PolarString& key,
       std::string* value) override;
 
+  int size() override;
+
   /*
    * NOTICE: Implement 'Range' in quarter-final,
    *         you can skip it in preliminary.

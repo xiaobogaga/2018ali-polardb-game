@@ -35,6 +35,8 @@ class Engine {
 
   Engine() { }
 
+  virtual int size() = 0;
+
   // Close engine
   virtual ~Engine();
 
