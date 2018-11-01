@@ -99,7 +99,7 @@ public class EngineRace extends AbstractEngine {
             keyWriteFile.write(key);
             valueWriteFile.write(value);
             counter ++;
-            if (counter > 1000000) System.out.println("writing 1000000 data");
+            if (counter > 1000000) { System.out.println("writing 1000000 data"); counter = 0;}
         } catch (IOException e) {
             e.printStackTrace();
         }
