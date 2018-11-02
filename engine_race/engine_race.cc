@@ -57,7 +57,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   if (ret == kSucc) {
     ret = plate_.AddOrUpdate(key.ToString(), location);
   } 
-  if (ret != kSucc) printf("write not succ \n");
+  // if (ret != kSucc) printf("write not succ \n");
   pthread_mutex_unlock(&mu_);
   return ret;
 }
