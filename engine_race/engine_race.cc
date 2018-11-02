@@ -18,6 +18,7 @@ Engine::~Engine() {
 }
 
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
+  printf("[EngineRace] : open db\n");
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
 
@@ -45,6 +46,7 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 }
 
 EngineRace::~EngineRace() {
+  printf("[EngineRace] : closing db\n");
   if (db_lock_) {
     UnlockFile(db_lock_);
   }

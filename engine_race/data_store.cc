@@ -33,10 +33,7 @@ RetCode DataStore::Init() {
   }
 
   std::vector<std::string> files;
-  if (0 != GetDirFiles(dataPath, &files, true)) {
-    printf("[DataStore] : %s has files\n", dataPath.c_str());
-    return kIOError;
-  }
+  GetDirFiles(dataPath, &files, false);
 
   uint32_t last_no = 0;
   uint32_t cur_offset = 0;

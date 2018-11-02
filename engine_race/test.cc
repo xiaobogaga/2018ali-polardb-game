@@ -10,9 +10,7 @@
 #include <algorithm>
 #include <set>
 
-static const char kEnginePath[] = "/tmp/test_engine";
-static const char kDumpPath[] = "/tmp/test_dump";
-
+static const char kEnginePath[] = "/tmp/midware/test_engine";
 using namespace polar_race;
 
 class DumpVisitor : public Visitor {
@@ -289,6 +287,7 @@ int main()
               << " milliseconds" << std::endl;
     
     
+    /*
     // Sequential Read
     auto sreadStart = std::chrono::high_resolution_clock::now();
     
@@ -305,7 +304,8 @@ int main()
     std::cout << "Sequential read takes: "
               << std::chrono::duration<double, std::milli>(sreadEnd - sreadStart).count()
               << " milliseconds" << std::endl;
-    
+    */
+              
     delete engine;
 
     return 0;

@@ -10,8 +10,7 @@
 #include <algorithm>
 #include <set>
 
-static const char kEnginePath[] = "/tmp/test_engine";
-static const char kDumpPath[] = "/tmp/test_dump";
+static const char kEnginePath[] = "/tmp/midware/test_dump";
 
 using namespace polar_race;
 
