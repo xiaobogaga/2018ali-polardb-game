@@ -27,17 +27,13 @@ class EngineRace : public Engine  {
   RetCode Read(const PolarString& key,
       std::string* value) override;
 
-  int size() override;
-
-  /*
-   * NOTICE: Implement 'Range' in quarter-final,
-   *         you can skip it in preliminary.
-   */
   RetCode Range(const PolarString& lower,
       const PolarString& upper,
       Visitor &visitor) override;
 
- private: 
+  int size() override;
+
+ private:
   pthread_mutex_t mu_;
   FileLock* db_lock_;
   DoorPlate plate_;
@@ -46,4 +42,4 @@ class EngineRace : public Engine  {
 
 }  // namespace polar_race
 
-#endif  // ENGINE_RACE_ENGINE_RACE_H_
+#endif  // ENGINE_EXAMPLE_ENGINE_EXAMPLE_H_

@@ -44,7 +44,7 @@ RetCode DataStore::Init() {
   }
 
   // Get last data file offset
-  int len = GetFileLength(FileName(dir_, last_no));
+  int len = (int) GetFileLength(FileName(dir_, last_no));
   if (len > 0) {
     cur_offset = len;
   }

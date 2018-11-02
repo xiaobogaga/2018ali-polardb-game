@@ -23,28 +23,52 @@ uint32_t StrHash(const char* s, int size) {
   return h;
 }
 
-int GetDirFiles(const std::string& dir, std::vector<std::string>* result) {
+int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile) {
   int res = 0;
   result->clear();
   DIR* d = opendir(dir.c_str());
   if (d == NULL) {
-	  printf("open dir failed, getdirfiles\n");
+	  printf("[Util] : open dir %s failed\n", dir.c_str());
     return errno;
   }
+  struct dirent* entry;
+  struct stat st;
+  while ((entry = readdir(d)) != NULL) {
+    stat(entry->d_name, &st);
+    if (strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0) {
+      continue;
+    }
+    if (deleteFile && !S_ISDIR(st.st_mode)) remove(entry->d_name);
+    res ++;
+    result->push_back(entry->d_name);
+  }
+  closedir(d);
+  return deleteFile ? 0 : res;
+}
+
+uint32_t getSubFileSize(const std::string& path) {
+  if (!FileExists(path)) mkdir(path.c_str(), 0755);
+  DIR* d = opendir(path.c_str());
+  if (d == NULL) {
+      printf("[Util] : Open dir failed\n");
+      return -1;
+  }
+  uint32_t size = 0;
   struct dirent* entry;
   while ((entry = readdir(d)) != NULL) {
     if (strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0) {
       continue;
     }
-    result->push_back(entry->d_name);
+    // result->push_back(entry->d_name);
+    size ++;
   }
   closedir(d);
-  return res;
+  return size;
 }
 
-int GetFileLength(const std::string& file) {
+long long GetFileLength(const std::string& file) {
   struct stat stat_buf;
-  int rc = stat(file.c_str(), &stat_buf);
+  long long rc = stat(file.c_str(), &stat_buf);
   return rc == 0 ? stat_buf.st_size : -1;
 }
 
@@ -60,7 +84,7 @@ int FileAppend(int fd, const std::string& value) {
       if (errno == EINTR) {
         continue;  // Retry
       }
-	  printf("write data failed, fileappend\n");
+	     printf("[Util] : write data failed, fileappend\n");
       return -1;
     }
     pos += r;
@@ -111,5 +135,6 @@ int UnlockFile(FileLock* lock) {
   delete lock;
   return result;
 }
+
 
 }  // namespace polar_race

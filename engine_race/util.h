@@ -12,10 +12,11 @@ namespace polar_race {
 uint32_t StrHash(const char* s, int size);
 
 // Env
-int GetDirFiles(const std::string& dir, std::vector<std::string>* result);
-int GetFileLength(const std::string& file);
+int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile);
+long long GetFileLength(const std::string& file);
 int FileAppend(int fd, const std::string& value);
 bool FileExists(const std::string& path);
+uint32_t getSubFileSize(const std::string& path);
 
 // FileLock
 class FileLock  {
@@ -34,6 +35,7 @@ class FileLock  {
 
 int LockFile(const std::string& f, FileLock** l);
 int UnlockFile(FileLock* l);
+
 
 }  // namespace polar_race
 

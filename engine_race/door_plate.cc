@@ -13,7 +13,8 @@
 namespace polar_race {
 
 static const uint32_t kMaxDoorCnt = 1024 * 1024 * 32;
-static const char kMetaFileName[] = "META";
+static const std::string metaFilePath("/meta");
+static const std::string kMetaFileName("META");
 static const int kMaxRangeBufCount = kMaxDoorCnt;
 
 static bool ItemKeyMatch(const Item &item, const std::string& target) {
@@ -44,26 +45,34 @@ RetCode DoorPlate::Init() {
 
   if (!FileExists(dir_)
       && 0 != mkdir(dir_.c_str(), 0755)) {
-		  printf("init %s dir failed \n" , dir_);
+    printf("[DoorPlate] : mkdir failed %s\n", dir_.c_str());
     return kIOError;
   }
 
-  std::string path = dir_ + "/" + kMetaFileName;
-  int fd = open(path.c_str(), O_RDWR, 0644);
+  std::string metaPath = dir_ + metaFilePath;
+
+  if (!FileExists(metaPath) && 
+      0 != mkdir(metaPath.c_str(), 0755)) {
+    printf("[DoorPlate] : mkdir failed %s\n", metaPath.c_str());
+    return kIOError;
+  }
+
+  std::string f = metaPath + "/" + kMetaFileName;
+  int fd = open(f.c_str(), O_RDWR, 0644);
   if (fd < 0 && errno == ENOENT) {
     // not exist, then create
-    fd = open(path.c_str(), O_RDWR | O_CREAT, 0644);
+    fd = open(f.c_str(), O_RDWR | O_CREAT, 0644);
     if (fd >= 0) {
       new_create = true;
       if (posix_fallocate(fd, 0, map_size) != 0) {
-        std::cerr << "posix_fallocate failed: " << strerror(errno) << std::endl;
+        std::cerr << "[DoorPlate] : posix_fallocate failed: " << strerror(errno) << std::endl;
         close(fd);
         return kIOError;
       }
     }
   }
   if (fd < 0) {
-	printf("mmap failed\n");
+    printf("[DoorPlate] : file %s open failed\n", f.c_str());
     return kIOError;
   }
   fd_ = fd;
@@ -71,7 +80,7 @@ RetCode DoorPlate::Init() {
   void* ptr = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
       MAP_SHARED, fd_, 0);
   if (ptr == MAP_FAILED) {
-    std::cerr << "MAP_FAILED: " << strerror(errno) << std::endl;
+    std::cerr << "[DoorPlate] : MAP_FAILED: " << strerror(errno) << std::endl;
     close(fd);
     return kIOError;
   }
@@ -109,13 +118,12 @@ int DoorPlate::CalcIndex(const std::string& key) {
 
 RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
   if (key.size() > kMaxKeyLen) {
-	  printf("key too large\n");
     return kInvalidArgument;
   }
 
   int index = CalcIndex(key);
   if (index < 0) {
-	  printf("cannot add, full\n");
+    printf("[DoorPlate] : kfull\n");
     return kFull;
   }
 
@@ -134,7 +142,6 @@ RetCode DoorPlate::Find(const std::string& key, Location *location) {
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
-	// printf("not found\n");
     return kNotFound;
   }
 
@@ -155,7 +162,6 @@ RetCode DoorPlate::GetRangeLocation(const std::string& lower,
         && (key < upper || upper.empty())) {
       locations->insert(std::pair<std::string, Location>(key, it->location));
       if (++count > kMaxRangeBufCount) {
-		  printf("out of memory\n");
         return kOutOfMemory;
       }
     }
