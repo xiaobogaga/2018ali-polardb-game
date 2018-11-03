@@ -77,7 +77,7 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 // 2. Close engine
 EngineRace::~EngineRace() {
   printf("[EngineRace] : closing db\n");
-  if (keyWriteFile > 0) {
+  if (keyWriteFile >= 0) {
     close(keyWriteFile);
     close(valueWriteFile);
   }
