@@ -97,7 +97,10 @@ EngineRace::~EngineRace() {
 }
 
 void EngineRace::initFile() {
-  if (!FileExists(path)) mkdir(path.c_str(), 0755);
+  if (!FileExists(path) && 0 != mkdir(path.c_str(), 0755)) {
+    printf("[EngineRace] : mkdir %s failed\n", path.c_str());
+    return 0;
+  }
   uint32_t keyFileSize = getSubFileSize(path + keyFilePath);
   uint32_t valueFileSize = getSubFileSize(path + valueFilePath);
   printf("[EngineRace] : key files : %d and value files : %d\n", keyFileSize, valueFileSize);
@@ -165,6 +168,10 @@ void EngineRace::initMaps() {
     offset = 0;
     long long fileLength = GetFileLength(FileName(path, keyFilePath, i));
     int fd = open(FileName(path, keyFilePath, i).c_str(), O_RDONLY, 0644);
+    if (fd < 0) {
+        printf("[EngineRace] : file %s not found\n", FileName(path, keyFilePath, i).c_str());
+        return ;
+    }
     void* ptr = mmap(NULL, fileLength, PROT_READ, MAP_SHARED, fd, 0);
     Item* items_ = reinterpret_cast<Item*>(ptr);
     counter = (int) (fileLength / keySize);
@@ -176,7 +183,12 @@ void EngineRace::initMaps() {
       items_ ++;
       counter --;
     }
+    printf("[EngineRace] : read key file %s finished, items : %d\n", FileName(path, keyFilePath, i).c_str(), keyOffsetMaps->size());
     fds[i] = open(FileName(path, valueFilePath, i).c_str(), O_RDONLY, 0644);
+    if (fds[i] < 0) {
+        printf("[EngineRace] : file %s not found\n", FileName(path, valueFilePath, i).c_str());
+        return ;
+    }
     munmap(items_, fileLength);
     close(fd);
   }
