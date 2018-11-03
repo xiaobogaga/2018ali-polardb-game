@@ -91,7 +91,7 @@ int FileAppend(int fd, const std::string& value) {
     value_len -= r;
   }
   
-  flush(fd);
+  // flush(fd);
   return 0;
 }
 
