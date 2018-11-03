@@ -23,34 +23,31 @@ uint32_t StrHash(const char* s, int size) {
   return h;
 }
 
-int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile) {
+int GetDirFiles(const std::string& dir, std::vector<std::string>* result) {
   int res = 0;
   result->clear();
   DIR* d = opendir(dir.c_str());
   if (d == NULL) {
-	  printf("[Util] : open dir %s failed\n", dir.c_str());
+	  printf("open dir failed, getdirfiles\n");
     return errno;
   }
   struct dirent* entry;
-  struct stat st;
   while ((entry = readdir(d)) != NULL) {
-    stat(entry->d_name, &st);
     if (strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0) {
       continue;
     }
-    if (deleteFile && !S_ISDIR(st.st_mode)) remove(entry->d_name);
     res ++;
     result->push_back(entry->d_name);
   }
   closedir(d);
-  return deleteFile ? 0 : res;
+  return res;
 }
 
 uint32_t getSubFileSize(const std::string& path) {
   if (!FileExists(path)) mkdir(path.c_str(), 0755);
   DIR* d = opendir(path.c_str());
   if (d == NULL) {
-      printf("[Util] : Open dir failed\n");
+      printf("Open dir failed\n");
       return -1;
   }
   uint32_t size = 0;
@@ -84,7 +81,7 @@ int FileAppend(int fd, const std::string& value) {
       if (errno == EINTR) {
         continue;  // Retry
       }
-	     printf("[Util] : write data failed, fileappend\n");
+	     printf("write data failed, fileappend\n");
       return -1;
     }
     pos += r;
@@ -95,45 +92,6 @@ int FileAppend(int fd, const std::string& value) {
 
 bool FileExists(const std::string& path) {
   return access(path.c_str(), F_OK) == 0;
-}
-
-static int LockOrUnlock(int fd, bool lock) {
-  errno = 0;
-  struct flock f;
-  memset(&f, 0, sizeof(f));
-  f.l_type = (lock ? F_WRLCK : F_UNLCK);
-  f.l_whence = SEEK_SET;
-  f.l_start = 0;
-  f.l_len = 0;        // Lock/unlock entire file
-  return fcntl(fd, F_SETLK, &f);
-}
-
-int LockFile(const std::string& fname, FileLock** lock) {
-  *lock = NULL;
-  int result = 0;
-  int fd = open(fname.c_str(), O_RDWR | O_CREAT, 0644);
-  if (fd < 0) {
-    result = errno;
-  } else if (LockOrUnlock(fd, true) == -1) {
-    result = errno;
-    close(fd);
-  } else {
-    FileLock* my_lock = new FileLock;
-    my_lock->fd_ = fd;
-    my_lock->name_ = fname;
-    *lock = my_lock;
-  }
-  return result;
-}
-
-int UnlockFile(FileLock* lock) {
-  int result = 0;
-  if (LockOrUnlock(lock->fd_, false) == -1) {
-    result = errno;
-  }
-  close(lock->fd_);
-  delete lock;
-  return result;
 }
 
 

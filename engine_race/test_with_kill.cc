@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <set>
 
-static const char kEnginePath[] = "/tmp/midware/test_dump";
+static const char kEnginePath[] = "/tmp//midware/test_dump";
 
 using namespace polar_race;
 
@@ -280,7 +280,6 @@ int main()
     std::sort(keys.begin(), keys.end());
     auto last = std::unique(keys.begin(), keys.end());
     keys.erase(last, keys.end());
-    std::cout << engine->size() << " == " << keys.size() << std::endl;
     
     // Random Read
     auto rreadStart = std::chrono::high_resolution_clock::now();
@@ -296,6 +295,7 @@ int main()
     rreaders.clear();
     
     auto rreadEnd = std::chrono::high_resolution_clock::now();
+    std::cout << engine->size() << " == " << keys.size() << std::endl;
     std::cout << "Random read takes: "
               << std::chrono::duration<double, std::milli>(rreadEnd - rreadStart).count()
               << " milliseconds" << std::endl;
@@ -319,7 +319,7 @@ int main()
               << std::chrono::duration<double, std::milli>(sreadEnd - sreadStart).count()
               << " milliseconds" << std::endl;
     */
-              
+
     delete engine;
 
     return 0;
