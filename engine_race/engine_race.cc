@@ -86,11 +86,13 @@ EngineRace::~EngineRace() {
     delete keyFileMaps;
   }
   if (fdSize > 0) {
+      int* temp = fds;
       while (fdSize > 0) {
-        close(*fds);
-        fds ++;
+        close(*temp);
+        temp ++;
         fdSize --;
       }
+      delete[] fds;
   }
 }
 
