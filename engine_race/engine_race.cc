@@ -99,7 +99,7 @@ EngineRace::~EngineRace() {
 void EngineRace::initFile() {
   if (!FileExists(path) && 0 != mkdir(path.c_str(), 0755)) {
     printf("[EngineRace] : mkdir %s failed\n", path.c_str());
-    return 0;
+    return ;
   }
   uint32_t keyFileSize = getSubFileSize(path + keyFilePath);
   uint32_t valueFileSize = getSubFileSize(path + valueFilePath);
