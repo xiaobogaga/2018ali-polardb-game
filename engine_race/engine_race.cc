@@ -130,8 +130,8 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   FileAppend(keyWriteFile, key.ToString());
   FileAppend(valueWriteFile, value.ToString());
   totalSize ++;
-  if (totalSize >= 1000000) {
-    fprintf(stderr, "[EngineRace] : 1000000 data has been written\n");
+  if (totalSize >= 640000) {
+    fprintf(stderr, "[EngineRace] : 640000 data has been written\n");
     totalSize = 0;
   }
   // printf("writing data : %ld\n", totalSize);
