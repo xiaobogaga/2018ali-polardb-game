@@ -28,7 +28,7 @@ int GetDirFiles(const std::string& dir, std::vector<std::string>* result) {
   result->clear();
   DIR* d = opendir(dir.c_str());
   if (d == NULL) {
-	fprintf(stderr, "open dir failed, getdirfiles\n");
+	fprintf(stderr, "[EngineRace] : open dir failed, getdirfiles\n");
     return errno;
   }
   struct dirent* entry;
@@ -50,7 +50,7 @@ uint32_t getSubFileSize(const std::string& path) {
   }
   DIR* d = opendir(path.c_str());
   if (d == NULL) {
-      fprintf(stderr, "Open dir failed\n");
+      fprintf(stderr, "[EngineRace] : Open dir failed\n");
       return -1;
   }
   uint32_t size = 0;
@@ -84,7 +84,7 @@ int FileAppend(int fd, const std::string& value) {
       if (errno == EINTR) {
         continue;  // Retry
       }
-	  fprintf(stderr, "write data failed, fileappend\n");
+	  fprintf(stderr, "[EngineRace] : write data failed, fileappend\n");
       return -1;
     }
     pos += r;
