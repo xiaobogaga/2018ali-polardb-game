@@ -42,7 +42,7 @@ static void readOffset(int fd, uint64_t offset, std::string* value) {
       if (errno == EINTR) {
         continue;  // Retry
       }
-      printf("[EngineRace] : read file error\n");
+      fprintf(stderr, "[EngineRace] : read file error\n");
       close(fd);
       return;
     }
@@ -67,7 +67,7 @@ Engine::~Engine() {
 
 // 1. Open engine
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
-	printf("[EngineRace] : open engine and create an enginerace instance\n");
+    fprintf(stderr, "[EngineRace] : open engine and create an enginerace instance\n");
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   *eptr = engine_race;
@@ -98,7 +98,7 @@ EngineRace::~EngineRace() {
 
 void EngineRace::initFile() {
   if (!FileExists(path) && 0 != mkdir(path.c_str(), 0755)) {
-    printf("[EngineRace] : mkdir %s failed\n", path.c_str());
+    fprintf(stderr, "[EngineRace] : mkdir %s failed\n", path.c_str());
     return ;
   }
   uint32_t keyFileSize = getSubFileSize(path + keyFilePath);
@@ -108,17 +108,17 @@ void EngineRace::initFile() {
   std::string valueFileName(FileName(path, valueFilePath, valueFileSize));
   int fd = open(keyFileName.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
   if (fd < 0) {
-    printf("[EngineRace] : create key file failed\n");
+    fprintf(stderr, "[EngineRace] : create key file failed\n");
     return ;
   }
   keyWriteFile = fd;
   fd = open(valueFileName.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
   if (fd < 0) {
-    printf("[EngineRace] : create value file failed\n");
+    fprintf(stderr, "[EngineRace] : create value file failed\n");
     return;
   }
   valueWriteFile = fd;
-  printf("[EngineRace] : initFile finished\n");
+  fprintf(stderr, "[EngineRace] : initFile finished\n");
 }
 
 // 3. Write a key-value pair into engine
@@ -143,7 +143,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   std::string key2(key.ToString());
   std::map<std::string, uint64_t>::iterator ite = keyOffsetMaps->find(key2);
   if (ite == keyOffsetMaps->end()) {
-    printf("[EngineRace] : oops, key not found\n");
+    fprintf(stderr, "[EngineRace] : oops, key not found\n");
     code = kNotFound;
   } else {
     std::map<std::string, uint32_t>::iterator ite2 = keyFileMaps->find(key2);
@@ -156,7 +156,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 
 
 void EngineRace::initMaps() {
-  printf("[EngineRace] : initMaps\n");
+  fprintf(stderr, "[EngineRace] : initMaps\n");
   keyOffsetMaps = new std::map<std::string, uint64_t> ();
   keyFileMaps = new std::map<std::string, uint32_t> ();
   uint32_t length = getSubFileSize(path + keyFilePath);
@@ -169,7 +169,7 @@ void EngineRace::initMaps() {
     long long fileLength = GetFileLength(FileName(path, keyFilePath, i));
     int fd = open(FileName(path, keyFilePath, i).c_str(), O_RDONLY, 0644);
     if (fd < 0) {
-        printf("[EngineRace] : file %s not found\n", FileName(path, keyFilePath, i).c_str());
+        fprintf(stderr, "[EngineRace] : file %s not found\n", FileName(path, keyFilePath, i).c_str());
         return ;
     }
     void* ptr = mmap(NULL, fileLength, PROT_READ, MAP_SHARED, fd, 0);
@@ -183,17 +183,17 @@ void EngineRace::initMaps() {
       items_ ++;
       counter --;
     }
-    printf("[EngineRace] : read key file %s finished, items : %d\n", FileName(path, keyFilePath, i).c_str(), keyOffsetMaps->size());
+    fprintf(stderr, "[EngineRace] : read key file %s finished, items : %d\n", FileName(path, keyFilePath, i).c_str(), keyOffsetMaps->size());
     fds[i] = open(FileName(path, valueFilePath, i).c_str(), O_RDONLY, 0644);
     if (fds[i] < 0) {
-        printf("[EngineRace] : file %s not found\n", FileName(path, valueFilePath, i).c_str());
+        fprintf(stderr, "[EngineRace] : file %s not found\n", FileName(path, valueFilePath, i).c_str());
         return ;
     }
     munmap(items_, fileLength);
     close(fd);
   }
   totalSize = keyOffsetMaps->size();
-  printf("[EngineRace] : initMaps finished\n");
+  fprintf(stderr, "[EngineRace] : initMaps finished\n");
 }
 
 /*
