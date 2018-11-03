@@ -103,7 +103,7 @@ void EngineRace::initFile() {
   }
   uint32_t keyFileSize = getSubFileSize(path + keyFilePath);
   uint32_t valueFileSize = getSubFileSize(path + valueFilePath);
-  printf("[EngineRace] : key files : %d and value files : %d\n", keyFileSize, valueFileSize);
+  fprintf(stderr, "[EngineRace] : key files : %d and value files : %d\n", keyFileSize, valueFileSize);
   std::string keyFileName(FileName(path, keyFilePath, keyFileSize));
   std::string valueFileName(FileName(path, valueFilePath, valueFileSize));
   int fd = open(keyFileName.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
