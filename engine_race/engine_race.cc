@@ -26,7 +26,7 @@ struct Item {
 };
 
 static std::string FileName(const std::string& dir, const std::string& prefix, uint32_t fileno) {
-  return dir + "/" + prefix + "/" + std::to_string(fileno);
+  return dir + prefix + "/" + std::to_string(fileno);
 }
 
 static void readOffset(int fd, uint64_t offset, std::string* value) {
