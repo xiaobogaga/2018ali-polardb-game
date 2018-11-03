@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/file.h>
-
+#include <stdio.h>
 #include "util.h"
 
 namespace polar_race {
