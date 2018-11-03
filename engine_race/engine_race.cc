@@ -187,10 +187,12 @@ void EngineRace::initMaps() {
       items_ ++;
       counter --;
     }
-    fprintf(stderr, "[EngineRace] : read key file %s finished, items : %d\n", FileName(path, keyFilePath, i).c_str(), keyOffsetMaps->size());
+    fprintf(stderr, "[EngineRace] : read key file %s finished, items : %d\n", 
+        FileName(path, keyFilePath, i).c_str(), keyOffsetMaps->size());
     fds[i] = open(FileName(path, valueFilePath, i).c_str(), O_RDONLY, 0644);
     if (fds[i] < 0) {
-        fprintf(stderr, "[EngineRace] : file %s not found\n", FileName(path, valueFilePath, i).c_str());
+        fprintf(stderr, "[EngineRace] : file %s not found\n", 
+            FileName(path, valueFilePath, i).c_str());
         return ;
     }
     munmap(items_, fileLength);
