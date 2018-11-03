@@ -177,6 +177,11 @@ void EngineRace::initMaps() {
         return ;
     }
     void* ptr = mmap(NULL, fileLength, PROT_READ, MAP_SHARED, fd, 0);
+    if (ptr == MAP_FAILED) {
+        fprintf(stderr, "[EngineRace] : MAP_FAILED \n");
+        close(fd);
+        return ;
+    }
     Item* items_ = reinterpret_cast<Item*>(ptr);
     counter = (int) (fileLength / keySize);
     while (counter > 0) {
