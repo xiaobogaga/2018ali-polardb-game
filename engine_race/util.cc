@@ -87,6 +87,8 @@ int FileAppend(int fd, const std::string& value) {
     pos += r;
     value_len -= r;
   }
+  
+  flush(fd);
   return 0;
 }
 
