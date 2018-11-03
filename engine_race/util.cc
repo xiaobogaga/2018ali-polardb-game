@@ -44,7 +44,10 @@ int GetDirFiles(const std::string& dir, std::vector<std::string>* result) {
 }
 
 uint32_t getSubFileSize(const std::string& path) {
-  if (!FileExists(path)) mkdir(path.c_str(), 0755);
+  if (!FileExists(path) && 0 != mkdir(path.c_str(), 0755)) {
+    printf("[EngineRace] : make dir %s failed\n", path.c_str());
+    return 0;
+  }
   DIR* d = opendir(path.c_str());
   if (d == NULL) {
       printf("Open dir failed\n");
