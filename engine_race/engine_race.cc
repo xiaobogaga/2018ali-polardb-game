@@ -67,7 +67,7 @@ Engine::~Engine() {
 
 // 1. Open engine
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
-    fprintf(stderr, "[EngineRace] : open engine and create an enginerace instance\n");
+  fprintf(stderr, "[EngineRace] : open engine and create an enginerace instance\n");
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   *eptr = engine_race;
@@ -76,7 +76,7 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 
 // 2. Close engine
 EngineRace::~EngineRace() {
-  printf("[EngineRace] : closing db\n");
+  fprintf(stderr, "[EngineRace] : closing db\n");
   if (keyWriteFile >= 0) {
     close(keyWriteFile);
     close(valueWriteFile);
