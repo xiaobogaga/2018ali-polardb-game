@@ -5,7 +5,8 @@
 #include <string>
 #include "include/engine.h"
 #include "util.h"
-#include <map>
+#include "door_plate.h"
+#include "data_store.h"
 
 namespace polar_race {
 
@@ -14,8 +15,8 @@ class EngineRace : public Engine  {
   static RetCode Open(const std::string& name, Engine** eptr);
 
   explicit EngineRace(const std::string& dir)
-    : path(dir), mu_(PTHREAD_MUTEX_INITIALIZER), keyWriteFile(-1), valueWriteFile(-1),
-    keyOffsetMaps(NULL), keyFileMaps(NULL), fds(NULL), fdSize(0), totalSize(0) {
+    : mu_(PTHREAD_MUTEX_INITIALIZER),
+    db_lock_(NULL), plate_(dir), store_(dir) {
     }
 
   ~EngineRace();
@@ -26,32 +27,19 @@ class EngineRace : public Engine  {
   RetCode Read(const PolarString& key,
       std::string* value) override;
 
-  void initFile();
-
-  void initMaps();
-
-  int size() override;
-
-  /*
-   * NOTICE: Implement 'Range' in quarter-final,
-   *         you can skip it in preliminary.
-   */
   RetCode Range(const PolarString& lower,
       const PolarString& upper,
       Visitor &visitor) override;
 
- private: 
-  std::string path;
+  int size() override;
+
+ private:
   pthread_mutex_t mu_;
-  int keyWriteFile;
-  int valueWriteFile;
-  std::map<std::string, uint64_t>* keyOffsetMaps;
-  std::map<std::string, uint32_t>* keyFileMaps;
-  int* fds;
-  int fdSize;
-  long long totalSize;
+  FileLock* db_lock_;
+  DoorPlate plate_;
+  DataStore store_;
 };
 
 }  // namespace polar_race
 
-#endif  // ENGINE_RACE_ENGINE_RACE_H_
+#endif  // ENGINE_EXAMPLE_ENGINE_EXAMPLE_H_
