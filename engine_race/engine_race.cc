@@ -68,7 +68,7 @@ Engine::~Engine() {
 // 1. Open engine
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   fprintf(stderr, "[EngineRace] : open engine and create an enginerace instance\n");
-  *eptr = NULL;
+  // *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   *eptr = engine_race;
   return kSucc;
@@ -107,12 +107,14 @@ void EngineRace::initFile() {
   std::string keyFileName(FileName(path, keyFilePath, keyFileSize));
   std::string valueFileName(FileName(path, valueFilePath, valueFileSize));
   int fd = open(keyFileName.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
+  fprintf(stderr, "[EngineRace] : open file %s\n", keyFileName.c_str());
   if (fd < 0) {
     fprintf(stderr, "[EngineRace] : create key file failed\n");
     return ;
   }
   keyWriteFile = fd;
   fd = open(valueFileName.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
+  fprintf(stderr, "[EngineRace] : open file %s\n", valueFileName.c_str());
   if (fd < 0) {
     fprintf(stderr, "[EngineRace] : create value file failed\n");
     return;
@@ -130,7 +132,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   FileAppend(keyWriteFile, key.ToString());
   FileAppend(valueWriteFile, value.ToString());
   totalSize ++;
-  if (totalSize >= 639999) {
+  if (totalSize >= 100000) {
     fprintf(stderr, "[EngineRace] : 639999 data has been written\n");
     totalSize = 0;
   }
@@ -172,6 +174,7 @@ void EngineRace::initMaps() {
     offset = 0;
     long long fileLength = GetFileLength(FileName(path, keyFilePath, i));
     int fd = open(FileName(path, keyFilePath, i).c_str(), O_RDONLY, 0644);
+    fprintf(stderr, "[EngineRace] : open file %s\n", FileName(path, keyFilePath, i).c_str());
     if (fd < 0) {
         fprintf(stderr, "[EngineRace] : file %s not found\n", FileName(path, keyFilePath, i).c_str());
         return ;
@@ -195,6 +198,7 @@ void EngineRace::initMaps() {
     fprintf(stderr, "[EngineRace] : read key file %s finished, items : %d\n", 
         FileName(path, keyFilePath, i).c_str(), keyOffsetMaps->size());
     fds[i] = open(FileName(path, valueFilePath, i).c_str(), O_RDONLY, 0644);
+    fprintf(stderr, "[EngineRace] : open file %s\n", FileName(path, valueFilePath, i).c_str());
     if (fds[i] < 0) {
         fprintf(stderr, "[EngineRace] : file %s not found\n", 
             FileName(path, valueFilePath, i).c_str());
