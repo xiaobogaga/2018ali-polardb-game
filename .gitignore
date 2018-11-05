@@ -1,2 +1,5 @@
 engine_race/test*
-engine_race/Makefile
+engine_race/Make*
+*.o
+engine_race/li*
+lib
