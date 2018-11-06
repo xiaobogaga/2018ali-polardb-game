@@ -86,6 +86,7 @@ RetCode DoorPlate::Init() {
     return kIOError;
   }
   if (new_create) {
+	fprintf(stdrr, "[DoorPlate] : create a new mmap \n");
     memset(ptr, 0, map_size);
   }
 
@@ -113,6 +114,7 @@ int DoorPlate::CalcIndex(const std::string& key) {
 
   if (jcnt == kMaxDoorCnt) {
     // full
+	fprintf(stderr, "[DoorPlate] : puting failed since full\n");
     return -1;
   }
   return index;
@@ -133,7 +135,6 @@ RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
   if (iptr->in_use == 0) {
     // new item
     memcpy(iptr->key, key.data(), key.size());
-    iptr->key_size = key.size();
     iptr->in_use = 1;  // Place
   }
   iptr->location = l;
@@ -159,7 +160,7 @@ RetCode DoorPlate::GetRangeLocation(const std::string& lower,
     if (!it->in_use) {
       continue;
     }
-    std::string key(it->key, it->key_size);
+    std::string key(it->key, 8);
     if ((key >= lower || lower.empty())
         && (key < upper || upper.empty())) {
       locations->insert(std::pair<std::string, Location>(key, it->location));

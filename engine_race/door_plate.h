@@ -10,14 +10,13 @@
 
 namespace polar_race {
 
-static const uint32_t kMaxKeyLen = 32;
+static const uint32_t kMaxKeyLen = 8;
 
 struct Item {
-  Item() : key_size(0), in_use(0) {
+  Item() : in_use(0) {
   }
   Location location;
   char key[kMaxKeyLen];
-  uint32_t key_size;
   uint8_t in_use;
 };
 

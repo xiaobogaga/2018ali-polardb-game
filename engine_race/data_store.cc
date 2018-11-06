@@ -12,6 +12,8 @@ static const std::string dataFilePath("/data");
 static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
 static const int kSingleFileSize = 1024 * 1024 * 1024;
+static const int keysize = 8;
+static const int valuesize = 4096;
 
 static std::string FileName(const std::string &dir, uint32_t fileno) {
   return dir + "/" + kDataFilePrefix + std::to_string(fileno);
@@ -32,7 +34,11 @@ RetCode DataStore::Init() {
       fprintf(stderr, "[DataStore] : %s mkdir failed\n", dataPath.c_str());
       return kIOError;
   }
+}
 
+void DataStore::initFD() {
+  fprintf(stderr, "[DataStore] : initFD\n");
+  std::string dataPath = dir_ + dataFilePath;
   std::vector<std::string> files;
   GetDirFiles(dataPath, &files, false);
 
@@ -56,6 +62,8 @@ RetCode DataStore::Init() {
 
   // Get last data file offset
   int len = (int) GetFileLength(FileName(dataPath, last_no));
+  fprintf(stderr, "[DataStore] : open current file %s and length : %d\n", 
+	FileName(dataPath, last_no).c_str(), len);
   if (len > 0) {
     cur_offset = len;
   }
@@ -67,7 +75,13 @@ RetCode DataStore::Init() {
   return OpenCurFile();
 }
 
+
+
 RetCode DataStore::Append(const std::string& value, Location* location) {
+  if (fd_ < 0) {
+	  initFD();
+  }
+	
   if (value.size() > kSingleFileSize) {
     return kInvalidArgument;
   }
@@ -87,7 +101,6 @@ RetCode DataStore::Append(const std::string& value, Location* location) {
   }
   location->file_no = next_location_.file_no;
   location->offset = next_location_.offset;
-  location->len = value.size();
 
   next_location_.offset += location->len;
   return kSucc;
@@ -103,7 +116,7 @@ RetCode DataStore::Read(const Location& l, std::string* value) {
 
   char* buf = new char[l.len]();
   char* pos = buf;
-  uint32_t value_len = l.len;
+  uint32_t value_len = valuesize;
 
   while (value_len > 0) {
     ssize_t r = read(fd, pos, value_len);
@@ -112,6 +125,7 @@ RetCode DataStore::Read(const Location& l, std::string* value) {
         continue;  // Retry
       }
       close(fd);
+	  fprintf(stderr, "[DataStore] : read file failed\n");
       return kIOError;
     }
     pos += r;
