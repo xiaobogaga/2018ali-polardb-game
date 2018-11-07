@@ -3,3 +3,4 @@ engine_race/Make*
 *.o
 engine_race/li*
 lib
+engine_java/target
