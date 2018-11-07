@@ -26,13 +26,14 @@ public class Test {
         Thread.sleep(1000 * 15); // 15s.
         WriterPro.shutdown = true;
 		WriterPro.countDownLatch.await();
-        System.err.println("start reading");
+        System.err.printf("writed %d different items and start reading\n", WriterPro.maps.size());
         ReaderPro.startReader(WriterPro.engine, WriterPro.maps, thread_size, write_size);
 		WriterPro.engine.close();
         // performance test.
 		System.err.println("Performance Test");
         WriterPro.shutdown = false;
         WriterPro.testPerformance(thread_size, write_size);
+        System.err.printf("writed %d different items and start reading\n", WriterPro.maps.size());
         ReaderPro.testPerformance(WriterPro.engine, WriterPro.maps, thread_size, write_size);
         
     }

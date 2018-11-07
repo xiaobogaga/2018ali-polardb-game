@@ -29,8 +29,8 @@ public class Test {
     private static long wrap(int offset, int fileNo) {
         long ans = 0;
         for (int i = 0; i < 32; i++) {
-            ans |= (((offset >>> i) & 1) << i);
-            ans |= (((fileNo >>> i) & 1) << (32 + i));
+            ans |= ( ((long) ((offset >>> i) & 1)) << i);
+            ans |= ( ((long) ((fileNo >>> i) & 1)) << (32 + i));
         }
         return ans;
     }
@@ -45,8 +45,8 @@ public class Test {
 
     private static int unwrapFileNo(long wrapper) {
         int ans = 0;
-        for (int i = 32; i < 64; i++) {
-            ans |= (((wrapper >>> i) & 1) << (32 - i));
+        for (int i = 0; i < 32; i++) {
+            ans |= (((wrapper >>> (i + 32) ) & 1) << i);
         }
         return ans;
     }
@@ -55,7 +55,7 @@ public class Test {
 
         HashMap<Integer, Integer> maps = new HashMap<Integer, Integer> ();
         Random rand = new Random(System.currentTimeMillis());
-        int test = 10;
+        int test = 10000;
         while (test > 0) {
             int temp1 = rand.nextInt();
             int temp2 = rand.nextInt();
@@ -70,7 +70,10 @@ public class Test {
             long ans = wrap(temp1, temp2);
             int ans1 = unwrapOffset(ans);
             int ans2 = unwrapFileNo(ans);
-            if (ans1 != temp1 || ans2 != temp2) System.out.println("failed");
+            if (ans1 != temp1 || ans2 != temp2) {
+                System.out.println("failed, " + temp1 + " != " + ans1 + " , "
+                        + temp2 + " != " + ans2);
+            }
         }
 
     }

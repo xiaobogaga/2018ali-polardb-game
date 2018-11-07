@@ -49,7 +49,7 @@ public class EngineRace extends AbstractEngine {
                 File valuePath = new File(PATH + VALUE_PATH);
                 if (!valuePath.exists()) { valuePath.mkdirs(); }
 				this.fileNo = valuePath.listFiles().length;
-				if (this.fileNo != 0) this.fileNo--;
+				if (this.fileNo == 0) this.fileNo ++;
                 valueWriteFile = new RandomAccessFile(
                         new File(PATH + VALUE_PATH + String.valueOf(fileNo)), "rw");
                 offset = valueWriteFile.length();
@@ -79,13 +79,14 @@ public class EngineRace extends AbstractEngine {
     }
 
     @Override
-    public synchronized void write(byte[] key, byte[] value) throws EngineException {
+    public synchronized void write(byte[] key, byte[] value)
+            throws EngineException {
         if (valueWriteFile == null) initFile();
         try {
             if (this.offset >= singleFileSize) {
                 openNewFile();
             }
-            keyWriteFile.addOrUpdate(keyToLong(key), this.offset, this.fileNo);
+            keyWriteFile.addOrUpdate(keyToLong(key), (int) this.offset, this.fileNo);
             valueWriteFile.write(value);
             this.offset += VALUE_SIZE;
             counter ++;
@@ -112,10 +113,10 @@ public class EngineRace extends AbstractEngine {
             File valuePath = new File(PATH + VALUE_PATH);
             int size = valuePath.listFiles().length;
 			readFiles = new RandomAccessFile[size];
-            for (int i = 0; i < size; i++) {
+            for (int i = 1; i <= size; i++) {
                 RandomAccessFile file = new RandomAccessFile(new File(PATH +
                         VALUE_PATH + String.valueOf(i)), "r");
-                readFiles[i] = file;
+                readFiles[i - 1] = file;
             }
             System.err.printf("init readfiles finished. %d files\n", size);
         } catch (IOException e) {
@@ -126,7 +127,7 @@ public class EngineRace extends AbstractEngine {
     private byte[] getData(Location l) {
         try {
             byte[] ans = new byte[(int) VALUE_SIZE];
-            RandomAccessFile file = readFiles[(int) l.fileNo];
+            RandomAccessFile file = readFiles[(int) l.fileNo - 1];
             file.seek(l.offset);
             file.readFully(ans);
             return ans;
@@ -150,7 +151,8 @@ public class EngineRace extends AbstractEngine {
     }
 
     @Override
-    public void range(byte[] lower, byte[] upper, AbstractVisitor visitor) throws EngineException {
+    public void range(byte[] lower, byte[] upper, AbstractVisitor visitor)
+            throws EngineException {
         visitAll(visitor);
     }
 

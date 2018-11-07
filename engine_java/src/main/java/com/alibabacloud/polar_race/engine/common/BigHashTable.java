@@ -28,7 +28,9 @@ public class BigHashTable {
 
 	private LongBuffer buffer;
 
-	public static int size = 1024 * 1024 * 32 * 2; //这个究竟可以设置多大.
+	public static int size = 1024 * 1024 * 32 * 3; //这个究竟可以设置多大.
+
+	// public static int size = 1024 * 50;
 
 	public static long item_size = 8 * 2;
 
@@ -76,20 +78,20 @@ public class BigHashTable {
 	}
 
 	private void update(int loc, int offset, int fileNo) {
-		loc = loc * 4;
+		loc = loc * 2;
 		buffer.put(loc + 1, wrap(offset, fileNo));
 	}
 
-	private long wrap(int offset, int fileNo) {
+	private static long wrap(int offset, int fileNo) {
 		long ans = 0;
 		for (int i = 0; i < 32; i++) {
-			ans |= (((offset >>> i) & 1) << i);
-			ans |= (((fileNo >>> i) & 1) << (32 + i));
+			ans |= ( ((long) ((offset >>> i) & 1)) << i);
+			ans |= ( ((long) ((fileNo >>> i) & 1)) << (32 + i));
 		}
 		return ans;
 	}
 
-	private int unwrapOffset(long wrapper) {
+	private static int unwrapOffset(long wrapper) {
 		int ans = 0;
 		for (int i = 0; i < 32; i++) {
 			ans |= (((wrapper >>> i) & 1) << i);
@@ -97,39 +99,38 @@ public class BigHashTable {
 		return ans;
 	}
 
-	private int unwrapFileNo(long wrapper) {
+	private static int unwrapFileNo(long wrapper) {
 		int ans = 0;
-		for (int i = 32; i < 64; i++) {
-			ans |= (((wrapper >>> i) & 1) << (32 - i));
+		for (int i = 0; i < 32; i++) {
+			ans |= (((wrapper >>> (i + 32) ) & 1) << i);
 		}
 		return ans;
 	}
 
 
 	public void put(int loc, long key, int offset, int fileNo) {
-		loc = loc * 4;
+		loc = loc * 2;
 		this.buffer.put(loc, key);
-		this.buffer.put(loc + 1, offset);
-		this.buffer.put(loc + 2, fileNo);
-		this.buffer.put(loc + 3, 1l);
+		this.buffer.put(loc + 1, wrap(offset, fileNo));
 	}
 
 
 	private boolean isUse(long loc) {
 		// System.out.println("Loc : " + loc);
-		return this.buffer.get( (int) (loc * 4 + 3) ) == 1l;
+		return unwrapFileNo(this.buffer.get( (int) (loc * 2 + 1) )) != 0;
 	}
 
 	private boolean match(int loc, long key) {
-		return this.buffer.get(loc * 4) == key;
+		return this.buffer.get(loc * 2) == key;
 	}
 
 	public Location tryGet(long key) {
 		int loc = hashCode(key) % this.size;
 		while (isUse(loc)) {
 			if (match(loc, key)) {
-				Location ans = new Location(this.buffer.get(loc * 4 + 1), 
-					this.buffer.get(loc * 4 + 2));
+				long info = this.buffer.get(loc * 2 + 1);
+				Location ans = new Location(unwrapOffset(info),
+					unwrapFileNo(info));
 				if (EngineRace.printAll)
 					System.err.printf("found %d at %d with offset %d and fileNo  %d\n", key,
 						loc, ans.offset, ans.fileNo);

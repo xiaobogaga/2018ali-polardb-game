@@ -30,7 +30,7 @@ public class TempTest {
     private static long keyToLong(byte[] key) {
         long ans = 0;
         for (int i = 0; i < 64; i++) {
-            ans |= (((long) (key[i / 8] >>> (i % 8))) << i);
+            ans |= ((long) ((key[i / 8] >>> (i % 8)) & 1)) << i;
         }
         return ans;
     }
@@ -57,7 +57,7 @@ public class TempTest {
 
     public static void main(String args[]) throws IOException, EngineException {
         EngineRace engine = new EngineRace();
-        String PATH = "c://tmp/midware/temptest";
+        String PATH = "/tmp/midware/temptest";
         engine.open(PATH);
         HashMap<Long, Holder> maps = new HashMap<Long, Holder>();
 
