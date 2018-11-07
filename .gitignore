@@ -4,3 +4,12 @@ engine_race/Make*
 engine_race/li*
 lib
 engine_java/target
+.idea
+engine_java/.idea
+engine_java/.project
+engine_java/.classpath
+engine_java/*.impl
+*.iml
+*.impl
+engine_java/*.iml
+
