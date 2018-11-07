@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+	基本的idea是维持一个Keyfile和valuefile。每次写入的时候写入keyfile和valuefile。
+	在读的时候，一次性加载keyfile。并且构造hashmap。
  */
 public class EngineRace1 extends AbstractEngine {
 
@@ -65,8 +67,10 @@ public class EngineRace1 extends AbstractEngine {
 				String valueFileName = String.valueOf(valuePath.listFiles().length);
                 keyWriteFile = new RandomAccessFile(
 					new File(PATH + KEY_PATH + keyFileName), "rw");
+				keyWriteFile.seek(keyWriteFile.length());
 				valueWriteFile = new RandomAccessFile(
 					new File(PATH + VALUE_PATH + valueFileName), "rw");
+				valueWriteFile.seek(valueWriteFile.length());
             } catch (IOException e) {
                 e.printStackTrace();
             }

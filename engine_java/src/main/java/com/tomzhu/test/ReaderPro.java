@@ -113,7 +113,6 @@ public class ReaderPro {
         for (int i = 0; i < THREAD_SIZE; i++) threads[i] = new Thread(new ReaderTask());
         for (int i = 0; i < THREAD_SIZE; i++) threads[i].start();
         countDownLatch.await();
-        // engine.close();
     }
 
     public static void testPerformance(EngineRace engine1, HashMap<Long, WriterPro.Holder> data,

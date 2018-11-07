@@ -147,7 +147,7 @@ public class WriterPro {
         for (int i = 0; i < thread_size; i++) threads[i] = new Thread(new WriterTask());
         for (int i = 0; i < thread_size; i++) threads[i].start();
         countDownLatch.await();
-        engine.close();
+        // engine.close();
         System.err.println("finish writing. speed : " +
                 ( (WRITER_TIMES * thread_size) /
                         ((System.currentTimeMillis() - startTime)

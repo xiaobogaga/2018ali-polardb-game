@@ -121,13 +121,6 @@ public class BigHashTable {
 
 	public void close() {
 		System.err.println("closing bighashtable");
-		try {
-			this.channel.close();
-			this.mmapedFile.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 		AccessController.doPrivileged(new PrivilegedAction() {
 
 			public Object run() {
@@ -143,6 +136,13 @@ public class BigHashTable {
 			}
 			
 		});
+		
+		try {
+			this.mmapedFile.close();
+			this.channel.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 

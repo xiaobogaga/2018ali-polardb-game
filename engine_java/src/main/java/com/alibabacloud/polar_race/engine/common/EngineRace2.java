@@ -10,12 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * a engine race implementation. this implementation doesn't holds a index for data, instead, it just
- * use a data file, and it would init index when reading. this strategy would decrease IO times, which
- * I think is more efficient than using index.
- *
- * Note that this class assume that there is no same key. for example, its update use no same key.
- * and its range query would iterate all keys, if there are same key, it would iterator twice.
+	这里的基本idea是让每个线程写自己的文件。但是threadlocal会耗费内存。不推荐使用。
  */
 public class EngineRace2 extends AbstractEngine {
 

@@ -13,7 +13,7 @@ public class EngineRace extends AbstractEngine {
 	
 	public static boolean printAll = false;
 
-	private final int singleFileSize = 1024 * 4 * 1024;
+	private final long singleFileSize = 1024 * 4 * 1024 * 64;
     private final String VALUE_PATH = "/value/";
     private final String MMAP_PATH = "/mmap/";
 	private BigHashTable keyWriteFile;
@@ -53,7 +53,9 @@ public class EngineRace extends AbstractEngine {
                 valueWriteFile = new RandomAccessFile(
                         new File(PATH + VALUE_PATH + String.valueOf(fileNo)), "rw");
                 offset = valueWriteFile.length();
-                System.err.println("initFile finished. value files size: " + valuePath.listFiles().length +
+				valueWriteFile.seek(offset);
+                System.err.println("initFile finished. value files size: " + 
+					valuePath.listFiles().length +
                         " , current File : " + valueWriteFile.length());
             } catch (IOException e) {
                 e.printStackTrace();

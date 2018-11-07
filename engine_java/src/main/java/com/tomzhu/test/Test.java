@@ -26,10 +26,9 @@ public class Test {
         Thread.sleep(1000 * 15); // 15s.
         WriterPro.shutdown = true;
 		WriterPro.countDownLatch.await();
-		// WriterPro.engine.close();
         System.err.println("start reading");
-        WriterPro.engine = new EngineRace();
         ReaderPro.startReader(WriterPro.engine, WriterPro.maps, thread_size, write_size);
+		WriterPro.engine.close();
         // performance test.
 		System.err.println("Performance Test");
         WriterPro.shutdown = false;
