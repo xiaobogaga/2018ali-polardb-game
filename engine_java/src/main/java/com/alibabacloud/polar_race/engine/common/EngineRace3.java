@@ -147,10 +147,10 @@ public class EngineRace3 extends AbstractEngine {
 		return keyVersionMaps.get(l).getAndIncrement();
     }
 
-    private long keyToLong(byte[] key) {
+    private static long keyToLong(byte[] key) {
         long ans = 0;
         for (int i = 0; i < 64; i++) {
-            ans |= (((long) (key[i / 8] >>> (i % 8))) << i);
+            ans |= ((long) ((key[i / 8] >>> (i % 8)) & 1)) << i;
         }
         return ans;
     }

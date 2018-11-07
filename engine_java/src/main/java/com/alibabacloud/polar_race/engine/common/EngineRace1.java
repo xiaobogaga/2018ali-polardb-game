@@ -76,7 +76,7 @@ public class EngineRace1 extends AbstractEngine {
     private static long keyToLong(byte[] key) {
         long ans = 0;
         for (int i = 0; i < 64; i++) {
-            ans |= (((long) (key[i / 8] >>> (i % 8))) << i);
+            ans |= ((long) ((key[i / 8] >>> (i % 8)) & 1)) << i;
         }
         return ans;
     }

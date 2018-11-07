@@ -1,5 +1,6 @@
 package com.tomzhu.test;
 
+import com.alibabacloud.polar_race.engine.common.EngineRace;
 import com.alibabacloud.polar_race.engine.common.EngineRace1;
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 
@@ -55,23 +56,23 @@ public class TempTest {
     }
 
     public static void main(String args[]) throws IOException, EngineException {
-        EngineRace1 engine = new EngineRace1();
+        EngineRace engine = new EngineRace();
         String PATH = "c://tmp/midware/temptest";
         engine.open(PATH);
         HashMap<Long, Holder> maps = new HashMap<Long, Holder>();
 
-        int size = 2;
+        int size = 20000;
         for (int i = 0; i < size; i++) {
             byte[] key = new byte[KEY_SIZE];
             byte[] value = new byte[VALUE_SIZE];
             generateRandomKey(key);
             generateRandomValue(value);
             maps.put(keyToLong(key), new Holder(value));
-            System.out.println("puting key : " + keyToLong(key));
+           // System.out.println("puting key : " + keyToLong(key));
             engine.write(key, value);
         }
         engine.close();
-        engine = new EngineRace1();
+        engine = new EngineRace();
         engine.open(PATH);
         for (Map.Entry<Long, Holder> entry : maps.entrySet()) {
             byte[] key = new byte[8];

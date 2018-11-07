@@ -57,7 +57,7 @@ public class WriterPro {
     private static long keyToLong(byte[] key) {
         long ans = 0;
         for (int i = 0; i < 64; i++) {
-            ans |= (((long) (key[i / 8] >>> (i % 8))) << i);
+            ans |= ((long) ((key[i / 8] >>> (i % 8)) & 1)) << i;
         }
         return ans;
     }
@@ -68,13 +68,35 @@ public class WriterPro {
         }
         return ans;
     }
+	
+	public static String byteToBitString(byte b) {
+        return ""
+                + (byte) ((b >> 7) & 0x1) + (byte) ((b >> 6) & 0x1)
+                + (byte) ((b >> 5) & 0x1) + (byte) ((b >> 4) & 0x1)
+                + (byte) ((b >> 3) & 0x1) + (byte) ((b >> 2) & 0x1)
+                + (byte) ((b >> 1) & 0x1) + (byte) ((b >> 0) & 0x1);
+    }
+	
+	public static String printKey(byte[] key) {
+		StringBuilder build = new StringBuilder();
+		for (int i = 0; i < KEY_SIZE; i++) {
+			build.append(byteToBitString(key[i]));
+		}
+		return build.toString();
+	}
 
     public static synchronized void writeAValue(byte[] key, byte[] value) {
         generateRandomKey(key);
         generateRandomValue(value);
         try {
+			long l = keyToLong(key);
             engine.write(key, value);
-            maps.put(keyToLong(key), new Holder(value));
+			byte[] key2 = new byte[KEY_SIZE];
+			parse(l, key2);
+            maps.put(l, new Holder(value));
+			// if (EngineRace.printAll) System.err.printf("add a key %d with bits1: %s, bits2: %s\n",
+			   // l, printKey(key), printKey(key2));;
+            if (EngineRace.printAll) System.err.printf("add a key %d\n", l);
         } catch (EngineException e) {
             e.printStackTrace();
         }
@@ -126,7 +148,7 @@ public class WriterPro {
         for (int i = 0; i < thread_size; i++) threads[i].start();
         countDownLatch.await();
         engine.close();
-        System.out.println("finish writing. speed : " +
+        System.err.println("finish writing. speed : " +
                 ( (WRITER_TIMES * thread_size) /
                         ((System.currentTimeMillis() - startTime)
                         / 1000.0)) + " ops");
