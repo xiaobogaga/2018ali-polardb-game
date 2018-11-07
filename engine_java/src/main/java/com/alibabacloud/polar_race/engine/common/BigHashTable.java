@@ -28,9 +28,9 @@ public class BigHashTable {
 
 	private LongBuffer buffer;
 
-	private int size = 1024 * 1024 * 32;
+	public static int size = 1024 * 1024 * 32 * 2; //这个究竟可以设置多大.
 
-	private long item_size = 8 * 4;
+	public static long item_size = 8 * 2;
 
 	public BigHashTable(String PATH, String filePath) {
 		this.PATH = PATH;
@@ -54,7 +54,7 @@ public class BigHashTable {
 		return ans;
 	}
 
-	public void addOrUpdate(long key, long offset, long fileNo) {
+	public void addOrUpdate(long key, int offset, int fileNo) {
 		int loc = hashCode(key) % this.size;
 		while (isUse(loc)) {
 			if (match(loc, key)) {
@@ -75,13 +75,38 @@ public class BigHashTable {
 		put(loc, key, offset, fileNo);
 	}
 
-	private void update(int loc, long offset, long fileNo) {
+	private void update(int loc, int offset, int fileNo) {
 		loc = loc * 4;
-		buffer.put(loc + 1, offset);
-		buffer.put(loc + 2, fileNo);
+		buffer.put(loc + 1, wrap(offset, fileNo));
 	}
 
-	public void put(int loc, long key, long offset, long fileNo) {
+	private long wrap(int offset, int fileNo) {
+		long ans = 0;
+		for (int i = 0; i < 32; i++) {
+			ans |= (((offset >>> i) & 1) << i);
+			ans |= (((fileNo >>> i) & 1) << (32 + i));
+		}
+		return ans;
+	}
+
+	private int unwrapOffset(long wrapper) {
+		int ans = 0;
+		for (int i = 0; i < 32; i++) {
+			ans |= (((wrapper >>> i) & 1) << i);
+		}
+		return ans;
+	}
+
+	private int unwrapFileNo(long wrapper) {
+		int ans = 0;
+		for (int i = 32; i < 64; i++) {
+			ans |= (((wrapper >>> i) & 1) << (32 - i));
+		}
+		return ans;
+	}
+
+
+	public void put(int loc, long key, int offset, int fileNo) {
 		loc = loc * 4;
 		this.buffer.put(loc, key);
 		this.buffer.put(loc + 1, offset);

@@ -24,7 +24,7 @@ public class ReaderPro {
     public static int VALUE_SIZE = 1024 * 4;
     private static long seed = 9054860549l;
     private static Random random = new Random(seed);
-    private static String PATH = "C://tmp/midware/test";
+    private static String PATH = "/tmp/midware/test";
 
     public static void generateRandomKey(byte[] key) {
         random.nextBytes(key);
@@ -35,7 +35,7 @@ public class ReaderPro {
         public void testOneRead(byte[] key, boolean empty) {
             try {
                 byte[] value = engine.read(key);
-				System.err.println("key " + keyToLong(key) + "'s value: " + Arrays.toString(value));
+				if (EngineRace.printAll) System.err.println("key " + keyToLong(key) + "'s value: " + Arrays.toString(value));
                 if (!empty && !Arrays.equals(value, maps.get(keyToLong(key)).value)) {
                     engine.close();
                     System.err.println("find an unmatching key : " + keyToLong(key));
