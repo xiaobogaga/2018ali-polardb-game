@@ -13,7 +13,7 @@ public class EngineRace extends AbstractEngine {
 	
 	public static boolean printAll = false;
 
-	private final long singleFileSize = 1024 * 4 * 1024;
+	private final long singleFileSize = 1024 * 100 * 1024;
     private final String VALUE_PATH = "/value/";
     private final String MMAP_PATH = "/mmap/";
 	private BigHashTable keyWriteFile;
