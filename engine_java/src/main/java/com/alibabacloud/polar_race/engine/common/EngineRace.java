@@ -24,10 +24,10 @@ public class EngineRace extends AbstractEngine {
     private int fileNo = -1;
     private long offset = 0;
     private RandomAccessFile[] readFiles;
-
     public EngineRace() {
         System.err.println("creating an engineRace instance");
     }
+    private long time;
 
     @Override
     public void open(String path) throws EngineException {
@@ -39,6 +39,7 @@ public class EngineRace extends AbstractEngine {
         counter = 0;
 		fileNo = -1;
 		offset = 0;
+		time = System.currentTimeMillis();
     }
 
     private void initFile() {
@@ -90,7 +91,12 @@ public class EngineRace extends AbstractEngine {
             valueWriteFile.write(value);
             this.offset += VALUE_SIZE;
             counter ++;
-            if (counter > 1000000) { System.err.println("writing 1000000 data"); counter = 0;}
+            if (counter > 1000000) {
+                System.err.println("writing 1000000 data and spend " +
+                    (System.currentTimeMillis() - time));
+                     counter = 0;
+                     time = System.currentTimeMillis();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,7 +109,7 @@ public class EngineRace extends AbstractEngine {
         this.fileNo ++;
         String fileName = PATH + VALUE_PATH + String.valueOf(this.fileNo);
         valueWriteFile = new RandomAccessFile(new File(fileName), "rw");
-        System.err.printf("create new file %s\n", fileName);
+        // System.err.printf("create new file %s\n", fileName);
     }
 
     private void initMaps() {
@@ -139,6 +145,13 @@ public class EngineRace extends AbstractEngine {
 
     @Override
     public synchronized byte[] read(byte[] key) throws EngineException {
+        counter ++;
+        if (counter > 1000000) {
+            System.out.println("reading 1000000 data and consume time " +
+                    (System.currentTimeMillis() - time));
+            counter = 0;
+            time = System.currentTimeMillis();
+        }
         if (keyWriteFile == null) initMaps();
         long l = keyToLong(key);
         Location ans = null;
