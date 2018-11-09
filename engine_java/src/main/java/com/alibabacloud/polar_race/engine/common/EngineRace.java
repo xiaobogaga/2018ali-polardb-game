@@ -155,7 +155,7 @@ public class EngineRace extends AbstractEngine {
         if (keyWriteFile == null) initMaps();
         long l = keyToLong(key);
         long ans = 0;
-        if ( (ans = keyWriteFile.tryGet()) != -1) {
+        if ( (ans = keyWriteFile.tryGet(l)) != -1) {
             return getData(unwrapOffset(ans), unwrapFileNo(ans));
         } else {
 			// System.err.println("key not found");
