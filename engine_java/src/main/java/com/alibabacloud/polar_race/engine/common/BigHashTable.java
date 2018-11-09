@@ -47,6 +47,7 @@ public class BigHashTable {
 		this.channel = mmapedFile.getChannel();
 		this.hashTable = this.channel.map(FileChannel.MapMode.READ_WRITE, 
 			0l, size * item_size);
+		this.hashTable.load();
 		this.buffer = this.hashTable.asLongBuffer();
 	}
 
