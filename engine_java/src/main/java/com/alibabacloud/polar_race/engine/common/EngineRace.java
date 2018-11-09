@@ -130,11 +130,11 @@ public class EngineRace extends AbstractEngine {
         }
     }
 
-    private byte[] getData(Location l) {
+    private byte[] getData(int offset, int fileNo) {
         try {
             byte[] ans = new byte[(int) VALUE_SIZE];
-            RandomAccessFile file = readFiles[(int) l.fileNo - 1];
-            file.seek(l.offset);
+            RandomAccessFile file = readFiles[fileNo - 1];
+            file.seek(offset);
             file.readFully(ans);
             return ans;
         } catch (IOException e) {
@@ -154,14 +154,30 @@ public class EngineRace extends AbstractEngine {
         }
         if (keyWriteFile == null) initMaps();
         long l = keyToLong(key);
-        Location ans = null;
-        if ( (ans = keyWriteFile.tryGet(l)) != null) {
-            return getData(ans);
+        long ans = 0;
+        if ( (ans = keyWriteFile.tryGet()) != -1) {
+            return getData(unwrapOffset(ans), unwrapFileNo(ans));
         } else {
 			// System.err.println("key not found");
             throw new EngineException(RetCodeEnum.NOT_FOUND, "not found");
 		}
     }
+    
+    private static int unwrapOffset(long wrapper) {
+		int ans = 0;
+		for (int i = 0; i < 32; i++) {
+			ans |= (((wrapper >>> i) & 1) << i);
+		}
+		return ans;
+	}
+
+	private static int unwrapFileNo(long wrapper) {
+		int ans = 0;
+		for (int i = 0; i < 32; i++) {
+			ans |= (((wrapper >>> (i + 32) ) & 1) << i);
+		}
+		return ans;
+	}
 
     @Override
     public void range(byte[] lower, byte[] upper, AbstractVisitor visitor)
