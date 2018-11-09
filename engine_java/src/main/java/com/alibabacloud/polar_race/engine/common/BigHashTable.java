@@ -125,17 +125,15 @@ public class BigHashTable {
 		return this.buffer.get(loc * 2) == key;
 	}
 
-	public Location tryGet(long key) {
+	public long tryGet(long key) {
 		int loc = hashCode(key) % this.size;
 		while (isUse(loc)) {
 			if (match(loc, key)) {
 				long info = this.buffer.get(loc * 2 + 1);
-				Location ans = new Location(unwrapOffset(info),
-					unwrapFileNo(info));
 				if (EngineRace.printAll)
 					System.err.printf("found %d at %d with offset %d and fileNo  %d\n", key,
-						loc, ans.offset, ans.fileNo);
-				return ans;
+						loc, unwrapOffset(info), unwrapFileNo(info));
+				return info;
 			}
 			if (EngineRace.printAll) 
 				System.err.printf("reading. conflict for %d try a new place\n", key);
@@ -143,7 +141,7 @@ public class BigHashTable {
 		}
 		if (EngineRace.printAll)
 			System.err.printf("not found %d\n", key);
-		return null;
+		return -1;
 	}
 
 	public void close() {
