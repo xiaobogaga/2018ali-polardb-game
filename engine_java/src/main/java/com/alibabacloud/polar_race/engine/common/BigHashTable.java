@@ -68,21 +68,21 @@ public class BigHashTable {
 		while (isUse(loc)) {
 			if (match(loc, key)) {
 				writingConflictTime += (System.currentTimeMillis() - currentTime);
-				if (EngineRace.printAll) 
-					System.err.printf(
-						"update %d with offset %d and fileNo %d, loc : %d\n", 
-							key, offset, fileNo, loc);;
+	//			if (EngineRace.printAll) 
+	//				System.err.printf(
+	//					"update %d with offset %d and fileNo %d, loc : %d\n", 
+	//						key, offset, fileNo, loc);;
 				update(loc, offset, fileNo);
 				return ;
 			}
-			if (EngineRace.printAll) System.err.printf("Writing. conflict for %d try a new place\n", 
-				key);
+	//		if (EngineRace.printAll) System.err.printf("Writing. conflict for %d try a new place\n", 
+	//			key);
 			loc = (loc + 1) % this.size;
 		}
 		writingConflictTime += (System.currentTimeMillis() - currentTime);
-		if (EngineRace.printAll) 
-			System.err.printf("insert %d with offset %d and fileNo %d, loc : %d\n", 
-				key, offset, fileNo, loc);;
+	//	if (EngineRace.printAll) 
+	//		System.err.printf("insert %d with offset %d and fileNo %d, loc : %d\n", 
+	//			key, offset, fileNo, loc);;
 		put(loc, key, offset, fileNo);
 	}
 
@@ -140,18 +140,18 @@ public class BigHashTable {
 			if (match(loc, key)) {
 				readingConflictTime += (System.currentTimeMillis() - currentTime);
 				long info = this.buffer.get(loc * 2 + 1);
-				if (EngineRace.printAll)
-					System.err.printf("found %d at %d with offset %d and fileNo  %d\n", key,
-						loc, unwrapOffset(info), unwrapFileNo(info));
+			//	if (EngineRace.printAll)
+			//		System.err.printf("found %d at %d with offset %d and fileNo  %d\n", key,
+			//			loc, unwrapOffset(info), unwrapFileNo(info));
 				return info;
 			}
-			if (EngineRace.printAll) 
-				System.err.printf("reading. conflict for %d try a new place\n", key);
+		//	if (EngineRace.printAll) 
+		//		System.err.printf("reading. conflict for %d try a new place\n", key);
 			loc = (loc + 1) % this.size;
 		}
 		readingConflictTime += (System.currentTimeMillis() - currentTime);
-		if (EngineRace.printAll)
-			System.err.printf("not found %d\n", key);
+	//	if (EngineRace.printAll)
+	//		System.err.printf("not found %d\n", key);
 		return -1;
 	}
 
