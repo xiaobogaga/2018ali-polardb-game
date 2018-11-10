@@ -135,10 +135,10 @@ public class BigHashTable {
 
 	public long tryGet(long key) {
 		int loc = hashCode(key) % this.size;
-		long newTime = System.currentTimeMillis();
+		long currentTime = System.currentTimeMillis();
 		while (isUse(loc)) {
 			if (match(loc, key)) {
-				readingConflictTime += (System.currentTimeMillis() - newTime);
+				readingConflictTime += (System.currentTimeMillis() - currentTime);
 				long info = this.buffer.get(loc * 2 + 1);
 				if (EngineRace.printAll)
 					System.err.printf("found %d at %d with offset %d and fileNo  %d\n", key,
@@ -149,7 +149,7 @@ public class BigHashTable {
 				System.err.printf("reading. conflict for %d try a new place\n", key);
 			loc = (loc + 1) % this.size;
 		}
-		readingConflictTime += (System.currentTimeMillis() - newTime());
+		readingConflictTime += (System.currentTimeMillis() - currentTime);
 		if (EngineRace.printAll)
 			System.err.printf("not found %d\n", key);
 		return -1;
