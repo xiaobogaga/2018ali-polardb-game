@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 #include "util.h"
 #include "data_store.h"
@@ -36,7 +37,7 @@ RetCode DataStore::Init() {
   }
 }
 
-void DataStore::initFD() {
+RetCode DataStore::initFD() {
   fprintf(stderr, "[DataStore] : initFD\n");
   std::string dataPath = dir_ + dataFilePath;
   std::vector<std::string> files;
@@ -54,7 +55,7 @@ void DataStore::initFD() {
     }
     sindex = (*it).substr(kDataFilePrefixLen);
     // fprintf(stderr, "[DataStore] : file : %s and index: %d for index %s \n", 
-      (*it).c_str(), std::stoi(sindex), sindex.c_str());
+    //  (*it).c_str(), std::stoi(sindex), sindex.c_str());
     if (std::stoul(sindex) > last_no) {
       last_no = std::stoi(sindex);
     }

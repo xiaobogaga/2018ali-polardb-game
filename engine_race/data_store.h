@@ -39,7 +39,7 @@ class DataStore  {
   RetCode Init();
   RetCode Read(const Location& l, std::string* value);
   RetCode Append(const std::string& value, Location* location);
-  void initFD();
+  RetCode initFD();
 
  private:
   int fd_;
