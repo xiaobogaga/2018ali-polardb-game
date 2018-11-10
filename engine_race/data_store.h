@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <string>
+#include <pthread.h>
 #include <map>
 #include "include/engine.h"
 
@@ -46,7 +47,7 @@ class DataStore  {
   std::string dir_;
   Location next_location_;
   std::map<int, int> readFiles;
-  std::map<int, char*> threadBuffer;
+  std::map<pthread_t, char*> threadBuffer;
   RetCode OpenCurFile();
 };
 

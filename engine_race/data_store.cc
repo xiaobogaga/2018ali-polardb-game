@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+#include <pthread.h>
 #include <vector>
 #include "util.h"
 #include "data_store.h"
@@ -120,10 +120,10 @@ RetCode DataStore::Read(const Location& l, std::string* value) {
  
   lseek(fd, l.offset, SEEK_SET);
   char* buf = NULL;
-  int tid = gettid();
+  pthread_t tid = pthread_self();
   if (threadBuffer.count(tid) <= 0) {
 	buf = new char[valuesize]();
-	threadBuffer.insert(std::pair<int, char*> (tid, buf));
+	threadBuffer.insert(std::pair<pthread_t, char*> (tid, buf));
   } else buf = threadBuffer.find(tid)->second;
   char* pos = buf;
   uint32_t value_len = valuesize;
