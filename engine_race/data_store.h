@@ -32,7 +32,7 @@ class DataStore  {
 			close(it->second);
 	}
 	if (!threadBuffer.empty()) {
-		for (std::map<int,char*>::iterator it=threadBuffer.begin(); it != threadBuffer.end(); ++it)
+		for (std::map<pthread_t,char*>::iterator it=threadBuffer.begin(); it != threadBuffer.end(); ++it)
 			delete[] it->second;
 	}
   }
