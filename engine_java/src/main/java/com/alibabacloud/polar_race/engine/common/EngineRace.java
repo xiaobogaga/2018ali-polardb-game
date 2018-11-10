@@ -25,7 +25,7 @@ public class EngineRace extends AbstractEngine {
     private int fileNo = -1;
     private long offset = 0;
     private RandomAccessFile[] readFiles;
-	private HashMap<Long, Holder> threadLocals;
+	// private HashMap<Long, Holder> threadLocals;
     public EngineRace() {
         System.err.println("creating an engineRace instance");
     }
@@ -40,7 +40,7 @@ public class EngineRace extends AbstractEngine {
     public void open(String path) throws EngineException {
         System.err.println("open db");
         if (PATH == null) PATH = path;
-		threadLocals = null;
+	//	threadLocals = null;
         valueWriteFile = null;
         keyWriteFile = null;
         readFiles = null;
@@ -122,7 +122,7 @@ public class EngineRace extends AbstractEngine {
 
     private void initMaps() {
         keyWriteFile = new BigHashTable(this.PATH, this.MMAP_PATH);
-		threadLocals = new HashMap<Long, Holder> ();
+		// threadLocals = new HashMap<Long, Holder> ();
         try {
             keyWriteFile.init();
             File valuePath = new File(PATH + VALUE_PATH);
@@ -141,16 +141,16 @@ public class EngineRace extends AbstractEngine {
 
     private byte[] getData(int offset, int fileNo) {
         try {
-			Holder ans = null;
-			long tid = Thread.currentThread().getId();
-			if ( (ans = threadLocals.get(tid)) == null ) {
-				ans = new Holder();
-				threadLocals.put(tid, ans);
-			}
+			byte[] ans = new byte[VALUE_SIZE];
+	//		long tid = Thread.currentThread().getId();
+	//		if ( (ans = threadLocals.get(tid)) == null ) {
+	//			ans = new Holder();
+	//			threadLocals.put(tid, ans);
+	//		}
             RandomAccessFile file = readFiles[fileNo - 1];
             file.seek(offset);
-            file.readFully(ans.buffer);
-            return ans.buffer;
+            file.readFully(ans);
+            return ans;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -227,7 +227,7 @@ public class EngineRace extends AbstractEngine {
         keyWriteFile = null;
         valueWriteFile = null;
         readFiles = null;
-		threadLocals = null;
+		// threadLocals = null;
     }
 
 }
