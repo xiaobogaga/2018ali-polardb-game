@@ -25,6 +25,7 @@ import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 	 private String midNodeFileName = "mid";
 	 private RandomAccessFile leafNodeFile;
 	 private RandomAccessFile midNodeFile;
+	 private long conflictTime = 0l;
 	 
 	 public EBPlusTree(String path, int leaf_order, int mid_order) {
 		 this.PATH = path;
@@ -34,6 +35,7 @@ import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 	 }
 	 
 	 private void init() {
+		 conflictTime = 0;
 		 System.err.println("init EBPlusTree");
 		 this.leafNodeFile = new RandomAccessFile(new File(this.PATH + leafNodeFileName), "rw");
 		 this.midNodeFile = new RandomAccessFile(new File(this.PATH + midNodeFileName), "rw");
@@ -60,6 +62,7 @@ import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 		 /*
 		 
 		 */
+		 return 0l;
 	 }
 	 
 	

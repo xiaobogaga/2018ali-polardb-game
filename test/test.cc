@@ -27,14 +27,13 @@ private:
 int main() {
   Engine *engine = NULL;
 
-  RetCode ret = Engine::Open(kEnginePath, &engine);
+  RetCode ret = Engine::Open(kDumpPath, &engine);
   assert (ret == kSucc);
 
-
-  ret = engine->Write("aaa", "aaaaaaaaaaa");
+  ret = engine->Write("aaaaaaaa", "aaaaaaaaaaa");
   assert (ret == kSucc);
-  ret = engine->Write("aaa", "111111111111111111111111111111111111111111");
-  ret = engine->Write("aaa", "2222222");
+  ret = engine->Write("aaaaaaaa", "111111111111111111111111111111111111111111");
+  ret = engine->Write("bbbbbbbb", "2222222");
   ret = engine->Write("aaa", "33333333333333333333");
   ret = engine->Write("aaa", "4");
 

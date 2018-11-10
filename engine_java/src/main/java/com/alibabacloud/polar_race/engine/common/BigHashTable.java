@@ -33,6 +33,9 @@ public class BigHashTable {
 	// public static int size = 1024 * 50;
 
 	public static long item_size = 8 * 2;
+	
+	private long readingConflictTime = 0l;
+	private long writingConflictTime = 0l;
 
 	public BigHashTable(String PATH, String filePath) {
 		this.PATH = PATH;
@@ -40,6 +43,8 @@ public class BigHashTable {
 	}
 	
 	public void init() throws IOException {
+		readingConflictTime = 0l;
+		writingConflictTime = 0l;
 		System.err.println("init mapped");
 		File path = new File(this.PATH + filePath);
 		if (!path.exists()) path.mkdirs();
@@ -59,8 +64,10 @@ public class BigHashTable {
 
 	public void addOrUpdate(long key, int offset, int fileNo) {
 		int loc = hashCode(key) % this.size;
+		long currentTime = System.currentTimeMillis();
 		while (isUse(loc)) {
 			if (match(loc, key)) {
+				writingConflictTime += (System.currentTimeMillis() - currentTime);
 				if (EngineRace.printAll) 
 					System.err.printf(
 						"update %d with offset %d and fileNo %d, loc : %d\n", 
@@ -72,6 +79,7 @@ public class BigHashTable {
 				key);
 			loc = (loc + 1) % this.size;
 		}
+		writingConflictTime += (System.currentTimeMillis() - currentTime);
 		if (EngineRace.printAll) 
 			System.err.printf("insert %d with offset %d and fileNo %d, loc : %d\n", 
 				key, offset, fileNo, loc);;
@@ -127,8 +135,10 @@ public class BigHashTable {
 
 	public long tryGet(long key) {
 		int loc = hashCode(key) % this.size;
+		long newTime = System.currentTimeMillis();
 		while (isUse(loc)) {
 			if (match(loc, key)) {
+				readingConflictTime += (System.currentTimeMillis() - newTime);
 				long info = this.buffer.get(loc * 2 + 1);
 				if (EngineRace.printAll)
 					System.err.printf("found %d at %d with offset %d and fileNo  %d\n", key,
@@ -139,13 +149,16 @@ public class BigHashTable {
 				System.err.printf("reading. conflict for %d try a new place\n", key);
 			loc = (loc + 1) % this.size;
 		}
+		readingConflictTime += (System.currentTimeMillis() - newTime());
 		if (EngineRace.printAll)
 			System.err.printf("not found %d\n", key);
 		return -1;
 	}
 
 	public void close() {
-		System.err.println("closing bighashtable");
+		System.err.println("closing bighashtable. reading conflictTime = " 
+			+ ((readingConflictTime) / 1000) + " , writing conflictTime = " + 
+			((writingConflictTime) / 1000));
 		AccessController.doPrivileged(new PrivilegedAction() {
 
 			public Object run() {

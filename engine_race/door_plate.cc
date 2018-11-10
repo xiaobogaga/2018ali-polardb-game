@@ -18,12 +18,14 @@ static const std::string kMetaFileName("META");
 static const int kMaxRangeBufCount = kMaxDoorCnt;
 
 static bool ItemKeyMatch(const Item &item, const std::string& target) {
+	
   if (target.size() != 8
       || memcmp(item.key, target.data(), 8) != 0) {
     // Conflict
     return false;
   }
   return true;
+  
 }
 
 static bool ItemTryPlace(const Item &item, const std::string& target) {
