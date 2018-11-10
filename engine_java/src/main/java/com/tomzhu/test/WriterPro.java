@@ -40,7 +40,7 @@ public class WriterPro {
     private static Random random = new Random(seed);
     // public static EngineRace2 engine;
 	public static EngineRace engine;
-    private static String PATH = "/tmp/midware/test";
+    private static String PATH = "c://tmp/midware/test";
     public static HashMap<Long, Holder> maps;
     public static volatile boolean shutdown = false;
     public static CountDownLatch countDownLatch;
