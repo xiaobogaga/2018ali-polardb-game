@@ -102,20 +102,20 @@ RetCode DataStore::Append(const std::string& value, Location* location) {
   location->file_no = next_location_.file_no;
   location->offset = next_location_.offset;
 
-  next_location_.offset += location->len;
+  next_location_.offset += 8;
   return kSucc;
 }
 
 RetCode DataStore::Read(const Location& l, std::string* value) {
   int fd = -1;
-  if (readFiles.count(l.fileNo) <= 0) {
+  if (readFiles.count(l.file_no) <= 0) {
 	fd = open(FileName(dir_ + dataFilePath, l.file_no).c_str(), O_RDONLY, 0644);
 	if (fd < 0) {
 		fprintf(stderr, "[DataStore] : open file for read failed\n");
 		return kIOError;
 	}
-	readFiles.insert(std::pair<int, int> (l.fileNo, fd));
-  } else fd = readFiles.find(l.fileNo)->second;
+	readFiles.insert(std::pair<int, int> (l.file_no, fd));
+  } else fd = readFiles.find(l.file_no)->second;
  
   lseek(fd, l.offset, SEEK_SET);
   char* buf = NULL;
