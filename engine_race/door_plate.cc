@@ -18,8 +18,8 @@ static const std::string kMetaFileName("META");
 static const int kMaxRangeBufCount = kMaxDoorCnt;
 
 static bool ItemKeyMatch(const Item &item, const std::string& target) {
-  if (target.size() != item.key_size
-      || memcmp(item.key, target.data(), item.key_size) != 0) {
+  if (target.size() != 8
+      || memcmp(item.key, target.data(), 8) != 0) {
     // Conflict
     return false;
   }
@@ -86,7 +86,7 @@ RetCode DoorPlate::Init() {
     return kIOError;
   }
   if (new_create) {
-	fprintf(stdrr, "[DoorPlate] : create a new mmap \n");
+	fprintf(stderr, "[DoorPlate] : create a new mmap \n");
     memset(ptr, 0, map_size);
   }
 
@@ -106,7 +106,7 @@ DoorPlate::~DoorPlate() {
 // Very easy hash table, which deal conflict only by try the next one
 int DoorPlate::CalcIndex(const std::string& key) {
   uint32_t jcnt = 0;
-  int index = StrHash(key.data(), key.size()) % kMaxDoorCnt;
+  int index = StrHash(key.data(), 8) % kMaxDoorCnt;
   while (!ItemTryPlace(*(items_ + index), key)
       && ++jcnt < kMaxDoorCnt) {
     index = (index + 1) % kMaxDoorCnt;
@@ -121,9 +121,6 @@ int DoorPlate::CalcIndex(const std::string& key) {
 }
 
 RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
-  if (key.size() > kMaxKeyLen) {
-    return kInvalidArgument;
-  }
 
   int index = CalcIndex(key);
   if (index < 0) {
@@ -134,7 +131,7 @@ RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
   Item* iptr = items_ + index;
   if (iptr->in_use == 0) {
     // new item
-    memcpy(iptr->key, key.data(), key.size());
+    memcpy(iptr->key, key.data(), 8);
     iptr->in_use = 1;  // Place
   }
   iptr->location = l;
