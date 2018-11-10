@@ -35,6 +35,7 @@ RetCode DataStore::Init() {
       fprintf(stderr, "[DataStore] : %s mkdir failed\n", dataPath.c_str());
       return kIOError;
   }
+  return kSucc;
 }
 
 RetCode DataStore::initFD() {
