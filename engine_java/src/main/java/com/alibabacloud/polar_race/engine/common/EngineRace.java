@@ -5,6 +5,7 @@ import com.alibabacloud.polar_race.engine.common.exceptions.RetCodeEnum;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.io.RandomAccessFile;
 
 /**
@@ -24,15 +25,22 @@ public class EngineRace extends AbstractEngine {
     private int fileNo = -1;
     private long offset = 0;
     private RandomAccessFile[] readFiles;
+	private HashMap<Long, Holder> threadLocals;
     public EngineRace() {
         System.err.println("creating an engineRace instance");
     }
     private long time;
+	
+	
+	class Holder {
+		public byte[] buffer = new byte[(int) VALUE_SIZE];
+	}
 
     @Override
     public void open(String path) throws EngineException {
         System.err.println("open db");
         if (PATH == null) PATH = path;
+		threadLocals = null;
         valueWriteFile = null;
         keyWriteFile = null;
         readFiles = null;
@@ -114,6 +122,7 @@ public class EngineRace extends AbstractEngine {
 
     private void initMaps() {
         keyWriteFile = new BigHashTable(this.PATH, this.MMAP_PATH);
+		threadLocals = new HashMap<Long, Holder> ();
         try {
             keyWriteFile.init();
             File valuePath = new File(PATH + VALUE_PATH);
@@ -132,11 +141,16 @@ public class EngineRace extends AbstractEngine {
 
     private byte[] getData(int offset, int fileNo) {
         try {
-            byte[] ans = new byte[(int) VALUE_SIZE];
+			Holder ans = null;
+			long tid = Thread.currentThread().getId();
+			if ( (ans = threadLocals.get(tid)) == null ) {
+				ans = new Holder();
+				threadLocals.put(tid, ans);
+			}
             RandomAccessFile file = readFiles[fileNo - 1];
             file.seek(offset);
-            file.readFully(ans);
-            return ans;
+            file.readFully(ans.buffer);
+            return ans.buffer;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -213,6 +227,7 @@ public class EngineRace extends AbstractEngine {
         keyWriteFile = null;
         valueWriteFile = null;
         readFiles = null;
+		threadLocals = null;
     }
 
 }
