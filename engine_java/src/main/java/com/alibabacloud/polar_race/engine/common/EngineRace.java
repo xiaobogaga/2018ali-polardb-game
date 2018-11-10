@@ -141,7 +141,7 @@ public class EngineRace extends AbstractEngine {
 
     private byte[] getData(int offset, int fileNo) {
         try {
-			byte[] ans = new byte[VALUE_SIZE];
+			byte[] ans = new byte[(int) VALUE_SIZE];
 	//		long tid = Thread.currentThread().getId();
 	//		if ( (ans = threadLocals.get(tid)) == null ) {
 	//			ans = new Holder();
