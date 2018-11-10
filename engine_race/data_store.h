@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <string>
+#include <map>
 #include "include/engine.h"
 
 namespace polar_race {
@@ -25,6 +26,14 @@ class DataStore  {
     if (fd_ > 0) {
       close(fd_);
     }
+	if (!readFiles.empty()) {
+		  for (std::map<int,int>::iterator it=readFiles.begin(); it != readFiles.end(); ++it)
+			close(it->second);
+	}
+	if (!threadBuffer.empty()) {
+		for (std::map<int,char*>::iterator it=threadBuffer.begin(); it != threadBuffer.end(); ++it)
+			delete[] it->second;
+	}
   }
 
   RetCode Init();
@@ -35,7 +44,8 @@ class DataStore  {
   int fd_;
   std::string dir_;
   Location next_location_;
-
+  std::map<int, int> readFiles;
+  std::map<int, char*> threadBuffer;
   RetCode OpenCurFile();
 };
 

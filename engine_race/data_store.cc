@@ -11,7 +11,7 @@ namespace polar_race {
 static const std::string dataFilePath("/data");
 static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
-static const int kSingleFileSize = 1024 * 1024 * 1024;
+static const int kSingleFileSize = 1024 * 1024 * 256;
 static const int keysize = 8;
 static const int valuesize = 4096;
 
@@ -53,7 +53,7 @@ void DataStore::initFD() {
       continue;
     }
     sindex = (*it).substr(kDataFilePrefixLen);
-    fprintf(stderr, "[DataStore] : file : %s and index: %d for index %s \n", 
+    // fprintf(stderr, "[DataStore] : file : %s and index: %d for index %s \n", 
       (*it).c_str(), std::stoi(sindex), sindex.c_str());
     if (std::stoul(sindex) > last_no) {
       last_no = std::stoi(sindex);
@@ -107,17 +107,25 @@ RetCode DataStore::Append(const std::string& value, Location* location) {
 }
 
 RetCode DataStore::Read(const Location& l, std::string* value) {
-  int fd = open(FileName(dir_ + dataFilePath, l.file_no).c_str(), O_RDONLY, 0644);
-  if (fd < 0) {
-    fprintf(stderr, "[DataStore] : open file for read failed\n");
-    return kIOError;
-  }
+  int fd = -1;
+  if (readFiles.count(l.fileNo) <= 0) {
+	fd = open(FileName(dir_ + dataFilePath, l.file_no).c_str(), O_RDONLY, 0644);
+	if (fd < 0) {
+		fprintf(stderr, "[DataStore] : open file for read failed\n");
+		return kIOError;
+	}
+	readFiles.insert(std::pair<int, int> (l.fileNo, fd));
+  } else fd = readFiles.find(l.fileNo)->second;
+ 
   lseek(fd, l.offset, SEEK_SET);
-
-  char* buf = new char[l.len]();
+  char* buf = NULL;
+  int tid = gettid();
+  if (threadBuffer.count(tid) <= 0) {
+	buf = new char[valuesize]();
+	threadBuffer.insert(std::pair<int, char*> (tid, buf));
+  } else buf = threadBuffer.find(tid)->second;
   char* pos = buf;
   uint32_t value_len = valuesize;
-
   while (value_len > 0) {
     ssize_t r = read(fd, pos, value_len);
     if (r < 0) {
@@ -131,10 +139,7 @@ RetCode DataStore::Read(const Location& l, std::string* value) {
     pos += r;
     value_len -= r;
   }
-  *value = std::string(buf, l.len);
-
-  delete buf;
-  close(fd);
+  *value = std::string(buf, valuesize);
   return kSucc;
 }
 
