@@ -17,7 +17,7 @@ public class RangerPro {
     public static int RANGE_TIMES = 2;
     public static int KEY_SIZE = 8;
     public static int VALUE_SIZE = 1024 * 4;
-    private static String PATH = "C://tmp/midware/test";
+    private static String PATH = "/tmp/midware/test";
     public static class RangerReadTask implements Runnable {
 
         public void testOneRangeRead() {

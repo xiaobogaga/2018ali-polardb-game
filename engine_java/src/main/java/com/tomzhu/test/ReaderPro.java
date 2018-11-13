@@ -24,7 +24,7 @@ public class ReaderPro {
     public static int VALUE_SIZE = 1024 * 4;
     private static long seed = 9054860549l;
     private static Random random = new Random(seed);
-    private static String PATH = "c://tmp/midware/test";
+    private static String PATH = "/tmp/midware/test";
 
     public static void generateRandomKey(byte[] key) {
         random.nextBytes(key);

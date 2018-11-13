@@ -152,7 +152,34 @@ public class BPlusTree {
         return node;
     }
 
+    private static long wrap(int offset, int fileNo) {
+        long ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans |= ( ((long) ((offset >>> i) & 1)) << i);
+            ans |= ( ((long) ((fileNo >>> i) & 1)) << (32 + i));
+        }
+        return ans;
+    }
+
+    private static int unwrapOffset(long wrapper) {
+        int ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans |= (((wrapper >>> i) & 1) << i);
+        }
+        return ans;
+    }
+
+    private static int unwrapFileNo(long wrapper) {
+        int ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans |= (((wrapper >>> (i + 32) ) & 1) << i);
+        }
+        return ans;
+    }
+
     public void add(long key, long info) {
+        // System.err.println("engine add : " + key + " , offset : " + unwrapOffset(info) +
+           //     " , fileNo : " + unwrapFileNo(info) + " , wrapped : " + info);
         if (this.root == null) {
             this.rootOffset = 0;
             this.isRootLeaf = 1l;
@@ -201,10 +228,13 @@ public class BPlusTree {
         if (cache.containsKey(key)) return cache.get(key);
         Node ans = this.search(key);
         if (ans != null) {
-            long info = ans.leafNode.getInfo(key);
+            long info = ans.leafNode.engineGetInfo(key);
+            // System.err.println("engine get : " + key + " , offset : " + unwrapOffset(info) +
+               //     " , fileNo : " + unwrapFileNo(info) + " , wrapped : " + info);
             cache.put(key, info);
             return info;
         } else {
+            // System.err.println("engine get : " + key + " cannot find");
             cache.put(key, -1l);
             return -1l;
         }
@@ -551,6 +581,16 @@ public class BPlusTree {
                 return buffer[ans * 2 + 1];
             }
             return null;
+        }
+
+        public long engineGetInfo(long key) {
+            int size = (int) this.getSize();
+            this.readBuffer(buffer, size);
+            int ans = binarySearch(key, size);
+            if (ans != -1 && buffer[ans * 2] == key) {
+                return buffer[ans * 2 + 1];
+            }
+            return -1l;
         }
 
         /**
