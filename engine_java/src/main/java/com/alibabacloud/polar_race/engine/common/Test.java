@@ -1,7 +1,12 @@
 package com.alibabacloud.polar_race.engine.common;
 
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
+import com.tomzhu.tree.LongLongTreeMap;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -51,31 +56,62 @@ public class Test {
         return ans;
     }
 
-    public static void main(String args[]) throws EngineException {
+    public static void main(String args[]) throws EngineException, IOException {
 
-        HashMap<Integer, Integer> maps = new HashMap<Integer, Integer> ();
         Random rand = new Random(System.currentTimeMillis());
-        int test = 10000;
-        while (test > 0) {
-            int temp1 = rand.nextInt();
-            int temp2 = rand.nextInt();
-            if (maps.containsKey(temp1)) continue;
-            else maps.put(temp1, temp2);
-            test --;
+        RandomAccessFile tempFile = new RandomAccessFile(new File("/tmp/test_perf"), "rw");
+        int size = 64000000;
+        int unique = 11000000;
+        long[] nums = new long[11000000];
+        for (int i = 0; i < unique; i++) {
+            long temp = rand.nextLong();
+            nums[i] = temp;
+            tempFile.writeLong(temp);
+            tempFile.writeLong(temp);
         }
 
-        for (Map.Entry<Integer, Integer> entry : maps.entrySet()) {
-            int temp1 = entry.getKey();
-            int temp2 = entry.getValue();
-            long ans = wrap(temp1, temp2);
-            int ans1 = unwrapOffset(ans);
-            int ans2 = unwrapFileNo(ans);
-            if (ans1 != temp1 || ans2 != temp2) {
-                System.out.println("failed, " + temp1 + " != " + ans1 + " , "
-                        + temp2 + " != " + ans2);
+        for (int i = 0; i < (size - unique) ; i++) {
+            long temp = rand.nextLong();
+            if (i % 6 == 0) {
+                if (temp < 0) temp = -temp;
+                long v = nums[(int) (temp % unique) ];
+                tempFile.writeLong(v);
+                tempFile.writeLong(v);
+            }
+            tempFile.writeLong(temp);
+            tempFile.writeLong(temp);
+        }
+
+        tempFile.close();
+
+        System.out.println("writing finished");
+        long startTime = System.currentTimeMillis();
+        LongLongTreeMap maps = new LongLongTreeMap();
+        RandomAccessFile read = new RandomAccessFile(new File("/tmp/test_perf"), "r");
+        long keyOffset = 64000000 * 2;
+        int pos = 0;
+        int len = 1024 * 4 * 1024 * 16;
+        byte[] buffer = new byte[len];
+        for (int i = 0; i < keyOffset; ) {
+            read.readFully(buffer);
+            for (int j = 0; j < len; j+= 8) {
+                long k = readLong(buffer, j);
+                j += 8;
+                long info = readLong(buffer, j);
+                i += 2;
+                if (i >= keyOffset) break;
+                maps.insert(k, info);
             }
         }
+        System.out.println("spend time : " + ((System.currentTimeMillis() - startTime) / 1000));
+    }
 
+    public static long readLong(byte[] key, int from) {
+        long ans = 0;
+        for (int i = 0; i < 64; i++) {
+            ans |= ((long) ((key[ (from + i) / 8] >>> (i % 8)) & 1)) << i;
+        }
+        return ans;
     }
 
 }

@@ -3,10 +3,13 @@ package com.alibabacloud.polar_race.engine.common;
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 import com.alibabacloud.polar_race.engine.common.exceptions.RetCodeEnum;
 import com.tomzhu.tree.LongLongTreeMap;
+import sun.nio.ch.DirectBuffer;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.nio.LongBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -180,7 +183,6 @@ public class EngineRace extends AbstractEngine {
                 for (int i = 0; i < keyOffset;) {
                     long k = this.keyLongBuffer.get();
                     long info = this.keyLongBuffer.get();
-                    // System.out.println("getting key : " + k + " , info : " + info);
                     this.maps.insert(k, info);
                     i += 2;
                 }
@@ -223,6 +225,85 @@ public class EngineRace extends AbstractEngine {
         }
     }
 
+    public long readLong(byte[] key, int from) {
+        long ans = 0;
+        for (int i = 0; i < 64; i++) {
+            ans |= ((long) ((key[from + i / 8] >>> (i % 8)) & 1)) << i;
+        }
+        return ans;
+    }
+
+    public void readFully(FileChannel channel, ByteBuffer buffer) throws IOException {
+        buffer.clear();
+        int ret = 1;
+        while (ret >= 0 && buffer.hasRemaining()) {
+            ret = channel.read(buffer);
+        }
+    }
+
+    public void initMaps2() {
+        if (maps == null) {
+            try {
+                this.maps = new LongLongTreeMap();
+                File valuePath = new File(PATH + VALUE_PATH);
+                this.metaFile = new RandomAccessFile(PATH + META_PATH + this.metaFileName, "r");
+                this.metaMappedBuffer = this.metaFile.getChannel().map(FileChannel.MapMode.READ_ONLY,
+                        0, metaFileSize);
+                this.metaLongBuffer = this.metaMappedBuffer.asLongBuffer();
+                this.keyOffset = (int) this.metaLongBuffer.get(0);
+                this.fileNo = valuePath.listFiles().length;
+                keyWriteFile = new RandomAccessFile(new File(PATH + KEY_PATH + this.keyFileName), "r");
+                FileChannel channel = keyWriteFile.getChannel();
+                int len = 1024 * 1024;
+                ByteBuffer byteBuffer = ByteBuffer.allocateDirect(len);
+                for (int i = 0; i < keyOffset; ) {
+                    readFully(channel, byteBuffer);
+                    byteBuffer.rewind();
+                    for (int j = 0; j < len; j+= 8) {
+                        long k = byteBuffer.getLong();
+                        j += 8;
+                        long info = byteBuffer.getLong();
+                        i += 2;
+                        maps.insert(k, info);
+                        if (i >= keyOffset) break;
+                    }
+                }
+
+                ((DirectBuffer) byteBuffer).cleaner().clean();
+
+                AccessController.doPrivileged(new PrivilegedAction() {
+
+                    public Object run() {
+                        try {
+                            Method getCleanerMethod = metaMappedBuffer.getClass().getMethod("cleaner",new Class[0]);
+                            getCleanerMethod.setAccessible(true);
+                            sun.misc.Cleaner cleaner =(sun.misc.Cleaner)getCleanerMethod.invoke(metaMappedBuffer,new Object[0]);
+                            cleaner.clean();
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                });
+                keyWriteFile.close();
+                metaFile.close();
+                keyWriteFile = null;
+                metaFile = null;
+                this.readFiles = new RandomAccessFile[this.fileNo];
+                StringBuilder build = new StringBuilder();
+                build.append(PATH).append(VALUE_PATH);
+                for (int i = 0; i < this.fileNo; i++) {
+                    int l = build.length();
+                    this.readFiles[i] = new RandomAccessFile(build.append(i + 1).toString(), "r");
+                    build.delete(l, build.length());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private byte[] getData(long l) {
         try {
             byte[] ans = new byte[(int) VALUE_SIZE];
@@ -238,9 +319,10 @@ public class EngineRace extends AbstractEngine {
 
     @Override
     public synchronized byte[] read(byte[] key) throws EngineException {
-        if (maps == null) initMaps();
+        if (maps == null) initMaps2();
         long l = keyToLong(key);
         long ans = maps.get(l);
+        // System.out.println("getting key : " + l + " , info : " + ans);
         if (ans != -1l)
             return getData(ans);
         else throw new EngineException(RetCodeEnum.NOT_FOUND, "not found");

@@ -61,14 +61,14 @@ public class TempTest {
         engine.open(PATH);
         HashMap<Long, Holder> maps = new HashMap<Long, Holder>();
 
-        int size = 10000;
+        int size = 6400;
         for (int i = 0; i < size; i++) {
             byte[] key = new byte[KEY_SIZE];
             byte[] value = new byte[VALUE_SIZE];
             generateRandomKey(key);
             generateRandomValue(value);
             maps.put(keyToLong(key), new Holder(value));
-            //System.out.println("puting key : " + keyToLong(key));
+           // System.out.println("puting key : " + keyToLong(key));
             engine.write(key, value);
         }
         engine.close();
