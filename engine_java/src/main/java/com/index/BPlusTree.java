@@ -73,7 +73,7 @@ public class BPlusTree {
     private LongBuffer midLongBuffer;
     private LongBuffer leafLongBuffer;
     private int metaSize = 1024 * 4;
-    private int leafMappedMaxSize = 1024 * 1024 * 512;
+    private int leafMappedMaxSize = 1024 * 1024 * 768;
     private int midMappedMaxSize = 1024 * 1024 * 64;
 
     private int LEAF_LENGTH_THRESHOLD = (LeafBlock - 4 * 8) / 16;

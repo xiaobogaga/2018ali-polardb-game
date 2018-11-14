@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.io.RandomAccessFile;
+import java.util.TreeMap;
 
 /**
  */
@@ -246,6 +247,7 @@ public class EngineRace extends AbstractEngine {
         keyWriteFile = null;
         valueWriteFile = null;
         readFiles = null;
+        ansBuffer = null;
     }
 
 }
