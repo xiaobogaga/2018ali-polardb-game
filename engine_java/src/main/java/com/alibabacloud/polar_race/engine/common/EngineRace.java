@@ -173,7 +173,7 @@ public class EngineRace extends AbstractEngine {
         long l = keyToLong(key);
         if (ansBuffer.containsKey(l))  {
             Holder t = ansBuffer.get(l);
-            if (t == null) new EngineException(RetCodeEnum.NOT_FOUND, "not found");
+            if (t == null) throw new EngineException(RetCodeEnum.NOT_FOUND, "not found");
             else return t.buffer;
         }
         long ans = 0;
