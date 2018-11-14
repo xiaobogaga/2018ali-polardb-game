@@ -2,42 +2,41 @@ package com.alibabacloud.polar_race.engine.common;
 
 import com.alibabacloud.polar_race.engine.common.exceptions.EngineException;
 import com.alibabacloud.polar_race.engine.common.exceptions.RetCodeEnum;
-
+import com.tomzhu.tree.LongLongTreeMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
+import java.nio.LongBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
-import java.util.Map;
 
-/**
-	基本的idea是维持一个Keyfile和valuefile。每次写入的时候写入keyfile和valuefile。
-	在读的时候，一次性加载keyfile。并且构造hashmap。
- */
 public class EngineRace1 extends AbstractEngine {
 
-    private final String KEY_PATH = "/key/";
+    private final int singleFileSize = 1024 * 1024 * 256;
+    private final String KEY_PATH = "/key/key";
 	private final String VALUE_PATH = "/value/";
-    private final String MMAP_PATH = "/mmap/";
-   // private MappedByteBuffer buffer;
-    private RandomAccessFile keyWriteFile;
-	private RandomAccessFile valueWriteFile;
+    private final String META_PATH = "/meta/meta";
+	private final int metaFileSize = 1024 * 4;
+	private final int keyFileSize = 1024 * 1024 * 1024;
+    private final long VALUE_SIZE = 1024 * 4;
+    private int fileNo = 0;
+    private int keyOffset = 0;
+    private int valueOffset = 0;
     private String PATH;
-    private HashMap<Long, Long> maps;
-    private long KEY_SIZE = 8;
-    private long VALUE_SIZE = 1024 * 4;
-    private volatile boolean finished = false;
-    private long waiting_read_time = 100;
-    private long writing_size = 0l;
-    // private ThreadLocal<Holder> ansThreadLocal;
+    private LongLongTreeMap maps;
+    private RandomAccessFile keyWriteFile;
+    private MappedByteBuffer keyMappedBuffer;
+    private LongBuffer keyLongBuffer;
+    private RandomAccessFile valueWriteFile;
+    private RandomAccessFile metaFile;
+    private MappedByteBuffer metaMappedBuffer;
+    private LongBuffer metaLongBuffer;
     private RandomAccessFile[] readFiles;
     private HashMap<Long, Integer> keyFiles;
-    private final int size = 1024 * 1024;
-    private float load_factor = 32f;
-
-    class Holder {
-        byte[] ans;
-        public Holder(byte[] ans) { this.ans = ans; }
-    }
 
     public EngineRace1() {
         System.out.println("creating an engineRace instance");
@@ -45,14 +44,19 @@ public class EngineRace1 extends AbstractEngine {
 
     @Override
     public void open(String path) throws EngineException {
-        System.out.println("open db");
+        System.err.println("open db");
         if (PATH == null) PATH = path;
-        // ansThreadLocal = new ThreadLocal<Holder>();
         maps = null;
         keyWriteFile = null;
+        metaFile = null;
+        metaMappedBuffer = null;
+        metaLongBuffer = null;
 		valueWriteFile = null;
         keyFiles = null;
         readFiles = null;
+        keyMappedBuffer = null;
+        keyLongBuffer = null;
+        this.fileNo = 0;
     }
 
     private void initFile() {
@@ -60,17 +64,22 @@ public class EngineRace1 extends AbstractEngine {
             try {
                 File keyPath = new File(PATH + KEY_PATH);
 				File valuePath = new File(PATH + VALUE_PATH);
-                if (!keyPath.exists()) { keyPath.mkdirs(); valuePath.mkdirs(); }
-				System.out.println("key files : " + keyPath.listFiles().length);
-				System.out.println("value files : " + valuePath.listFiles().length);
-                String keyFileName = String.valueOf(keyPath.listFiles().length);
-				String valueFileName = String.valueOf(valuePath.listFiles().length);
-                keyWriteFile = new RandomAccessFile(
-					new File(PATH + KEY_PATH + keyFileName), "rw");
-				keyWriteFile.seek(keyWriteFile.length());
+				File metaPath = new File(PATH + META_PATH);
+                if (!keyPath.exists()) { keyPath.mkdirs(); valuePath.mkdirs(); metaPath.mkdirs(); }
+                this.metaFile = new RandomAccessFile(PATH + META_PATH, "rw");
+                this.metaMappedBuffer = this.metaFile.getChannel().map(FileChannel.MapMode.READ_WRITE,
+                        0, metaFileSize);
+                this.metaLongBuffer = this.metaMappedBuffer.asLongBuffer();
+                this.keyOffset = (int) this.metaLongBuffer.get(0);
+                this.fileNo = valuePath.listFiles().length;
+                if (this.fileNo == 0) this.fileNo ++;
+                keyWriteFile = new RandomAccessFile(new File(PATH + KEY_PATH), "rw");
+                this.keyMappedBuffer = keyWriteFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, this.keyFileSize);
+                this.keyLongBuffer = this.keyMappedBuffer.asLongBuffer();
 				valueWriteFile = new RandomAccessFile(
-					new File(PATH + VALUE_PATH + valueFileName), "rw");
-				valueWriteFile.seek(valueWriteFile.length());
+					new File(PATH + VALUE_PATH + this.fileNo), "rw");
+				this.valueOffset = (int) valueWriteFile.length();
+				valueWriteFile.seek(this.valueOffset);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,58 +101,122 @@ public class EngineRace1 extends AbstractEngine {
         return ans;
     }
 
+    private static long wrap(int offset, int fileNo) {
+        long ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans |= ( ((long) ((offset >>> i) & 1)) << i);
+            ans |= ( ((long) ((fileNo >>> i) & 1)) << (32 + i));
+        }
+        return ans;
+    }
+
+    private static int unwrapOffset(long wrapper) {
+        int ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans |= (((wrapper >>> i) & 1) << i);
+        }
+        return ans;
+    }
+
+    private static int unwrapFileNo(long wrapper) {
+        int ans = 0;
+        for (int i = 0; i < 32; i++) {
+            ans |= (((wrapper >>> (i + 32) ) & 1) << i);
+        }
+        return ans;
+    }
+
     @Override
     public synchronized void write(byte[] key, byte[] value) throws EngineException {
         if (keyWriteFile == null) initFile();
         try {
-            keyWriteFile.write(key);
+            if (this.valueOffset >= singleFileSize) {
+                openNewFile();
+            }
+            long k = keyToLong(key);
+            keyLongBuffer.put(this.keyOffset++, k);
+            keyLongBuffer.put(this.keyOffset++, wrap(this.valueOffset, this.fileNo));
+            metaLongBuffer.put(0, this.keyOffset);
             valueWriteFile.write(value);
+            this.valueOffset += VALUE_SIZE;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    private void openNewFile() throws IOException {
+        valueWriteFile.close(); // closing previous file
+        this.valueOffset = 0;
+        this.fileNo ++;
+        String fileName = PATH + VALUE_PATH + String.valueOf(this.fileNo);
+        valueWriteFile = new RandomAccessFile(new File(fileName), "rw");
+    }
+
     private void initMaps() {
         if (maps == null) {
-            maps = new HashMap<Long, Long>(this.size, load_factor);
-            keyFiles = new HashMap<Long, Integer>(this.size, load_factor);
-            long totalSize = 0;
-            byte[] key = new byte[(int) KEY_SIZE];
-            File[] fs = new File(PATH + KEY_PATH).listFiles();
-            readFiles = new RandomAccessFile[fs.length];
-            for (int i = 0; i < fs.length; i ++) {
-                File keyTemp = new File(PATH + KEY_PATH + String.valueOf(i));
-				File valueTemp = new File(PATH + VALUE_PATH + String.valueOf(i));
-				long pointer = 0l;
-                try {
-                    RandomAccessFile file = new RandomAccessFile(keyTemp, "r");
-                    while (file.length() > file.getFilePointer()) {
-                        file.readFully(key);
-                        totalSize++;
-                        long k = keyToLong(key);
-						keyFiles.put(k, i);
-                        maps.put(k, pointer);
-						pointer += VALUE_SIZE;
-                    }
-					file.close();
-                    readFiles[i] = new RandomAccessFile(valueTemp, "r");
-                } catch (IOException e) {
-                    e.printStackTrace();
+            try {
+                this.maps = new LongLongTreeMap();
+                File valuePath = new File(PATH + VALUE_PATH);
+                this.metaFile = new RandomAccessFile(PATH + META_PATH, "r");
+                this.metaMappedBuffer = this.metaFile.getChannel().map(FileChannel.MapMode.READ_ONLY,
+                        0, metaFileSize);
+                this.metaLongBuffer = this.metaMappedBuffer.asLongBuffer();
+                this.keyOffset = (int) this.metaLongBuffer.get(0);
+                this.fileNo = valuePath.listFiles().length;
+                keyWriteFile = new RandomAccessFile(new File(PATH + KEY_PATH), "r");
+                this.keyMappedBuffer = keyWriteFile.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, this.keyFileSize);
+                this.keyLongBuffer = this.keyMappedBuffer.asLongBuffer();
+                keyLongBuffer.position(0);
+                for (int i = 0; i < keyOffset;) {
+                    long k = this.keyLongBuffer.get();
+                    long info = this.keyLongBuffer.get();
+                    this.maps.insert(k, info);
+                    i += 2;
                 }
+                AccessController.doPrivileged(new PrivilegedAction() {
+
+                    public Object run() {
+                        try {
+                            Method getCleanerMethod = keyMappedBuffer.getClass().getMethod("cleaner",new Class[0]);
+                            getCleanerMethod.setAccessible(true);
+                            sun.misc.Cleaner cleaner =(sun.misc.Cleaner)getCleanerMethod.invoke(keyMappedBuffer,new Object[0]);
+                            cleaner.clean();
+
+                            getCleanerMethod = metaMappedBuffer.getClass().getMethod("cleaner",new Class[0]);
+                            getCleanerMethod.setAccessible(true);
+                            cleaner =(sun.misc.Cleaner)getCleanerMethod.invoke(metaMappedBuffer,new Object[0]);
+                            cleaner.clean();
+
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                });
+                keyWriteFile.close();
+                metaFile.close();
+                keyWriteFile = null;
+                metaFile = null;
+                this.readFiles = new RandomAccessFile[this.fileNo];
+                StringBuilder build = new StringBuilder();
+                build.append(PATH).append(VALUE_PATH);
+                for (int i = 0; i < this.fileNo; i++) {
+                    int l = build.length();
+                    this.readFiles[i] = new RandomAccessFile(build.append(i).toString(), "r");
+                    build.delete(l, build.length());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            // finished = true;
-            System.out.println("Finished. we have " + maps.size() +
-                    " different keys and totalSize : " + totalSize + 
-					" under " + readFiles.length + " files");
         }
     }
 
     private byte[] getData(long l) {
         try {
             byte[] ans = new byte[(int) VALUE_SIZE];
-           // System.out.println("get key : " + l + " , p : " + maps.get(l));
-            RandomAccessFile file = readFiles[keyFiles.get(l)];
-            file.seek(maps.get(l));
+            RandomAccessFile file = readFiles[unwrapFileNo(l) - 1];
+            file.seek(unwrapOffset(l));
             file.readFully(ans);
             return ans;
         } catch (IOException e) {
@@ -152,27 +225,12 @@ public class EngineRace1 extends AbstractEngine {
         return null;
     }
 
-
-/*
-    private byte[] getAns() {
-        if (ansThreadLocal.get() == null) {
-            ansThreadLocal.set(new Holder(new byte[(int) VALUE_SIZE]));
-        }
-        return ansThreadLocal.get().ans;
-    }
-*/
-
     @Override
     public synchronized byte[] read(byte[] key) throws EngineException {
         if (maps == null) initMaps();
-//        while (!finished) { // waiting for finish.
-//            try {
-//                Thread.sleep(waiting_read_time);
-//            } catch (InterruptedException e) {
-//            }268436208
-//        }
         long l = keyToLong(key);
-        if (maps.containsKey(l))
+        long ans = maps.get(l);
+        if (ans != -1l)
             return getData(l);
         else throw new EngineException(RetCodeEnum.NOT_FOUND, "not found");
     }
@@ -190,29 +248,58 @@ public class EngineRace1 extends AbstractEngine {
     @Override
     public void close() {
         try {
-            // if (buffer != null) cleanBuffer();
-            System.out.println("closing db");
-            if (keyWriteFile != null) {
-				keyWriteFile.close();
-				valueWriteFile.close();
+            System.err.println("closing db");
+            if (metaFile != null) {
+                AccessController.doPrivileged(new PrivilegedAction() {
+
+                    public Object run() {
+                        try {
+                            Method getCleanerMethod = keyMappedBuffer.getClass().getMethod("cleaner",new Class[0]);
+                            getCleanerMethod.setAccessible(true);
+                            sun.misc.Cleaner cleaner =(sun.misc.Cleaner)getCleanerMethod.invoke(keyMappedBuffer,new Object[0]);
+                            cleaner.clean();
+
+                            getCleanerMethod = metaMappedBuffer.getClass().getMethod("cleaner",new Class[0]);
+                            getCleanerMethod.setAccessible(true);
+                            cleaner =(sun.misc.Cleaner)getCleanerMethod.invoke(metaMappedBuffer,new Object[0]);
+                            cleaner.clean();
+
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+
+                });
+                keyWriteFile.close();
+                metaFile.close();
 			}
+
+			if (valueWriteFile != null) valueWriteFile.close();
+
             if (readFiles != null) {
                 for (RandomAccessFile f : readFiles)
                     f.close();
             }
+
 			clean();
+
         } catch (IOException e) {
 			e.printStackTrace();
         }
     }
 	
 	public void clean() {
-		// ansThreadLocal = null;
-		maps = null;
+        maps = null;
         keyWriteFile = null;
-		valueWriteFile = null;
+        metaFile = null;
+        metaMappedBuffer = null;
+        metaLongBuffer = null;
+        valueWriteFile = null;
         keyFiles = null;
         readFiles = null;
+        keyMappedBuffer = null;
+        keyLongBuffer = null;
 	}
 
 }
