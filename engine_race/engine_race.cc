@@ -82,6 +82,16 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     value->clear();
     ret = store_.Read(fileNo, offset, value);
   } 
+  
+  if (counter == 0) {
+	  fprintf(stderr, "reading first data, key : %s, and get %d value\n",
+		key.ToString().c_str(), value.size());
+  }
+  counter ++;
+  if (counter % 390000 == 0) {
+	  fprintf(stderr, "have read 390000 data\n");
+  }
+  
   // if (ret != kSucc) printf("[EngineRace] : read not succ \n");
   pthread_mutex_unlock(&mu_);
   return ret;
