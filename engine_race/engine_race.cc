@@ -84,7 +84,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   } 
   
   if (counter == 0) {
-	  fprintf(stderr, "reading first data, key : %s, and get %d value\n",
+	  fprintf(stderr, "reading first data, key : %s, and get %ld value\n",
 		key.ToString().c_str(), value.size());
   }
   counter ++;
