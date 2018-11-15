@@ -303,6 +303,7 @@ int main()
     
     
     // Sequential Read
+    /*
     auto sreadStart = std::chrono::high_resolution_clock::now();
     
     std::vector<std::thread> sreaders;
@@ -318,7 +319,7 @@ int main()
     std::cout << "Sequential read takes: "
               << std::chrono::duration<double, std::milli>(sreadEnd - sreadStart).count()
               << " milliseconds" << std::endl;
-    
+    */
     delete engine;
 
     return 0;
