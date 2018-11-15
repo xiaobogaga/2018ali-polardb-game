@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.io.RandomAccessFile;
 
 /**
+ * using external hash table as index.
  */
 public class EngineRace2 extends AbstractEngine {
 

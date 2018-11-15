@@ -12,6 +12,7 @@ import java.io.RandomAccessFile;
 import java.util.TreeMap;
 
 /**
+ * using bplustree as index holder.
  */
 public class EngineRace3 extends AbstractEngine {
 
@@ -28,7 +29,6 @@ public class EngineRace3 extends AbstractEngine {
     private int fileNo = -1;
     private long offset = 0;
     private RandomAccessFile[] readFiles;
-    // private HashMap<Long, Holder> threadLocals;
     public EngineRace3() {
         System.err.println("creating an engineRace instance");
     }
@@ -102,7 +102,7 @@ public class EngineRace3 extends AbstractEngine {
             if (this.offset >= singleFileSize) {
                 openNewFile();
             }
-            keyWriteFile.add(keyToLong(key), wrap( (int) this.offset, this.fileNo));
+            keyWriteFile.engineAdd(keyToLong(key), wrap( (int) this.offset, this.fileNo));
             valueWriteFile.write(value);
             this.offset += VALUE_SIZE;
             counter ++;

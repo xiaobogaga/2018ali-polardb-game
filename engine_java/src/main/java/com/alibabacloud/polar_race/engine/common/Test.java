@@ -58,50 +58,14 @@ public class Test {
 
     public static void main(String args[]) throws EngineException, IOException {
 
-        Random rand = new Random(System.currentTimeMillis());
-        RandomAccessFile tempFile = new RandomAccessFile(new File("/tmp/test_perf"), "rw");
-        int size = 64000000;
-        int unique = 11000000;
-        long[] nums = new long[11000000];
-        for (int i = 0; i < unique; i++) {
-            long temp = rand.nextLong();
-            nums[i] = temp;
-            tempFile.writeLong(temp);
-            tempFile.writeLong(temp);
-        }
-
-        for (int i = 0; i < (size - unique) ; i++) {
-            long temp = rand.nextLong();
-            if (i % 6 == 0) {
-                if (temp < 0) temp = -temp;
-                long v = nums[(int) (temp % unique) ];
-                tempFile.writeLong(v);
-                tempFile.writeLong(v);
-            }
-            tempFile.writeLong(temp);
-            tempFile.writeLong(temp);
-        }
-
-        tempFile.close();
-
-        System.out.println("writing finished");
         long startTime = System.currentTimeMillis();
         LongLongTreeMap maps = new LongLongTreeMap();
-        RandomAccessFile read = new RandomAccessFile(new File("/tmp/test_perf"), "r");
-        long keyOffset = 64000000 * 2;
-        int pos = 0;
-        int len = 1024 * 4 * 1024 * 16;
-        byte[] buffer = new byte[len];
-        for (int i = 0; i < keyOffset; ) {
-            read.readFully(buffer);
-            for (int j = 0; j < len; j+= 8) {
-                long k = readLong(buffer, j);
-                j += 8;
-                long info = readLong(buffer, j);
-                i += 2;
-                if (i >= keyOffset) break;
-                maps.insert(k, info);
-            }
+        int size = 60000000;
+        int printLimit = 1000000;
+        for (int i = 0; i < size; ) {
+            maps.insert(i, i);
+            i ++;
+            if (i % printLimit == 0) System.out.println("has writing " + printLimit);
         }
         System.out.println("spend time : " + ((System.currentTimeMillis() - startTime) / 1000));
     }

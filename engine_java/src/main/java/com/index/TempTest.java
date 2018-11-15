@@ -26,8 +26,27 @@ public class TempTest {
     }
 
     public static void main(String args[]) throws IOException, EngineException {
-        long[] key = new long[] {
-                643, 977, 642, 297, 997, 609, 17, 135, 870, 323
+        long[] key = new long[]{
+                507,
+                759,
+                178,
+                567,
+                127,
+                98,
+                229,
+                119,
+                637,
+                294,
+                752,
+                529,
+                869,
+                79,
+                19,
+                719,
+                979,
+                937,
+                492,
+                835,
         };
 
         String path = "/tmp/btree";
@@ -39,10 +58,13 @@ public class TempTest {
         BPlusTree tree = new BPlusTree(path, 1024);
 
         for (long k : key) {
+            System.err.println(k + ",");
             tree.add(k, k);
         }
 
-        System.out.println(tree.get(643));
+        tree.printTree();
+        System.out.println(tree.get(229));
+
 
     }
 

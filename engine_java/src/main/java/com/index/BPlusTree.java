@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -177,9 +178,9 @@ public class BPlusTree {
         return ans;
     }
 
-    public void add(long key, long info) {
-        // System.err.println("engine add : " + key + " , offset : " + unwrapOffset(info) +
-           //     " , fileNo : " + unwrapFileNo(info) + " , wrapped : " + info);
+
+    public void engineAdd(long key, long info) {
+        // cache.put(key, info);
         if (this.root == null) {
             this.rootOffset = 0;
             this.isRootLeaf = 1l;
@@ -189,12 +190,38 @@ public class BPlusTree {
             updateLeafNodeSize();
             this.root.leafNode.addOrUpdateKey(key, info);
         } else {
-            Node n = search(key);
+            Node n = searchForAdd(key);
             n.leafNode.addOrUpdateKey(key, info);
         }
     }
 
+    public void add(long key, long info) {
+        // System.err.println("engine add : " + key + " , offset : " + unwrapOffset(info) +
+           //     " , fileNo : " + unwrapFileNo(info) + " , wrapped : " + info);
+        // todo
+    //    cache.put(key, info);
+        if (this.root == null) {
+            this.rootOffset = 0;
+            this.isRootLeaf = 1l;
+            this.root = new Node(0, -1, true);
+            updateRoot(0, 1l);
+            this.current_leaf_size ++;
+            updateLeafNodeSize();
+            this.root.leafNode.addOrUpdateKey(key, info);
+
+           // this.printTree();
+
+        } else {
+            Node n = searchForAdd(key);
+            n.leafNode.addOrUpdateKey(key, info);
+
+            // this.printTree();
+        }
+    }
+
     public void updateRoot(long offset, long isLeaf) {
+        this.rootOffset = offset;
+        this.isRootLeaf = isLeaf;
         metaLongBuffer.put(4, offset);
         metaLongBuffer.put(5, isLeaf);
     }
@@ -224,17 +251,31 @@ public class BPlusTree {
         return null;
     }
 
+    /**
+     * return the leaf node that the key should appear.
+     * @param key
+     * @return
+     */
+    public Node searchForAdd(long key) {
+        Node node = this.root;
+        while (node != null) {
+            if (node.isLeaf()) {
+                return node;
+            } else {
+                node = node.midNode.leafOfKeyForUpdate(key);
+            }
+        }
+        return null;
+    }
+
     public long engineGet(long key) {
         if (cache.containsKey(key)) return cache.get(key);
         Node ans = this.search(key);
         if (ans != null) {
             long info = ans.leafNode.engineGetInfo(key);
-            // System.err.println("engine get : " + key + " , offset : " + unwrapOffset(info) +
-               //     " , fileNo : " + unwrapFileNo(info) + " , wrapped : " + info);
             cache.put(key, info);
             return info;
         } else {
-            // System.err.println("engine get : " + key + " cannot find");
             cache.put(key, -1l);
             return -1l;
         }
@@ -242,14 +283,16 @@ public class BPlusTree {
 
 
     public Long get(long key) {
-        if (cache.containsKey(key)) return cache.get(key);
+        // if (cache.containsKey(key)) return cache.get(key);
         Node ans = this.search(key);
         if (ans != null) {
             long info = ans.leafNode.getInfo(key);
-            cache.put(key, info);
+            // todo
+        //    cache.put(key, info);
             return info;
         } else {
-            cache.put(key, null);
+            // todo
+            // cache.put(key, null);
             return null;
         }
     }
@@ -361,7 +404,7 @@ public class BPlusTree {
                 this.setSize(2);
                 midLongBuffer.put(offset + 2, replacedKey);
                 midLongBuffer.put(offset + 2 + 1, replaceOffset);
-                midLongBuffer.put(offset + 2 + 2, Long.MAX_VALUE);
+                midLongBuffer.put(offset + 2 + 2, rightKey);
                 midLongBuffer.put(offset + 2 + 3, rightKeyOffset);
                 return;
             }
@@ -406,15 +449,19 @@ public class BPlusTree {
             this.offset = offset;
         }
 
-
         public void splitAndAdd(long replaceKey, int loc, boolean isLeaf) {
-            int size = (MID_LENGTH_THRESHOLD + 1) / 2;
+            // do balancing here.
+            long min = buffer[0], max = buffer[MID_LENGTH_THRESHOLD * 2];
+            long splitKey = (min / 2 + max / 2);
+            int size = binarySearch(splitKey, MID_LENGTH_THRESHOLD + 1) + 1;
+            size --;
+            splitKey = buffer[ (size - 1) * 2];
             this.setSize(size);
-            long splitKey = buffer[(size - 1) * 2];
+            // todo here.
+            // buffer[ (size - 1) * 2] = splitKey;
             if (splitKey >= replaceKey) {
                 this.putBuffer(buffer, loc, loc * 2, size - loc);
             }
-            long addedKey = buffer[MID_LENGTH_THRESHOLD * 2];
             this.parentOffset = (int) this.getParentOffset();
             long newNodeOffset = current_mid_size * MIDBlock / 8;
             current_mid_size ++;
@@ -438,12 +485,12 @@ public class BPlusTree {
                 updateMidNodeSize();
                 updateRoot(rootOffset, 0l);
                 rightNode.midNode.setParentOffset(rootOffset);
-                root.midNode.addKey(splitKey, this.offset, addedKey, newNodeOffset, false);
+                root.midNode.addKey(splitKey, this.offset, max, newNodeOffset, false);
             } else {
                 long preOffset = this.offset;
                 Node parentNode = new Node(parentOffset, false);
                 parentNode.midNode.addKey(splitKey, preOffset,
-                        addedKey, newNodeOffset, false);
+                        max, newNodeOffset, false);
             }
         }
 
@@ -474,6 +521,26 @@ public class BPlusTree {
             return readNode( (int) (childNodeOffset & (~(1l << 63))), childNodeOffset < 0);
         }
 
+        public Node leafOfKeyForUpdate(long key) {
+            int left = 0, right = (int) this.getSize() - 1;
+            int ans = right;
+            this.readBuffer(buffer, right + 1);
+            while (left <= right) {
+                int mid = (left + right) >>> 1;
+                if (buffer[mid * 2] >= key) {
+                    ans = mid;
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            }
+            if (ans == right) {
+                if (buffer[ans * 2] <= key) midLongBuffer.put(offset + 2 + (ans * 2), key);
+            }
+            long childNodeOffset = buffer[ans * 2 + 1];
+            return readNode( (int) (childNodeOffset & (~(1l << 63))), childNodeOffset < 0);
+        }
+
         /**
          * search the location of key. if exist, would return the location of the key,
          * otherwise return the less key beforehead the search key. return -1 if all key are
@@ -484,7 +551,7 @@ public class BPlusTree {
          */
         public int binarySearch(long key, int size) {
             int left = 0, right = size - 1;
-            int ans = -1;
+            int ans = right;
             while (left <= right) {
                 int mid = (left + right) >>> 1;
                 if (buffer[mid * 2] >= key) {
@@ -492,6 +559,27 @@ public class BPlusTree {
                     right = mid - 1;
                 } else {
                     left = mid + 1;
+                }
+            }
+            return ans;
+        }
+
+        /**
+         * search the location of key which all keys are less than the specific key.
+         * @param key
+         * @param size
+         * @return
+         */
+        public int binarySearch2(long key, int size) {
+            int left = 0, right = size - 1;
+            int ans = right;
+            while (left <= right) {
+                int mid = (left + right) >>> 1;
+                if (buffer[mid * 2] <= key) {
+                    ans = mid;
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
                 }
             }
             return ans;
@@ -580,6 +668,7 @@ public class BPlusTree {
             if (ans != -1 && buffer[ans * 2] == key) {
                 return buffer[ans * 2 + 1];
             }
+            System.err.println("return null for key : " + key);
             return null;
         }
 
@@ -614,7 +703,7 @@ public class BPlusTree {
             if (ans != -1 && buffer[ans * 2] == key) {
                 // just need update.
                 this.setKeyInfo(ans, info);
-            } else {
+            }  else {
                 // System.out.println("size : " + size + ", Arrays : " + Arrays.toString(buffer));
                 System.arraycopy(buffer, ans * 2 + 2,
                         buffer, ans * 2 + 4, (size - ans - 1) * 2);
@@ -631,6 +720,14 @@ public class BPlusTree {
                 } else {
                     this.setSize(size + 1);
                     this.putBuffer(buffer, ans + 1, ans * 2 + 2, size - ans);
+//                    if (size == ans - 1) {
+//                        // updating parent.
+//                        int parentOffset = (int) this.getParentOffset();
+//                        while (parentOffset != -1) {
+//                            midLongBuffer.put(parentOffset + 1 + () * 2, key);
+//                            parentOffset = midLongBuffer.get(parentOffset + 1);
+//                        }
+//                    }
                 }
             }
         }
@@ -645,15 +742,16 @@ public class BPlusTree {
         }
 
         public void splitAndAdd(long key, long info, int loc) {
-            int size = (LEAF_LENGTH_THRESHOLD + 1) / 2;
-            long splitKey = buffer[ (size - 1) * 2];
+            // do balancing here.
+            long min = buffer[0], max = buffer[LEAF_LENGTH_THRESHOLD * 2];
+            long splitKey = min / 2 + max / 2;
+            int size = binarySearch(splitKey, LEAF_LENGTH_THRESHOLD + 1) + 1;
             if (splitKey >= key) {
                 this.putBuffer(buffer, loc + 1, loc * 2 + 2, size - loc - 1);
             }
             int newNodeOffset = (int) (current_leaf_size * LeafBlock / 8);
             int parentOffset = (int) this.getParentOffset();
             Node rightNode = dummyLeaf;
-            // System.out.println(newNodeOffset);
             rightNode.leafNode.init(newNodeOffset, parentOffset);
             long nextOffset = this.getNextOffset();
             if (nextOffset != -1)
@@ -666,7 +764,6 @@ public class BPlusTree {
                     LEAF_LENGTH_THRESHOLD - size + 1);
             current_leaf_size ++;
             updateLeafNodeSize();
-            long addedKey = buffer[ LEAF_LENGTH_THRESHOLD * 2];
             this.setSize(size);
             if (parentOffset == -1) {
                 // root node.
@@ -676,14 +773,13 @@ public class BPlusTree {
                 updateMidNodeSize();
                 updateRoot(0, 0);
                 rightNode.leafNode.setParentOffset(0);
-                root.midNode.addKey(splitKey , offset, addedKey , newNodeOffset, true);
+                root.midNode.addKey(splitKey , offset, max , newNodeOffset, true);
             } else {
                 // update parent Node directly.
                 Node node = dummyMid;
                 node.midNode.init(parentOffset);
-                node.midNode.addKey(splitKey, offset, addedKey, newNodeOffset, true);
+                node.midNode.addKey(splitKey, offset, max, newNodeOffset, true);
             }
-
         }
 
         public void readBuffer(long[] buffer, int size) {
@@ -766,6 +862,66 @@ public class BPlusTree {
             this.leafFile.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public String arraysToString(int from, int till, boolean isLeaf) {
+        StringBuilder build = new StringBuilder();
+        if (isLeaf) {
+            for (int i = from; i < till; i++) {
+                build.append(" {" + buffer[i * 2] + " - " + buffer[i * 2 + 1] + "} ");
+            }
+        } else {
+            for (int i = from; i < till; i++) {
+                long offset = buffer[i * 2 + 1];
+                if (offset < 0) build.append(" {" + buffer[i * 2] + " - " + ( offset & (~(1l << 63))) + "l} ");
+                else build.append(" {" + buffer[i * 2] + " - " + (offset & (~(1l << 63))) + "m} ");
+            }
+        }
+        // 5130469260032291411
+        // 3567353917166686482
+        return build.toString();
+    }
+
+    public void printNode(Node n, boolean isLeaf) {
+
+        if (n.isLeaf()) {
+            n.leafNode.readBuffer(buffer, (int) n.leafNode.getSize());
+            System.err.println("[leaf-" + (int) n.leafNode.offset + "] : " + " size : " +
+                    n.leafNode.getSize() + ", previousOffset : " +
+                    n.leafNode.getPreviousOffset() + ", nextOffset : " +
+                    n.leafNode.getNextOffset() + " , parentOffset : " +
+                    n.leafNode.getParentOffset() + " . key-value : " +
+                    arraysToString(0, (int) n.leafNode.getSize(),  true));
+        } else {
+            n.midNode.readBuffer(buffer, (int) n.midNode.getSize());
+            System.err.println("[mid-" + (int) n.midNode.offset + "] : " + " size : " +
+                    n.midNode.getSize() + " , parentOffset : " +
+                    n.midNode.getParentOffset() +
+                    ". key-value : " +
+                    arraysToString(0, (int) n.midNode.getSize(), false));
+        }
+    }
+
+    public void printTree() {
+        LinkedList<Integer> offsetList = new LinkedList<>();
+        LinkedList<Boolean> isLeafList = new LinkedList<>();
+        offsetList.add((int) this.rootOffset);
+        isLeafList.add(this.isRootLeaf == 1l);
+        while (!offsetList.isEmpty()) {
+            int offset = offsetList.pollFirst();
+            Boolean isLeaf = isLeafList.pollFirst();
+            Node n = readNode(offset, isLeaf);
+            printNode(n, isLeaf);
+            if (!isLeaf) {
+                int size = (int) n.midNode.getSize();
+                n.midNode.readBuffer(buffer, size);
+                for (int i = 0; i < size; i++) {
+                    long childNodeOffset = buffer[i * 2 + 1];
+                    offsetList.addLast( (int) (childNodeOffset & (~(1l << 63))) );
+                    isLeafList.addLast( childNodeOffset < 0 );
+                }
+            }
         }
     }
 

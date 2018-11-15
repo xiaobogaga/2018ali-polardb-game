@@ -11,11 +11,11 @@ import java.util.Random;
 
 public class BPlusTreeTest extends TestCase {
 
-    public int size = 8000;
+    public int size = 200;
     public BPlusTree tree;
     public HashMap<Long, Long> hashMap;
     public Random rand;
-    public String path = "/tmp/btree2";
+    public String path = "/tmp/btree";
     public boolean clearPath = true;
 
     public synchronized void testAdd() throws IOException, EngineException {
@@ -28,8 +28,8 @@ public class BPlusTreeTest extends TestCase {
         tree = new BPlusTree(path, 1024);
         hashMap = new HashMap<>();
         for (int i = 0; i < size;) {
-            long temp = rand.nextInt();
-            // System.err.println("adding : " + temp);
+            long temp = rand.nextInt(1000);
+            System.err.println(temp + ",");
             if (hashMap.containsKey(temp)) continue;
             else {
                 hashMap.put(temp, temp);
@@ -60,12 +60,14 @@ public class BPlusTreeTest extends TestCase {
             long temp = rand.nextLong();
             if (hashMap.containsKey(temp)) continue;
             else {
+                System.err.println(temp + ",");
                 hashMap.put(temp, temp);
                 tree.add(temp, temp);
             }
             i ++;
         }
 
+        // tree.printTree();
         // test get method
         for (Map.Entry<Long, Long> entry : hashMap.entrySet()) {
             assertEquals((long) entry.getValue(), (long) tree.get(entry.getKey()));
@@ -79,12 +81,14 @@ public class BPlusTreeTest extends TestCase {
                 // updating value.
                 if (temp < 0) temp = -temp;
                 long k = (Long) hashMap.keySet().toArray()[(int) (temp % hashMap.size()) ];
+                System.err.println(k + ",");
                 hashMap.put(k, k + temp);
                 tree.add(k, k + temp);
                 i ++;
             } else {
                 if (hashMap.containsKey(temp)) continue;
                 else {
+                    System.err.println(temp + ",");
                     hashMap.put(temp, temp);
                     tree.add(temp, temp);
                 }
@@ -103,12 +107,14 @@ public class BPlusTreeTest extends TestCase {
                 // updating value.
                 if (temp < 0) temp = -temp;
                 long k = (Long) hashMap.keySet().toArray()[(int) (temp % hashMap.size()) ];
+                System.err.println(k + ",");
                 hashMap.put(k, k + temp);
                 tree.add(k, k + temp);
                 i ++;
             } else {
                 if (hashMap.containsKey(temp)) continue;
                 else {
+                    System.err.println(temp + ",");
                     hashMap.put(temp, temp);
                     tree.add(temp, temp);
                 }
