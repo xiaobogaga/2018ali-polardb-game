@@ -97,6 +97,7 @@ public class EngineRace extends AbstractEngine {
     @Override
     public synchronized void write(byte[] key, byte[] value)
             throws EngineException {
+
         if (valueWriteFile == null) initFile();
         try {
             if (this.offset >= singleFileSize) {
@@ -115,15 +116,18 @@ public class EngineRace extends AbstractEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     private void openNewFile() throws IOException {
+
         // todo
         valueWriteFile.close(); // closing previous file
         this.offset = 0;
         this.fileNo ++;
         String fileName = PATH + VALUE_PATH + String.valueOf(this.fileNo);
         valueWriteFile = new RandomAccessFile(new File(fileName), "rw");
+
     }
 
     private void initMaps() {

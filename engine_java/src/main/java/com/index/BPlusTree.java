@@ -74,7 +74,7 @@ public class BPlusTree {
     private LongBuffer midLongBuffer;
     private LongBuffer leafLongBuffer;
     private int metaSize = 1024 * 4;
-    private int leafMappedMaxSize = 1024 * 1024 * 768;
+    private int leafMappedMaxSize = 1024 * 1024 * 1024;
     private int midMappedMaxSize = 1024 * 1024 * 64;
 
     private int LEAF_LENGTH_THRESHOLD = (LeafBlock - 4 * 8) / 16;
@@ -883,7 +883,7 @@ public class BPlusTree {
         return build.toString();
     }
 
-    public void printNode(Node n, boolean isLeaf) {
+    private void printNode(Node n, boolean isLeaf) {
 
         if (n.isLeaf()) {
             n.leafNode.readBuffer(buffer, (int) n.leafNode.getSize());
