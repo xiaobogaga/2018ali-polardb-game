@@ -10,17 +10,16 @@
 
 namespace polar_race {
 
-struct Location {
-  Location() : file_no(0), offset(0) {
-  }
-  uint32_t file_no;
-  uint32_t offset;
-};
-
 class DataStore  {
  public:
   explicit DataStore(const std::string dir)
-    : fd_(-1), dir_(dir) {}
+    :  {
+        fd = -1;
+        dir_ = dir;
+        cur_fileNo = 0;
+        cur_offset = 0;
+        readFiles = NULL;
+    }
 
   ~DataStore() {
     fprintf(stderr, "[DataStore] : finalized\n");
@@ -35,19 +34,20 @@ class DataStore  {
 		for (std::map<pthread_t,char*>::iterator it=threadBuffer.begin(); it != threadBuffer.end(); ++it)
 			delete[] it->second;
 	}
+
   }
 
   RetCode Init();
   RetCode Read(const Location& l, std::string* value);
-  RetCode Append(const std::string& value, Location* location);
+  RetCode Append(const std::string& value, uint32_t* fileNo, uint32_t* offset);
   RetCode initFD();
 
  private:
   int fd_;
   std::string dir_;
-  Location next_location_;
-  std::map<int, int> readFiles;
-  std::map<pthread_t, char*> threadBuffer;
+  uint32_t cur_fileNo;
+  uint32_t cur_offset;
+  std::map<int, int>* readFiles;
   RetCode OpenCurFile();
 };
 

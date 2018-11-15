@@ -13,11 +13,11 @@ namespace polar_race {
 static const uint32_t kMaxKeyLen = 8;
 
 struct Item {
-  Item() : in_use(0) {
+  Item()  {
   }
-  Location location;
+  uint32_t fileNo;
+  uint32_t offset;
   char key[kMaxKeyLen];
-  uint8_t in_use;
 };
 
 // Hash index for key
@@ -28,12 +28,11 @@ class DoorPlate  {
 
     RetCode Init();
 
-    RetCode AddOrUpdate(const std::string& key, const Location& l);
+    RetCode AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset);
 
-    RetCode Find(const std::string& key, Location *location);
+    RetCode Find(const std::string& key, uint32_t* fileNo, uint32_t* offset);
 
-    RetCode GetRangeLocation(const std::string& lower, const std::string& upper,
-        std::map<std::string, Location> *locations);
+    RetCode GetRangeLocation(const std::string& lower, const std::string& upper);
 
  private:
     std::string dir_;

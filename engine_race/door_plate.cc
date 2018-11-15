@@ -29,7 +29,7 @@ static bool ItemKeyMatch(const Item &item, const std::string& target) {
 }
 
 static bool ItemTryPlace(const Item &item, const std::string& target) {
-  if (item.in_use == 0) {
+  if (item.fileNo <=  0) {
     return true;
   }
   return ItemKeyMatch(item, target);
@@ -115,14 +115,13 @@ int DoorPlate::CalcIndex(const std::string& key) {
   }
 
   if (jcnt == kMaxDoorCnt) {
-    // full
 	fprintf(stderr, "[DoorPlate] : puting failed since full\n");
     return -1;
   }
   return index;
 }
 
-RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
+RetCode DoorPlate::AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset) {
 
   int index = CalcIndex(key);
   if (index < 0) {
@@ -131,43 +130,26 @@ RetCode DoorPlate::AddOrUpdate(const std::string& key, const Location& l) {
   }
 
   Item* iptr = items_ + index;
-  if (iptr->in_use == 0) {
-    // new item
-    memcpy(iptr->key, key.data(), 8);
-    iptr->in_use = 1;  // Place
-  }
-  iptr->location = l;
+  memcpy(iptr->key, key.data(), 8);
+  iptr->fileNo = fileNo;
+  iptr->offset = offset;
   return kSucc;
 }
 
-RetCode DoorPlate::Find(const std::string& key, Location *location) {
+RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offset) {
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
     return kNotFound;
   }
-
-  *location = (items_ + index)->location;
+  Item* i = items_ + index;
+  (*fileNo) = i->fileNo;
+  (*offset) = i->offset;
   return kSucc;
 }
 
 RetCode DoorPlate::GetRangeLocation(const std::string& lower,
-    const std::string& upper,
-    std::map<std::string, Location> *locations) {
-  int count = 0;
-  for (Item *it = items_ + kMaxDoorCnt - 1; it >= items_; it--) {
-    if (!it->in_use) {
-      continue;
-    }
-    std::string key(it->key, 8);
-    if ((key >= lower || lower.empty())
-        && (key < upper || upper.empty())) {
-      locations->insert(std::pair<std::string, Location>(key, it->location));
-      if (++count > kMaxRangeBufCount) {
-        return kOutOfMemory;
-      }
-    }
-  }
+    const std::string& upper) {
   return kSucc;
 }
 
