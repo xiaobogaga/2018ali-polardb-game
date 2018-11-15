@@ -75,6 +75,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
+  fprintf(stderr, "reading data %d\n", counter);
   uint32_t fileNo = 0;
   uint32_t offset = 0;
   RetCode ret = plate_.Find(key.ToString(), &fileNo, &offset);
