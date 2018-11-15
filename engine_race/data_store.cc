@@ -84,7 +84,7 @@ RetCode DataStore::Append(const std::string& value, uint32_t* fileNo, uint32_t* 
     return kInvalidArgument;
   }
 
-  if (cur_offset + value.size() > kSingleFileSize) {
+  if (cur_offset + valuesize > kSingleFileSize) {
     // Swtich to new file
     close(fd_);
     cur_fileNo += 1;
@@ -97,7 +97,7 @@ RetCode DataStore::Append(const std::string& value, uint32_t* fileNo, uint32_t* 
     fprintf(stderr, "[DataStore] : append to file failed\n");
     return kIOError;
   }
-  (*file_no) = cur_fileNo
+  (*fileNo) = cur_fileNo;
   (*offset) = cur_offset;
 
   cur_offset += valuesize;
@@ -106,22 +106,18 @@ RetCode DataStore::Append(const std::string& value, uint32_t* fileNo, uint32_t* 
 
 RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
   int fd = -1;
-  if (readFiles.count(fileNo) <= 0) {
+  if (readFiles == NULL) readFiles = new std::map<int, int>();
+  if (readFiles->count(fileNo) <= 0) {
 	fd = open(FileName(dir_ + dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
 	if (fd < 0) {
 		fprintf(stderr, "[DataStore] : open file for read failed\n");
 		return kIOError;
 	}
-	readFiles.insert(std::pair<int, int> (fileNo, fd));
-  } else fd = readFiles.find(fileNo)->second;
+	readFiles->insert(std::pair<int, int> (fileNo, fd));
+  } else fd = readFiles->find(fileNo)->second;
  
   lseek(fd, offset, SEEK_SET);
-  char* buf = NULL;
-  pthread_t tid = pthread_self();
-  if (threadBuffer.count(tid) <= 0) {
-	buf = new char[valuesize]();
-	threadBuffer.insert(std::pair<pthread_t, char*> (tid, buf));
-  } else buf = threadBuffer.find(tid)->second;
+  char* buf = buf = new char[valuesize];
   char* pos = buf;
   uint32_t value_len = valuesize;
   while (value_len > 0) {
@@ -144,7 +140,7 @@ RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
 RetCode DataStore::OpenCurFile() {
   std::string file_name = FileName(dir_ + dataFilePath, cur_fileNo);
   int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
-  fprintf(stderr, "[DataStore] : open a new file %s\n",file_name.c_str());
+  fprintf(stderr, "[DataStore] : open a new file %s and cur_fileNo : %d\n",file_name.c_str(), cur_fileNo);
   if (fd < 0) {
     fprintf(stderr, "[DataStore] : create file failed\n");
     return kIOError;

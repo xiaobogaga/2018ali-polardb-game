@@ -54,10 +54,11 @@ EngineRace::~EngineRace() {
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
-  Location location;
-  RetCode ret = store_.Append(value.ToString(), &location);
+  uint32_t offset = 0;
+  uint32_t fileNo = 0;
+  RetCode ret = store_.Append(value.ToString(), &fileNo, &offset);
   if (ret == kSucc) {
-    ret = plate_.AddOrUpdate(key.ToString(), location);
+    ret = plate_.AddOrUpdate(key.ToString(), fileNo, offset);
   } 
   // if (ret != kSucc) printf("write not succ \n");
   pthread_mutex_unlock(&mu_);
@@ -66,11 +67,12 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
-  Location location;
-  RetCode ret = plate_.Find(key.ToString(), &location);
+  uint32_t fileNo = 0;
+  uint32_t offset = 0;
+  RetCode ret = plate_.Find(key.ToString(), &fileNo, &offset);
   if (ret == kSucc) {
     value->clear();
-    ret = store_.Read(location, value);
+    ret = store_.Read(fileNo, offset, value);
   } 
   // if (ret != kSucc) printf("[EngineRace] : read not succ \n");
   pthread_mutex_unlock(&mu_);
@@ -80,23 +82,9 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
     Visitor &visitor) {
   pthread_mutex_lock(&mu_);
-  std::map<std::string, Location> locations;
-  RetCode ret =  plate_.GetRangeLocation(lower.ToString(), upper.ToString(), &locations);
-  if (ret != kSucc) {
-    pthread_mutex_unlock(&mu_);
-    return ret;
-  }
 
-  std::string value;
-  for (auto& pair : locations) {
-    ret = store_.Read(pair.second, &value);
-    if (kSucc != ret) {
-      break;
-    }
-    visitor.Visit(pair.first, value);
-  }
   pthread_mutex_unlock(&mu_);
-  return ret;
+  return kSucc;
 }
 
 int EngineRace::size() {
