@@ -79,6 +79,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   const std::string& k = key.ToString();
   uint64_t fileNo = 0;
   uint32_t offset = 0;
+  uint32_t vLen = 0;
   RetCode ret = plate_.Find(k, &fileNo, &offset, &vLen);
   if (ret == kSucc) {
     value->clear();
