@@ -83,7 +83,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   RetCode ret = plate_.Find(k, &fileNo, &offset, &vLen);
   if (ret == kSucc) {
     value->clear();
-    ret = store_.Read(fileNo, offset, value, vLen);
+    ret = store_.Read(fileNo, offset, vLen, value);
   } 
   if (counter == 0) {
 	  fprintf(stderr, "reading first data, key : %lu, and get %lu value\n",
