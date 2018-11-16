@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include "include/engine.h"
+#include "engine_race.h"
 #include <thread>
 #include <mutex>
 #include <chrono>
