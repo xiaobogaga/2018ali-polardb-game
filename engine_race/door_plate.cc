@@ -121,7 +121,8 @@ int DoorPlate::CalcIndex(const std::string& key) {
   return index;
 }
 
-RetCode DoorPlate::AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset) {
+RetCode DoorPlate::AddOrUpdate(const std::string& key, uint64_t fileNo, uint32_t offset, 
+	uint32_t vLen) {
 
   int index = CalcIndex(key);
   if (index < 0) {
@@ -133,10 +134,12 @@ RetCode DoorPlate::AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t
   memcpy(iptr->key, key.data(), 8);
   iptr->fileNo = fileNo;
   iptr->offset = offset;
+  iptr->vLen = vLen;
   return kSucc;
 }
 
-RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offset) {
+RetCode DoorPlate::Find(const std::string& key, uint64_t* fileNo, 
+	uint32_t* offset, uint32_t* vLen) {
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
@@ -145,6 +148,7 @@ RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offs
   Item* i = items_ + index;
   (*fileNo) = i->fileNo;
   (*offset) = i->offset;
+  (*vLen) = i->vLen;
   return kSucc;
 }
 

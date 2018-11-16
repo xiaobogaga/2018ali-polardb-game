@@ -14,7 +14,7 @@ uint32_t StrHash(const char* s, int size);
 // Env
 int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile);
 long long GetFileLength(const std::string& file);
-int FileAppend(int fd, const std::string& value);
+int FileAppend(int fd, const std::string& value, uint32_t vLen);
 bool FileExists(const std::string& path);
 uint32_t getSubFileSize(const std::string& path);
 

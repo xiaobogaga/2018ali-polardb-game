@@ -13,6 +13,8 @@ namespace polar_race {
 static const int kA = 54059;  // a prime
 static const int kB = 76963;  // another prime
 static const int kFinish = 37;  // also prime
+static const char buf2[4096];
+
 uint32_t StrHash(const char* s, int size) {
   uint32_t h = kFinish;
   while (size > 0) {
@@ -72,11 +74,11 @@ long long GetFileLength(const std::string& file) {
   return rc == 0 ? stat_buf.st_size : -1;
 }
 
-int FileAppend(int fd, const std::string& value) {
+int FileAppend(int fd, const std::string& value, uint32_t vLen) {
   if (fd < 0) {
     return -1;
   }
-  size_t value_len = value.size();
+  size_t value_len = vLen;
   const char* pos = value.data();
   while (value_len > 0) {
     ssize_t r = write(fd, pos, value_len);
@@ -88,6 +90,21 @@ int FileAppend(int fd, const std::string& value) {
       return -1;
     }
     pos += r;
+    value_len -= r;
+  }
+  // padding.
+  const char* pos2 = buf2;
+  value_len = 4096 - vLen;
+  while (value_len > 0) {
+    ssize_t r = write(fd, pos2, value_len);
+    if (r < 0) {
+      if (errno == EINTR) {
+        continue;  // Retry
+      }
+	  fprintf(stderr, "[Util] : write data failed, fileappend\n");
+      return -1;
+    }
+    pos2 += r;
     value_len -= r;
   }
   return 0;

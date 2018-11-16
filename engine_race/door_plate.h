@@ -15,9 +15,10 @@ static const uint32_t kMaxKeyLen = 8;
 struct Item {
   Item()  {
   }
-  uint32_t fileNo;
-  uint32_t offset;
   char key[kMaxKeyLen];
+  uint64_t fileNo;
+  uint32_t offset;
+  uint32_t vLen;
 };
 
 // Hash index for key
@@ -28,9 +29,10 @@ class DoorPlate  {
 
     RetCode Init();
 
-    RetCode AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset);
+    RetCode AddOrUpdate(const std::string& key, uint64_t fileNo, 
+		uint32_t offset, uint32_t vLen);
 
-    RetCode Find(const std::string& key, uint32_t* fileNo, uint32_t* offset);
+    RetCode Find(const std::string& key, uint64_t* fileNo, uint32_t* offset, uint32_t* vLen);
 
     RetCode GetRangeLocation(const std::string& lower, const std::string& upper);
 
