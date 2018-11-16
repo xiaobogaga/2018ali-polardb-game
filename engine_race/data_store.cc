@@ -136,7 +136,7 @@ RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
     value_len -= r;
   }
   // todo
-  *value = new std::string(buf, valuesize);
+  value = new std::string(buf, valuesize);
   return kSucc;
 }
 
