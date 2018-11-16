@@ -13,7 +13,7 @@ namespace polar_race {
 static const int kA = 54059;  // a prime
 static const int kB = 76963;  // another prime
 static const int kFinish = 37;  // also prime
-static const char buf2[4096];
+static const char buf2[4096] = "";
 
 uint32_t StrHash(const char* s, int size) {
   uint32_t h = kFinish;
