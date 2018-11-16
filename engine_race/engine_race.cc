@@ -56,12 +56,12 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
   const std::string& v = value.ToString();
   const std::string& k = key.ToString();
-  if (counter == 0) {
+  if (writeCounter == 0) {
     fprintf(stderr, "writing first data. key length : %lu, value length : %lu\n",
         k.size(), v.size());
   }
-  counter ++;
-  if (counter % 390000 == 0) {
+  writeCounter ++;
+  if (writeCounter % 390000 == 0) {
     fprintf(stderr, "have writing 390000 data\n");
   }
   uint32_t offset = 0;
@@ -85,13 +85,13 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     value->clear();
     ret = store_.Read(fileNo, offset, vLen, value);
   } 
-  if (counter == 0) {
+  if (readCounter == 0) {
 	  fprintf(stderr, "reading first data, key : %lu, and get %lu value\n",
 		k.size(), value->size());
   }
   
-  counter ++;
-  if (counter % 390000 == 0) {
+  readCounter ++;
+  if (readCounter % 390000 == 0) {
 	  fprintf(stderr, "have read 390000 data\n");
   }
   pthread_mutex_unlock(&mu_);

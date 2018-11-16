@@ -16,7 +16,8 @@ class EngineRace : public Engine  {
 
   explicit EngineRace(const std::string& dir)
     : mu_(PTHREAD_MUTEX_INITIALIZER),
-    db_lock_(NULL), plate_(dir), store_(dir), counter(0) {
+    db_lock_(NULL), plate_(dir), store_(dir), writeCounter(0),
+	readCounter(0) {
     }
 
   ~EngineRace();
@@ -32,7 +33,8 @@ class EngineRace : public Engine  {
       Visitor &visitor) override;
 
   void resetCounter() {
-    counter = 0;
+    writeCounter = 0;
+	readCounter = 0;
   }
 
   int size() override;
@@ -42,7 +44,8 @@ class EngineRace : public Engine  {
   FileLock* db_lock_;
   DoorPlate plate_;
   DataStore store_;
-  uint32_t counter;
+  uint32_t writeCounter;
+  uint32_t readCounter;
 };
 
 }  // namespace polar_race
