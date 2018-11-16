@@ -10,7 +10,8 @@
 #include <map>
 #include <vector>
 
-using namespace polar_race;
+using namespace polar_race::EngineRace;
+using namespace polar_race::PolarString;
 
 static const char kEnginePath[] = "/tmp/test_engine";
 static const char kDumpPath[] = "/tmp/test_dump";
