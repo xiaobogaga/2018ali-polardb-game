@@ -22,7 +22,7 @@ class DataStore  {
 
   ~DataStore() {
     fprintf(stderr, "[DataStore] : finalized\n");
-    if (fd_ > 0) {
+    if (fd_ >= 0) {
       close(fd_);
     }
 	if (readFiles != NULL && !readFiles->empty()) {

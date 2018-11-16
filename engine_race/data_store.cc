@@ -116,6 +116,8 @@ RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
 	readFiles->insert(std::pair<int, int> (fileNo, fd));
   } else fd = readFiles->find(fileNo)->second;
  
+  if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
+  
   lseek(fd, offset, SEEK_SET);
   char* buf = buf = new char[valuesize];
   char* pos = buf;
@@ -133,7 +135,8 @@ RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
     pos += r;
     value_len -= r;
   }
-  *value = std::string(buf, valuesize);
+  // todo
+  *value = new std::string(buf, valuesize);
   return kSucc;
 }
 

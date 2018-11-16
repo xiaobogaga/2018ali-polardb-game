@@ -84,7 +84,7 @@ int FileAppend(int fd, const std::string& value) {
       if (errno == EINTR) {
         continue;  // Retry
       }
-	     fprintf(stderr, "[Util] : write data failed, fileappend\n");
+	  fprintf(stderr, "[Util] : write data failed, fileappend\n");
       return -1;
     }
     pos += r;

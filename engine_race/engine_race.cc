@@ -54,9 +54,11 @@ EngineRace::~EngineRace() {
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
+  std::string& v = value.ToString();
+  std::string& k = key.ToString();
   if (counter == 0) {
     fprintf(stderr, "writing first data. key : %s and length : %ld, value length : %ld\n",
-        key.ToString().c_str(), key.size(), value.size());
+        k.c_str(), key.size(), v.size());
   }
   counter ++;
   if (counter % 390000 == 0) {
@@ -64,36 +66,33 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   }
   uint32_t offset = 0;
   uint32_t fileNo = 0;
-  RetCode ret = store_.Append(value.ToString(), &fileNo, &offset);
+  RetCode ret = store_.Append(v, &fileNo, &offset);
   if (ret == kSucc) {
-    ret = plate_.AddOrUpdate(key.ToString(), fileNo, offset);
+    ret = plate_.AddOrUpdate(k, fileNo, offset);
   } 
-  // if (ret != kSucc) printf("write not succ \n");
   pthread_mutex_unlock(&mu_);
   return ret;
 }
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
+  std::string& k = key.ToString();
   fprintf(stderr, "reading data %d\n", counter);
   uint32_t fileNo = 0;
   uint32_t offset = 0;
-  RetCode ret = plate_.Find(key.ToString(), &fileNo, &offset);
+  RetCode ret = plate_.Find(k, &fileNo, &offset);
   if (ret == kSucc) {
     value->clear();
     ret = store_.Read(fileNo, offset, value);
   } 
-  
   if (counter == 0) {
 	  fprintf(stderr, "reading first data, key : %s, and get %ld value\n",
-		key.ToString().c_str(), value->size());
+		k.c_str(), value->size());
   }
   counter ++;
   if (counter % 390000 == 0) {
 	  fprintf(stderr, "have read 390000 data\n");
   }
-  
-  // if (ret != kSucc) printf("[EngineRace] : read not succ \n");
   pthread_mutex_unlock(&mu_);
   return ret;
 }
