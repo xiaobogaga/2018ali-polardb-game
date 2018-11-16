@@ -64,7 +64,8 @@ RetCode DataStore::initFD() {
   cur_fileNo = (cur_fileNo == 0) ? 1 : cur_fileNo;
   // Get last data file offset
   int len = (int) GetFileLength(FileName(dataPath, cur_fileNo));
-  fprintf(stderr, "[DataStore] : open current file %s and length : %d\n", FileName(dataPath, cur_fileNo).c_str(), len);
+  fprintf(stderr, "[DataStore] : open current file %s and length : %d\n", 
+	FileName(dataPath, cur_fileNo).c_str(), len);
   if (len > 0) {
     cur_offset = len;
   }
