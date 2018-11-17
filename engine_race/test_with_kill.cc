@@ -51,7 +51,7 @@ public:
 	
 	void startKillableWriter(int threadSize, int writeTimes) {
 		this->threadSize = threadSize;
-		this->groups = new std::thread[threadSize];
+		this->groups = new (std::thread*)[threadSize];
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
 			groups[i] = new std::thread(writeTask, engine, 
@@ -95,7 +95,7 @@ public:
 
 private:
 	int threadSize;
-	std::thread* groups;
+	std::thread** groups;
 	EngineRace* engine;
 	std::default_random_engine random;
 	std::vector<PolarString> keys;
@@ -109,7 +109,7 @@ void writeAValue(EngineRace* engine, const PolarString& key,
 	
 	keys.push_back(key);
 	maps.insert( std::pair<PolarString, PolarString> (key, value));
-	engine.Write(key, value);
+	engine->Write(key, value);
 	
 	mutex.unlock();
 }
@@ -178,7 +178,7 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 		}
 		if (code == kSucc) {
 			std::map<PolarString, PolarString>::iterator ite = maps->find(key);
-			if (ite != maps.end()) {
+			if (ite != maps->end()) {
 				if (ite->second.compare(value) != 0) {
 					fprintf(stderr, "find an unmatching key\n");
 				}
@@ -186,7 +186,7 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 				fprintf(stderr, "find a doesn't exist key\n");
 			}
 		} else {
-			if (maps.count(key) != 0) {
+			if (maps->count(key) != 0) {
 				fprintf(stderr, "error couldn't find key\n");
 			}
 		}
@@ -209,7 +209,7 @@ public :
 	
 	void startReader(int threadSize, int readerTime) {
 		this->threadSize = threadSize;
-		this->groups = new std::thread[threadSize];
+		this->groups = new (std::thread*)[threadSize];
 		fprintf(stderr, "start reading\n");
 		for (int i = 0; i < threadSize; i++) {
 			this->groups[i] = new std::thread(testReader, this->engine, 
@@ -230,7 +230,7 @@ private:
 	int threadSize;
 	EngineRace* engine;
 	std::map<PolarString, PolarString>* maps;
-	std::thread* groups;
+	std::thread** groups;
 	std::default_random_engine random;
 	std::vector<PolarString>* keys;
 };
