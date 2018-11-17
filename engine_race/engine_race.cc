@@ -54,7 +54,7 @@ EngineRace::~EngineRace() {
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
-  const std::string& v = value.ToString();
+  const std::string v(value.data_, value.size_);
   const std::string& k = key.ToString();
   if (writeCounter == 0) {
     fprintf(stderr, "[EngineRace] : writing first data. key length : %lu, value length : %lu\n",
@@ -62,9 +62,9 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   }
   uint32_t offset = 0;
   uint64_t fileNo = 0;
-  RetCode ret = store_.Append(v, &fileNo, &offset, value.size());
+  RetCode ret = store_.Append(v, &fileNo, &offset, v.size());
   if (ret == kSucc) {
-    ret = plate_.AddOrUpdate(k, fileNo, offset, value.size());
+    ret = plate_.AddOrUpdate(k, fileNo, offset, v.size());
   }
   if (writeCounter == 0) {
 	  fprintf(stderr, "[EngineRace] : writing first data finished. key length : %lu, value length : %lu\n",

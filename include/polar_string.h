@@ -49,7 +49,7 @@ class PolarString {
             (memcmp(data_ + size_ - x.size_, x.data_, x.size_) == 0));
   }
 
- private:
+ public:
   const char* data_;
   size_t size_;
   // Intentionally copyable
