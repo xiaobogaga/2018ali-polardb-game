@@ -51,7 +51,7 @@ public:
 	
 	void startKillableWriter(int threadSize, int writeTimes) {
 		this->threadSize = threadSize;
-		this->groups = new (std::thread*)[threadSize];
+		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
 			groups[i] = new std::thread(writeTask, engine, 
@@ -209,7 +209,7 @@ public :
 	
 	void startReader(int threadSize, int readerTime) {
 		this->threadSize = threadSize;
-		this->groups = new (std::thread*)[threadSize];
+		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start reading\n");
 		for (int i = 0; i < threadSize; i++) {
 			this->groups[i] = new std::thread(testReader, this->engine, 
