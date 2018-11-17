@@ -4,14 +4,14 @@
 #include "include/engine.h"
 #include "engine_race.h"
 
-static const char kEnginePath[] = "/tmp/test_engine";
-static const char kDumpPath[] = "/tmp/test_dump";
-
 using polar_race::EngineRace;
 using polar_race::Engine;
 using polar_race::PolarString;
 using polar_race::RetCode;
-using polar_race::Visitor;
+using polar_race::Visitor; 	
+
+static const char kEnginePath[] = "/tmp/test_engine";
+static const char kDumpPath[] = "/tmp/test_dump";
 
 class DumpVisitor : public Visitor {
 public:
@@ -31,8 +31,8 @@ private:
 
 int main() {
   Engine *engine = NULL;
-
-  RetCode ret = Engine::Open(kDumpPath, &engine);
+  std::string path(kDumpPath);
+  RetCode ret = Engine::Open(path, &engine);
   assert (ret == RetCode::kSucc);
 
   ret = engine->Write("aaaaaaaa", "aaaaaaaaaaa");
