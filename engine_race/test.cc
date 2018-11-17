@@ -6,7 +6,10 @@
 static const char kEnginePath[] = "/tmp/test_engine";
 static const char kDumpPath[] = "/tmp/test_dump";
 
-using namespace polar_race;
+using polar_race::EngineRace;
+using polar_race::Engine;
+using polar_race::PolarString;
+using polar_race::RetCode;
 
 class DumpVisitor : public Visitor {
 public:
@@ -28,39 +31,39 @@ int main() {
   Engine *engine = NULL;
 
   RetCode ret = Engine::Open(kDumpPath, &engine);
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
 
   ret = engine->Write("aaaaaaaa", "aaaaaaaaaaa");
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
   ret = engine->Write("aaaaaaaa", "111111111111111111111111111111111111111111");
   ret = engine->Write("bbbbbbbb", "2222222");
   ret = engine->Write("aaa", "33333333333333333333");
   ret = engine->Write("aaa", "4");
 
   ret = engine->Write("bbb", "bbbbbbbbbbbb");
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
 
   ret = engine->Write("ccd", "cbbbbbbbbbbbb");
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
   
   std::string value;
   ret = engine->Read("aaaaaaaa", &value);
   fprintf(stderr, "Read aaaaaaaa value: %s\n", value.c_str());
   
   ret = engine->Read("bbbbbbbb", &value);
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
   fprintf(stderr, "Read bbbbbbbb value: %s\n", value.c_str());
   
   ret = engine->Read("aaa", &value);
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
   fprintf(stderr, "Read aaa value: %s\n", value.c_str());
   
   ret = engine->Read("bbb", &value);
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
   fprintf(stderr, "Read bbb value: %s\n", value.c_str());
   
   ret = engine->Read("ccd", &value);
-  assert (ret == kSucc);
+  assert (ret == RetCode::kSucc);
   fprintf(stderr, "Read ccd value: %s\n", value.c_str());
 
   delete engine;
