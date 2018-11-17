@@ -244,7 +244,7 @@ int main(int argc, char** argv) {
 	int writingTime = atoi(argv[2]);
 	std::string path(kDumpPath);
 	Engine* engine = NULL;
-	EngineRace::Open(path, &engine);
+	Engine::Open(path, &engine);
 	delete engine; // finilize.
 	EngineRace::Open(path, &engine);
 	WriterTask writeTask(engine);
