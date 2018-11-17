@@ -12,6 +12,7 @@
 #include <vector>
 
 using polar_race::EngineRace;
+using polar_race::Engine;
 using polar_race::PolarString;
 using polar_race::RetCode;
 
@@ -137,7 +138,7 @@ void writeTask(EngineRace* engine, std::default_random_engine& random,
 	for (int i = 0; i < writeTimes && !shutdown; i++) {
 		if (i % 6 != 0) {
 			PolarString value = generateValue(random);
-			writeAValue(engine, keys.at(random() % keys.size()),value, keys);
+			writeAValue(engine, keys.at(random() % keys.size()),value, maps, keys);
 		} else {	
 			PolarString key = generateAKey(random);
 			PolarString value = generateValue(random);
@@ -152,7 +153,7 @@ void writeTask2(EngineRace* engine, std::default_random_engine& random,
 	for (int i = 0; i < writeTimes; i++) {
 		if (i % 6 != 0) {
 			PolarString value = generateValue(random);
-			writeAValue(engine, keys.at(random() % keys.size()), value, keys);
+			writeAValue(engine, keys.at(random() % keys.size()), value, maps, keys);
 		} else {	
 			PolarString key = generateAKey(random);
 			PolarString value = generateValue(random);
@@ -167,7 +168,7 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
-		RetCode code = 0;
+		RetCode code = RetCode::kSucc;
 		PolarString key;
 		if (i % 2 == 0) {
 			key = keys.at(i);
@@ -244,7 +245,7 @@ int main(int argc, char** argv) {
 	std::string path(kDumpPath);
 	Engine* engine = NULL;
 	EngineRace::Open(path, &engine);
-	delete engine; // finilize.
+	delete (*engine); // finilize.
 	EngineRace::Open(path, &engine);
 	WriterTask writeTask(engine);
 	writeTask.startKillableWriter(threadSize, writingTime);
@@ -253,6 +254,6 @@ int main(int argc, char** argv) {
 	writeTask.waitThreadEnd();
 	
 	// todo
-	delete engine; // finilize.
+	delete (*engine); // finilize.
 	return 0;
 }
