@@ -39,13 +39,13 @@ int main() {
   assert (ret == RetCode::kSucc);
   ret = engine->Write("aaaaaaaa", "111111111111111111111111111111111111111111");
   ret = engine->Write("bbbbbbbb", "2222222");
-  ret = engine->Write("aaa", "33333333333333333333");
-  ret = engine->Write("aaa", "4");
+  ret = engine->Write("cccccccc", "33333333333333333333");
+  ret = engine->Write("dddddddd", "4");
 
-  ret = engine->Write("bbb", "bbbbbbbbbbbb");
+  ret = engine->Write("dddddddd", "bbbbbbbbbbbb");
   assert (ret == RetCode::kSucc);
 
-  ret = engine->Write("ccd", "cbbbbbbbbbbbb");
+  ret = engine->Write("cccccccc", "cbbbbbbbbbbbb");
   assert (ret == RetCode::kSucc);
   
   std::string value;
@@ -56,17 +56,13 @@ int main() {
   assert (ret == RetCode::kSucc);
   fprintf(stderr, "Read bbbbbbbb value: %s\n", value.c_str());
   
-  ret = engine->Read("aaa", &value);
+  ret = engine->Read("cccccccc", &value);
   assert (ret == RetCode::kSucc);
-  fprintf(stderr, "Read aaa value: %s\n", value.c_str());
+  fprintf(stderr, "Read cccccccc value: %s\n", value.c_str());
   
-  ret = engine->Read("bbb", &value);
+  ret = engine->Read("dddddddd", &value);
   assert (ret == RetCode::kSucc);
-  fprintf(stderr, "Read bbb value: %s\n", value.c_str());
-  
-  ret = engine->Read("ccd", &value);
-  assert (ret == RetCode::kSucc);
-  fprintf(stderr, "Read ccd value: %s\n", value.c_str());
+  fprintf(stderr, "Read dddddddd value: %s\n", value.c_str());
 
   delete engine;
 
