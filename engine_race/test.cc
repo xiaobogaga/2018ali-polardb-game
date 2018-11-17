@@ -35,7 +35,7 @@ int main() {
   RetCode ret = Engine::Open(path, &engine);
   assert (ret == RetCode::kSucc);
 
-  ret = engine->Write("aaaaaaaa", "aaaaaaaaaaa");
+  ret = engine->Write("aaaaaaaa", "");
   assert (ret == RetCode::kSucc);
   ret = engine->Write("aaaaaaaa", "111111111111111111111111111111111111111111");
   ret = engine->Write("bbbbbbbb", "2222222");

@@ -56,10 +56,10 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
   const std::string v(value.data_, value.size_);
   const std::string& k = key.ToString();
-  if (writeCounter == 0) {
-    fprintf(stderr, "[EngineRace] : writing first data. key length : %lu, value length : %lu\n",
+  // if (writeCounter == 0) {
+    fprintf(stderr, "[EngineRace] : writing data. key length : %lu, value length : %lu\n",
         k.size(), v.size());
-  }
+  // }
   uint32_t offset = 0;
   uint64_t fileNo = 0;
   RetCode ret = store_.Append(v, &fileNo, &offset, v.size());
