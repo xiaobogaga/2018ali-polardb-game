@@ -106,13 +106,12 @@ private:
 void writeAValue(Engine* engine, PolarString& key, 
 	PolarString& value, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys) {
-	mutex.lock();
 	
 	keys.push_back(key);
 	maps.insert( std::pair<PolarString, PolarString> (key, value));
 	engine->Write(key, value);
 	
-	mutex.unlock();
+	
 }
 
 PolarString generateAKey(std::default_random_engine& random) {
@@ -136,6 +135,7 @@ void writeTask(Engine* engine, std::default_random_engine& random,
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes && !shutdown; i++) {
+		mutex.lock();
 		if (i % 6 != 0) {
 			PolarString value = generateValue(random);
 			writeAValue(engine, keys.at(random() % keys.size()),value, maps, keys);
@@ -144,6 +144,7 @@ void writeTask(Engine* engine, std::default_random_engine& random,
 			PolarString value = generateValue(random);
 			writeAValue(engine, key, value, maps, keys);
 		}
+		mutex.unlock();
 	}
 }
 
@@ -151,6 +152,7 @@ void writeTask2(Engine* engine, std::default_random_engine& random,
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes; i++) {
+		mutex.lock();
 		if (i % 6 != 0) {
 			PolarString value = generateValue(random);
 			writeAValue(engine, keys.at(random() % keys.size()), value, maps, keys);
@@ -159,6 +161,7 @@ void writeTask2(Engine* engine, std::default_random_engine& random,
 			PolarString value = generateValue(random);
 			writeAValue(engine, key, value, maps, keys);
 		}
+		mutex.unlock();
 	}
 }
 
