@@ -18,6 +18,8 @@ class EngineRace : public Engine  {
     : mu_(PTHREAD_MUTEX_INITIALIZER),
     db_lock_(NULL), plate_(dir), store_(dir), writeCounter(0),
 	readCounter(0) {
+		fprintf(stderr, "[EngineRace] : creating an engineRace instance at %s\n", 
+			dir.c_str());
     }
 
   ~EngineRace();
