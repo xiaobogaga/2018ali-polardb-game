@@ -21,7 +21,7 @@ static const char kDumpPath[] = "/tmp/test_dump";
 static std::mutex mutex;
 static volatile bool shutdown = false;
 
-void writeAValue(EngineRace* engine, PolarString& key, 
+void writeAValue(Engine* engine, PolarString& key, 
 	const PolarString& value, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys);
 
@@ -29,21 +29,21 @@ PolarString generateAKey(std::default_random_engine& random);
 
 PolarString generateValue(std::default_random_engine& random);
 
-void writeTask(EngineRace* engine, std::default_random_engine& random, 
+void writeTask(Engine* engine, std::default_random_engine& random, 
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys);
 	
-void writeTask2(EngineRace* engine, std::default_random_engine& random, 
+void writeTask2(Engine* engine, std::default_random_engine& random, 
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys);
 
-void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps, 
+void testReader(Engine* engine, std::map<PolarString, PolarString> *maps, 
 	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random);
 	
 class WriterTask {
 
 public:	
-	WriterTask(EngineRace* engine) {
+	WriterTask(Engine* engine) {
 		this->engine = engine;
 		this->groups = NULL;
 		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -97,13 +97,13 @@ public:
 private:
 	int threadSize;
 	std::thread** groups;
-	EngineRace* engine;
+	Engine* engine;
 	std::default_random_engine random;
 	std::vector<PolarString> keys;
 };
 
 
-void writeAValue(EngineRace* engine, PolarString& key, 
+void writeAValue(Engine* engine, PolarString& key, 
 	PolarString& value, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys) {
 	mutex.lock();
@@ -132,7 +132,7 @@ PolarString generateValue(std::default_random_engine& random) {
 	return PolarString(buf, size);
 }
 
-void writeTask(EngineRace* engine, std::default_random_engine& random, 
+void writeTask(Engine* engine, std::default_random_engine& random, 
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes && !shutdown; i++) {
@@ -147,7 +147,7 @@ void writeTask(EngineRace* engine, std::default_random_engine& random,
 	}
 }
 
-void writeTask2(EngineRace* engine, std::default_random_engine& random, 
+void writeTask2(Engine* engine, std::default_random_engine& random, 
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes; i++) {
@@ -164,7 +164,7 @@ void writeTask2(EngineRace* engine, std::default_random_engine& random,
 
 
 
-void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps, 
+void testReader(Engine* engine, std::map<PolarString, PolarString> *maps, 
 	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
@@ -197,7 +197,7 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 class ReaderPro {
 	
 public :
-	ReaderPro (EngineRace* engine, std::map<PolarString, PolarString>* maps, 
+	ReaderPro (Engine* engine, std::map<PolarString, PolarString>* maps, 
 		std::vector<PolarString>* keys) {
 		this->engine = engine;
 		this->maps = maps;
@@ -229,7 +229,7 @@ public :
 	
 private:
 	int threadSize;
-	EngineRace* engine;
+	Engine* engine;
 	std::map<PolarString, PolarString>* maps;
 	std::thread** groups;
 	std::default_random_engine random;
