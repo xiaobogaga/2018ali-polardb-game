@@ -37,8 +37,8 @@ void writeTask2(Engine* engine, std::default_random_engine& random,
 	int writeTimes, std::map<PolarString, PolarString>& maps, 
 	std::vector<PolarString>& keys);
 
-void testReader(Engine* engine, std::map<PolarString, PolarString> *maps, 
-	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random);
+void testReader(Engine* engine, std::map<PolarString, PolarString>* maps, 
+	std::vector<PolarString>* keys, int readerTime, std::default_random_engine& random);
 	
 class WriterTask {
 
@@ -55,8 +55,8 @@ public:
 		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
-			groups[i] = new std::thread(writeTask, engine, 
-				this->random, writeTimes, this->maps, this->keys);
+			groups[i] = new std::thread(writeTask, std::ref(engine), 
+				std::ref(this->random), writeTimes, std::ref(this->maps), std::ref(this->keys));
 		}
 		fprintf(stderr, "end writing\n");
 	}
@@ -66,8 +66,8 @@ public:
 		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
-			groups[i] = new std::thread(writeTask2, engine, 
-				this->random, writeTimes, this->maps, this->keys);
+			groups[i] = new std::thread(writeTask, std::ref(engine), 
+				std::ref(this->random), writeTimes, std::ref(this->maps), std::ref(this->keys));
 		}
 		for (int i = 0; i < threadSize; i++) {
 			groups[i]->join();
@@ -99,7 +99,6 @@ private:
 	std::thread** groups;
 	Engine* engine;
 	std::default_random_engine random;
-	std::map<PolarString, PolarString> maps;
 	std::vector<PolarString> keys;
 };
 
@@ -165,14 +164,14 @@ void writeTask2(Engine* engine, std::default_random_engine& random,
 
 
 
-void testReader(Engine* engine, std::map<PolarString, PolarString> *maps, 
-	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random) {
+void testReader(Engine* engine, std::map<PolarString, PolarString>* maps, 
+	std::vector<PolarString>* keys, int readerTime, std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
 		RetCode code = RetCode::kSucc;
 		PolarString key;
 		if (i % 2 == 0) {
-			key = keys.at(i);
+			key = keys->at(i);
 			code = engine->Read(key, &value);
 		} else {
 			key = generateAKey(random);
@@ -215,7 +214,7 @@ public :
 		fprintf(stderr, "start reading\n");
 		for (int i = 0; i < threadSize; i++) {
 			this->groups[i] = new std::thread(testReader, this->engine, 
-				this->maps, readerTime, this->random);
+				this->maps, this->keys, readerTime, this->random);
 		}
 		for (int i = 0; i < threadSize; i++) {
 			this->groups[i]->join();
