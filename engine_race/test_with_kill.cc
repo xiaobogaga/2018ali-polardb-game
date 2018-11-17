@@ -17,27 +17,27 @@ using polar_race::RetCode;
 
 static const char kEnginePath[] = "/tmp/test_engine";
 static const char kDumpPath[] = "/tmp/test_dump";
-static const std::mutex mutex;
+static std::mutex mutex;
 static volatile bool shutdown = false;
 
-void writeAValue(EngineRace* engine, const PolarString& key, 
-	const PolarString& value, const std::map<PolarString, PolarString>& maps, 
-	const std::vector<PolarString>& keys);
+void writeAValue(EngineRace* engine, PolarString& key, 
+	const PolarString& value, std::map<PolarString, PolarString>& maps, 
+	std::vector<PolarString>& keys);
 
-PolarString generateAKey(const std::default_random_engine& random);
+PolarString generateAKey(std::default_random_engine& random);
 
-PolarString generateValue(const std::default_random_engine& random);
+PolarString generateValue(std::default_random_engine& random);
 
-void writeTask(EngineRace* engine, const std::default_random_engine& random, 
-	int writeTimes, const std::map<PolarString, PolarString>& maps, 
-	const std::vector<PolarString>& keys);
+void writeTask(EngineRace* engine, std::default_random_engine& random, 
+	int writeTimes, std::map<PolarString, PolarString>& maps, 
+	std::vector<PolarString>& keys);
 	
-void writeTask2(EngineRace* engine, const std::default_random_engine& random, 
-	int writeTimes, const std::map<PolarString, PolarString>& maps, 
-	const std::vector<PolarString>& keys);
+void writeTask2(EngineRace* engine, std::default_random_engine& random, 
+	int writeTimes, std::map<PolarString, PolarString>& maps, 
+	std::vector<PolarString>& keys);
 
 void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps, 
-	std::vector<PolarString> keys, int readerTime, const std::default_random_engine& random);
+	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random);
 	
 class WriterTask {
 
@@ -62,7 +62,7 @@ public:
 	
 	void startPerformanceWrite(int threadSize, int writeTimes) {
 		this->threadSize = threadSize;
-		this->groups = new std::thread[threadSize];
+		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
 			groups[i] = new std::thread(writeTask2, engine, 
@@ -102,9 +102,9 @@ private:
 };
 
 
-void writeAValue(EngineRace* engine, const PolarString& key, 
-	const PolarString& value, const std::map<PolarString, PolarString>& maps, 
-	const std::vector<PolarString>& keys) {
+void writeAValue(EngineRace* engine, PolarString& key, 
+	PolarString& value, std::map<PolarString, PolarString>& maps, 
+	std::vector<PolarString>& keys) {
 	mutex.lock();
 	
 	keys.push_back(key);
@@ -114,7 +114,7 @@ void writeAValue(EngineRace* engine, const PolarString& key,
 	mutex.unlock();
 }
 
-PolarString generateAKey(const std::default_random_engine& random) {
+PolarString generateAKey(std::default_random_engine& random) {
 	char buf[8];
 	for (int i = 0; i < 8; i++) {
 		buf[i] = random() % 256;
@@ -122,7 +122,7 @@ PolarString generateAKey(const std::default_random_engine& random) {
 	return PolarString(buf, 8);
 }
 
-PolarString generateValue(const std::default_random_engine& random) {
+PolarString generateValue(std::default_random_engine& random) {
 	size_t size = random() % 4096;
 	char buf[size];
 	for (int i = 0; i < size; i++) {
@@ -131,31 +131,31 @@ PolarString generateValue(const std::default_random_engine& random) {
 	return PolarString(buf, size);
 }
 
-void writeTask(EngineRace* engine, const std::default_random_engine& random, 
-	int writeTimes, const std::map<PolarString, PolarString>& maps, 
-	const std::vector<PolarString>& keys) {
+void writeTask(EngineRace* engine, std::default_random_engine& random, 
+	int writeTimes, std::map<PolarString, PolarString>& maps, 
+	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes && !shutdown; i++) {
 		if (i % 6 != 0) {
-			const PolarString& value = generateValue(random);
+			PolarString& value = generateValue(random);
 			writeAValue(engine, keys.at(random() % keys.size()),value, keys);
 		} else {	
-			const PolarString& key = generateAKey(random);
-			const PolarString& value = generateValue(random);
+			PolarString& key = generateAKey(random);
+			PolarString& value = generateValue(random);
 			writeAValue(engine, key, value, maps, keys);
 		}
 	}
 }
 
-void writeTask2(EngineRace* engine, const std::default_random_engine& random, 
-	int writeTimes, const std::map<PolarString, PolarString>& maps, 
-	const std::vector<PolarString>& keys) {
+void writeTask2(EngineRace* engine, std::default_random_engine& random, 
+	int writeTimes, std::map<PolarString, PolarString>& maps, 
+	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes; i++) {
 		if (i % 6 != 0) {
-			const PolarString& value = generateValue(random);
+			PolarString& value = generateValue(random);
 			writeAValue(engine, keys.at(random() % keys.size()), value, keys);
 		} else {	
-			const PolarString& key = generateAKey(random);
-			const PolarString& value = generateValue(random);
+			PolarString& key = generateAKey(random);
+			PolarString& value = generateValue(random);
 			writeAValue(engine, key, value, maps, keys);
 		}
 	}
@@ -164,7 +164,7 @@ void writeTask2(EngineRace* engine, const std::default_random_engine& random,
 
 
 void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps, 
-	std::vector<PolarString> keys, int readerTime, const std::default_random_engine& random) {
+	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
 		RetCode code = kSucc;
