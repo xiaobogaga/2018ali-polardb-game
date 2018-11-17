@@ -245,7 +245,7 @@ int main(int argc, char** argv) {
 	std::string path(kDumpPath);
 	Engine* engine = NULL;
 	EngineRace::Open(path, &engine);
-	delete (*engine); // finilize.
+	delete engine; // finilize.
 	EngineRace::Open(path, &engine);
 	WriterTask writeTask(engine);
 	writeTask.startKillableWriter(threadSize, writingTime);
@@ -254,6 +254,6 @@ int main(int argc, char** argv) {
 	writeTask.waitThreadEnd();
 	
 	// todo
-	delete (*engine); // finilize.
+	delete engine; // finilize.
 	return 0;
 }
