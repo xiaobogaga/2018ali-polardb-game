@@ -80,11 +80,11 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
+  const std::string& k = key.ToString();
   if (readCounter == 0) {
 	  fprintf(stderr, "[EngineRace] : reading first data, key : %lu, and get %lu value\n",
 		k.size(), value->size());
   }
-  const std::string& k = key.ToString();
   uint64_t fileNo = 0;
   uint32_t offset = 0;
   uint32_t vLen = 0;
