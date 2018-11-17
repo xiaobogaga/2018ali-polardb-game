@@ -60,22 +60,30 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     fprintf(stderr, "[EngineRace] : writing first data. key length : %lu, value length : %lu\n",
         k.size(), v.size());
   }
-  writeCounter ++;
-  if (writeCounter % 390000 == 0) {
-    fprintf(stderr, "[EngineRace] : have writing 390000 data\n");
-  }
   uint32_t offset = 0;
   uint64_t fileNo = 0;
   RetCode ret = store_.Append(v, &fileNo, &offset, value.size());
   if (ret == kSucc) {
     ret = plate_.AddOrUpdate(k, fileNo, offset, value.size());
-  } 
+  }
+  if (writeCounter == 0) {
+	  fprintf(stderr, "[EngineRace] : writing first data finished. key length : %lu, value length : %lu\n",
+        k.size(), v.size());
+  }
+  writeCounter ++;
+  if (writeCounter % 390000 == 0) {
+    fprintf(stderr, "[EngineRace] : have writing 390000 data\n");
+  }
   pthread_mutex_unlock(&mu_);
   return ret;
 }
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
+  if (readCounter == 0) {
+	  fprintf(stderr, "[EngineRace] : reading first data, key : %lu, and get %lu value\n",
+		k.size(), value->size());
+  }
   const std::string& k = key.ToString();
   uint64_t fileNo = 0;
   uint32_t offset = 0;
@@ -86,10 +94,9 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     ret = store_.Read(fileNo, offset, vLen, value);
   } 
   if (readCounter == 0) {
-	  fprintf(stderr, "[EngineRace] : reading first data, key : %lu, and get %lu value\n",
+	  fprintf(stderr, "[EngineRace] : reading first data finished, key : %lu, and get %lu value\n",
 		k.size(), value->size());
   }
-  
   readCounter ++;
   if (readCounter % 390000 == 0) {
 	  fprintf(stderr, "[EngineRace] : have read 390000 data\n");
