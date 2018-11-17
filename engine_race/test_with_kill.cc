@@ -58,7 +58,6 @@ public:
 			groups[i] = new std::thread(writeTask, std::ref(engine), 
 				std::ref(this->random), writeTimes, std::ref(this->maps), std::ref(this->keys));
 		}
-		fprintf(stderr, "end writing\n");
 	}
 	
 	void startPerformanceWrite(int threadSize, int writeTimes) {
@@ -87,6 +86,7 @@ public:
 			delete this->groups[i];
 		delete[] this->groups;
 		this->groups = NULL;
+		fprintf(stderr, "end writing \n");
 	}
 	
 	~WriterTask() {
