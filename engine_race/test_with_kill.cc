@@ -214,7 +214,7 @@ public :
 		fprintf(stderr, "start reading\n");
 		for (int i = 0; i < threadSize; i++) {
 			this->groups[i] = new std::thread(testReader, this->engine, 
-				this->maps, this->keys, readerTime, this->random);
+				this->maps, this->keys, readerTime, std::ref(this->random));
 		}
 		for (int i = 0; i < threadSize; i++) {
 			this->groups[i]->join();
