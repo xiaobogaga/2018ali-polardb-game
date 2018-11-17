@@ -136,11 +136,11 @@ void writeTask(EngineRace* engine, std::default_random_engine& random,
 	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes && !shutdown; i++) {
 		if (i % 6 != 0) {
-			PolarString& value = generateValue(random);
+			PolarString value = generateValue(random);
 			writeAValue(engine, keys.at(random() % keys.size()),value, keys);
 		} else {	
-			PolarString& key = generateAKey(random);
-			PolarString& value = generateValue(random);
+			PolarString key = generateAKey(random);
+			PolarString value = generateValue(random);
 			writeAValue(engine, key, value, maps, keys);
 		}
 	}
@@ -151,11 +151,11 @@ void writeTask2(EngineRace* engine, std::default_random_engine& random,
 	std::vector<PolarString>& keys) {
 	for (int i = 0; i < writeTimes; i++) {
 		if (i % 6 != 0) {
-			PolarString& value = generateValue(random);
+			PolarString value = generateValue(random);
 			writeAValue(engine, keys.at(random() % keys.size()), value, keys);
 		} else {	
-			PolarString& key = generateAKey(random);
-			PolarString& value = generateValue(random);
+			PolarString key = generateAKey(random);
+			PolarString value = generateValue(random);
 			writeAValue(engine, key, value, maps, keys);
 		}
 	}
@@ -167,16 +167,16 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 	std::vector<PolarString> keys, int readerTime, std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
-		RetCode code = kSucc;
+		RetCode code = 0;
 		PolarString key;
 		if (i % 2 == 0) {
 			key = keys.at(i);
-			code engine->Read(key, &value);
+			code = engine->Read(key, &value);
 		} else {
 			key = generateAKey(random);
 			code = engine->Read(key, &value);
 		}
-		if (code == kSucc) {
+		if (code == 0) {
 			std::map<PolarString, PolarString>::iterator ite = maps->find(key);
 			if (ite != maps->end()) {
 				if (ite->second.compare(value) != 0) {
@@ -216,7 +216,7 @@ public :
 				this->maps, readerTime, this->random);
 		}
 		for (int i = 0; i < threadSize; i++) {
-			this->groups[i].join();
+			this->groups[i]->join();
 		}
 		fprintf(stderr, "end reading\n");
 		for (int i = 0; i < threadSize; i++)
@@ -242,7 +242,7 @@ int main(int argc, char** argv) {
 	int threadSize = atoi(argv[1]);
 	int writingTime = atoi(argv[2]);
 	std::string path(kDumpPath);
-	EngineRace* engine = NULL;
+	Engine* engine = NULL;
 	EngineRace::Open(path, &engine);
 	delete engine; // finilize.
 	EngineRace::Open(path, &engine);
