@@ -93,13 +93,13 @@ public:
 	}
 	
 	std::map<PolarString, PolarString> maps;
+	std::vector<PolarString> keys;
 
 private:
 	int threadSize;
 	std::thread** groups;
 	Engine* engine;
 	std::default_random_engine random;
-	std::vector<PolarString> keys;
 };
 
 
@@ -252,8 +252,9 @@ int main(int argc, char** argv) {
 	std::this_thread::sleep_for (std::chrono::seconds(10)); // sleeping for ten seconds.
 	shutdown = true;
 	writeTask.waitThreadEnd();
-	
-	// todo
+	ReaderPro readerPro(engine, &writeTask.maps, &writeTask.keys);
+	readerPro.startReader(threadSize, writingTime);
 	delete engine; // finilize.
+	
 	return 0;
 }
