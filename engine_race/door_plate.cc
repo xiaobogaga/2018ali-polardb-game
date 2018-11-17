@@ -98,7 +98,7 @@ RetCode DoorPlate::Init() {
 
 DoorPlate::~DoorPlate() {
   fprintf(stderr, "[DoorPlate] : finalize door plate\n");
-  if (fd_ > 0) {
+  if (fd_ >= 0) {
     const int map_size = kMaxDoorCnt * sizeof(Item);
     munmap(items_, map_size);
     close(fd_);
@@ -143,6 +143,7 @@ RetCode DoorPlate::Find(const std::string& key, uint64_t* fileNo,
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
+	fprintf(stderr, "[DoorPlate] : key not found\n");
     return kNotFound;
   }
   Item* i = items_ + index;

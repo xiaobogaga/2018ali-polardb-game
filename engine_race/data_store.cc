@@ -83,6 +83,7 @@ RetCode DataStore::Append(const std::string& value, uint64_t* fileNo,
   }
 	
   if (value.size() > kSingleFileSize) {
+	fprintf(stderr, "[DataStore] : value size not correct\n");
     return kInvalidArgument;
   }
 
