@@ -56,7 +56,7 @@ public:
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
 			groups[i] = new std::thread(writeTask, engine, 
-				this->random, writeTimes);
+				this->random, writeTimes, this->maps, this->keys);
 		}
 		fprintf(stderr, "end writing\n");
 	}
@@ -67,7 +67,7 @@ public:
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
 			groups[i] = new std::thread(writeTask2, engine, 
-				this->random, writeTimes);
+				this->random, writeTimes, this->maps, this->keys);
 		}
 		for (int i = 0; i < threadSize; i++) {
 			groups[i]->join();
@@ -99,6 +99,7 @@ private:
 	std::thread** groups;
 	Engine* engine;
 	std::default_random_engine random;
+	std::map<PolarString, PolarString> maps;
 	std::vector<PolarString> keys;
 };
 
