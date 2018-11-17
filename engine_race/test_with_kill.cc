@@ -13,6 +13,7 @@
 
 using polar_race::EngineRace;
 using polar_race::PolarString;
+using polar_race::Retcode;
 
 static const char kEnginePath[] = "/tmp/test_engine";
 static const char kDumpPath[] = "/tmp/test_dump";
@@ -59,7 +60,7 @@ public:
 		fprintf(stderr, "end writing\n");
 	}
 	
-	void startPerformanceWrite(int threadSize, int writeTime) {
+	void startPerformanceWrite(int threadSize, int writeTimes) {
 		this->threadSize = threadSize;
 		this->groups = new std::thread[threadSize];
 		fprintf(stderr, "start writing\n");
@@ -98,7 +99,7 @@ private:
 	EngineRace* engine;
 	std::default_random_engine random;
 	std::vector<PolarString> keys;
-}
+};
 
 
 void writeAValue(EngineRace* engine, const PolarString& key, 
@@ -122,7 +123,7 @@ PolarString generateAKey(const std::default_random_engine& random) {
 }
 
 PolarString generateValue(const std::default_random_engine& random) {
-	size_t size = e() % 4096;
+	size_t size = random() % 4096;
 	char buf[size];
 	for (int i = 0; i < size; i++) {
 		buf[i] = random() % 256;
@@ -166,14 +167,14 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 	std::vector<PolarString> keys, int readerTime, const std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
-		Retcode code;
-		PolarString& key;
+		Retcode code = kSucc;
+		PolarString key;
 		if (i % 2 == 0) {
 			key = keys.at(i);
 			code engine->Read(key, &value);
 		} else {
 			key = generateAKey(random);
-			code = engine.Read(key, &value);
+			code = engine->Read(key, &value);
 		}
 		if (code == kSucc) {
 			std::map<PolarString, PolarString>::iterator ite = maps->find(key);
@@ -229,10 +230,10 @@ private:
 	int threadSize;
 	EngineRace* engine;
 	std::map<PolarString, PolarString>* maps;
-	std::thead* groups;
-	default_random_engine random;
+	std::thread* groups;
+	std::default_random_engine random;
 	std::vector<PolarString>* keys;
-}
+};
 
 
 int main(int argc, char** argv) {
@@ -246,7 +247,7 @@ int main(int argc, char** argv) {
 	delete engine; // finilize.
 	EngineRace::Open(path, &engine);
 	WriterTask writeTask(engine);
-	writeTask.startKillableWriter(threadSize, writing_time);
+	writeTask.startKillableWriter(threadSize, writingTime);
 	std::this_thread::sleep_for (std::chrono::seconds(10)); // sleeping for ten seconds.
 	shutdown = true;
 	writeTask.waitThreadEnd();
