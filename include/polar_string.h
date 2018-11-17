@@ -64,6 +64,10 @@ inline bool operator!=(const PolarString& x, const PolarString& y) {
   return !(x == y);
 }
 
+inline int operator<(const PolarString& x, const PolarString& y) {
+	return x.compare(b);
+}
+
 inline std::string PolarString::ToString() const {
   std::string result;
   result.assign(data_, size_);
