@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include "include/engine.h"
+#include "engine_race.h"
 
 static const char kEnginePath[] = "/tmp/test_engine";
 static const char kDumpPath[] = "/tmp/test_dump";
@@ -10,6 +11,7 @@ using polar_race::EngineRace;
 using polar_race::Engine;
 using polar_race::PolarString;
 using polar_race::RetCode;
+using polar_race::Visitor;
 
 class DumpVisitor : public Visitor {
 public:

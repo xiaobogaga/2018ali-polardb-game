@@ -15,6 +15,7 @@ static const int kDataFilePrefixLen = 5;
 static const int kSingleFileSize = 1024 * 1024 * 256;
 static const int keysize = 8;
 static const int valuesize = 4096;
+static char buf[valuesize];
 
 static std::string FileName(const std::string &dir, uint32_t fileno) {
   return dir + "/" + kDataFilePrefix + std::to_string(fileno);
@@ -121,7 +122,6 @@ RetCode DataStore::Read(uint64_t fileNo, uint32_t offset, uint32_t vLen, std::st
   if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
   
   lseek(fd, offset, SEEK_SET);
-  char* buf = buf = new char[vLen];
   char* pos = buf;
   uint32_t value_len = vLen;
   while (value_len > 0) {

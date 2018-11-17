@@ -126,7 +126,7 @@ PolarString generateAKey(std::default_random_engine& random) {
 PolarString generateValue(std::default_random_engine& random) {
 	size_t size = random() % 4096;
 	char buf[size];
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		buf[i] = random() % 256;
 	}
 	return PolarString(buf, size);
