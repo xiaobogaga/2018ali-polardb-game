@@ -13,7 +13,7 @@
 
 using polar_race::EngineRace;
 using polar_race::PolarString;
-using polar_race::Retcode;
+using polar_race::RetCode;
 
 static const char kEnginePath[] = "/tmp/test_engine";
 static const char kDumpPath[] = "/tmp/test_dump";
@@ -167,7 +167,7 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString> *maps,
 	std::vector<PolarString> keys, int readerTime, const std::default_random_engine& random) {
 	for (int i = 0; i < readerTime; i++) {
 		std::string value;
-		Retcode code = kSucc;
+		RetCode code = kSucc;
 		PolarString key;
 		if (i % 2 == 0) {
 			key = keys.at(i);
