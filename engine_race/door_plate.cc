@@ -140,7 +140,7 @@ RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offs
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
-	fprintf(stderr, "[DoorPlate] : key not found\n");
+	// fprintf(stderr, "[DoorPlate] : key not found\n");
     return kNotFound;
   }
   Item* i = items_ + index;
