@@ -77,8 +77,7 @@ RetCode DataStore::initFD() {
 
 
 
-RetCode DataStore::Append(const std::string& value, uint64_t* fileNo, 
-	uint32_t* offset, uint32_t vLen) {
+RetCode DataStore::Append(const std::string& value, uint32_t* fileNo, uint32_t* offset) {
   if (fd_ < 0) {
 	  initFD();
   }
@@ -97,7 +96,7 @@ RetCode DataStore::Append(const std::string& value, uint64_t* fileNo,
   }
 
   // Append write
-  if (0 != FileAppend(fd_, value, vLen)) {
+  if (0 != FileAppend(fd_, value, valuesize)) {
     fprintf(stderr, "[DataStore] : append to file failed\n");
     return kIOError;
   }
@@ -107,7 +106,7 @@ RetCode DataStore::Append(const std::string& value, uint64_t* fileNo,
   return kSucc;
 }
 
-RetCode DataStore::Read(uint64_t fileNo, uint32_t offset, uint32_t vLen, std::string* value) {
+RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
   int fd = -1;
   if (readFiles == NULL) readFiles = new std::map<int, int>();
   if (readFiles->count(fileNo) <= 0) {
@@ -123,7 +122,7 @@ RetCode DataStore::Read(uint64_t fileNo, uint32_t offset, uint32_t vLen, std::st
   
   lseek(fd, offset, SEEK_SET);
   char* pos = buf;
-  uint32_t value_len = vLen;
+  uint32_t value_len = valuesize;
   while (value_len > 0) {
     ssize_t r = read(fd, pos, value_len);
     if (r < 0) {
@@ -138,7 +137,7 @@ RetCode DataStore::Read(uint64_t fileNo, uint32_t offset, uint32_t vLen, std::st
     value_len -= r;
   }
   // todo
-  value->assign(buf, vLen);
+  value->assign(buf, valuesize);
   return kSucc;
 }
 

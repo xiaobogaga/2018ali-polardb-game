@@ -33,9 +33,8 @@ class DataStore  {
   }
 
   RetCode Init();
-  RetCode Read(uint64_t fileNo, uint32_t offset, uint32_t vLen, std::string* value);
-  RetCode Append(const std::string& value, uint64_t* fileNo, 
-	uint32_t* offset, uint32_t vLen);
+  RetCode Read(uint32_t fileNo, uint32_t offset, std::string* value);
+  RetCode Append(const std::string& value, uint32_t* fileNo, uint32_t* offset);
   RetCode initFD();
 
  private:

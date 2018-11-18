@@ -12,7 +12,7 @@
 
 namespace polar_race {
 
-static const uint32_t kMaxDoorCnt = 1024 * 1024 * 32;
+static const uint32_t kMaxDoorCnt = 1024 * 1024 * 64;
 static const std::string metaFilePath("/meta");
 static const std::string kMetaFileName("META");
 static const int kMaxRangeBufCount = kMaxDoorCnt;
@@ -121,8 +121,7 @@ int DoorPlate::CalcIndex(const std::string& key) {
   return index;
 }
 
-RetCode DoorPlate::AddOrUpdate(const std::string& key, uint64_t fileNo, uint32_t offset, 
-	uint32_t vLen) {
+RetCode DoorPlate::AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset) {
 
   int index = CalcIndex(key);
   if (index < 0) {
@@ -134,12 +133,10 @@ RetCode DoorPlate::AddOrUpdate(const std::string& key, uint64_t fileNo, uint32_t
   memcpy(iptr->key, key.data(), 8);
   iptr->fileNo = fileNo;
   iptr->offset = offset;
-  iptr->vLen = vLen;
   return kSucc;
 }
 
-RetCode DoorPlate::Find(const std::string& key, uint64_t* fileNo, 
-	uint32_t* offset, uint32_t* vLen) {
+RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offset) {
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
@@ -149,7 +146,6 @@ RetCode DoorPlate::Find(const std::string& key, uint64_t* fileNo,
   Item* i = items_ + index;
   (*fileNo) = i->fileNo;
   (*offset) = i->offset;
-  (*vLen) = i->vLen;
   return kSucc;
 }
 

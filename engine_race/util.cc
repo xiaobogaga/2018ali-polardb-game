@@ -92,7 +92,7 @@ int FileAppend(int fd, const std::string& value, uint32_t vLen) {
     pos += r;
     value_len -= r;
   }
-  // padding.
+  /* padding.
   const char* pos2 = buf2;
   value_len = 4096 - vLen;
   while (value_len > 0) {
@@ -107,6 +107,7 @@ int FileAppend(int fd, const std::string& value, uint32_t vLen) {
     pos2 += r;
     value_len -= r;
   }
+  */
   return 0;
 }
 
