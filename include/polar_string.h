@@ -49,7 +49,7 @@ class PolarString {
             (memcmp(data_ + size_ - x.size_, x.data_, x.size_) == 0));
   }
 
- public:
+ private:
   const char* data_;
   size_t size_;
   // Intentionally copyable
@@ -62,10 +62,6 @@ inline bool operator==(const PolarString& x, const PolarString& y) {
 
 inline bool operator!=(const PolarString& x, const PolarString& y) {
   return !(x == y);
-}
-
-inline int operator<(const PolarString& x, const PolarString& y) {
-	return x.compare(y);
 }
 
 inline std::string PolarString::ToString() const {
