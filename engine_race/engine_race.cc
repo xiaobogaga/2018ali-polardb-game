@@ -63,10 +63,10 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   }
   
   uint32_t offset = 0;
-  uint64_t fileNo = 0;
-  RetCode ret = store_.Append(v, &fileNo, &offset, v.size());
+  uint32_t fileNo = 0;
+  RetCode ret = store_.Append(v, &fileNo, &offset);
   if (ret == kSucc) {
-    ret = plate_.AddOrUpdate(k, fileNo, offset, v.size());
+    ret = plate_.AddOrUpdate(k, fileNo, offset);
   }
   
   if (writeCounter == 0) {
@@ -89,13 +89,12 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 		k.size(), value->size());
   }
   
-  uint64_t fileNo = 0;
+  uint32_t fileNo = 0;
   uint32_t offset = 0;
-  uint32_t vLen = 0;
-  RetCode ret = plate_.Find(k, &fileNo, &offset, &vLen);
+  RetCode ret = plate_.Find(k, &fileNo, &offset);
   if (ret == kSucc) {
     value->clear();
-    ret = store_.Read(fileNo, offset, vLen, value);
+    ret = store_.Read(fileNo, offset, value);
   } 
   
   if (readCounter == 0) {
