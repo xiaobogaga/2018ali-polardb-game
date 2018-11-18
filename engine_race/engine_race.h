@@ -37,8 +37,6 @@ class EngineRace : public Engine  {
 	readCounter = 0;
   }
 
-  int size() override;
-
  private:
   pthread_mutex_t mu_;
   FileLock* db_lock_;

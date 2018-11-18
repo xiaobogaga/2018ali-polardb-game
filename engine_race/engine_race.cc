@@ -42,7 +42,7 @@ EngineRace::~EngineRace() {
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
-  const std::string v(value.data_, value.size_);
+  const std::string& v = value.ToString();
   const std::string& k = key.ToString();
   // if (writeCounter == 0) {
     fprintf(stderr, "[EngineRace] : writing data. key length : %lu, value length : %lu\n",
@@ -87,10 +87,6 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
 
   pthread_mutex_unlock(&mu_);
   return kSucc;
-}
-
-int EngineRace::size() {
-  return 0;
 }
 
 }  // namespace polar_race
