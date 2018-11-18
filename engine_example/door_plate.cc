@@ -12,7 +12,7 @@
 
 namespace polar_race {
 
-static const uint32_t kMaxDoorCnt = 1024 * 1024 * 32;
+static const uint32_t kMaxDoorCnt = 1024 * 1024 * 64;
 static const char kMetaFileName[] = "META";
 static const int kMaxRangeBufCount = kMaxDoorCnt;
 

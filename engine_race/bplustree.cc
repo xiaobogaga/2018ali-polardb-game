@@ -193,7 +193,7 @@ static void node_delete(struct bplus_tree *tree, struct bplus_node *node,
         }
 
         assert(node->self != INVALID_OFFSET);
-        struct free_block *block = malloc(sizeof(*block));
+        struct free_block *block = (struct free_block*) malloc(sizeof(*block));
         assert(block != NULL);
         /* deleted blocks can be allocated for other nodes */
         block->offset = node->self;
@@ -1094,7 +1094,7 @@ struct bplus_tree *bplus_tree_init(char *filename, int block_size)
                 return NULL;
         }
 
-        struct bplus_tree *tree = calloc(1, sizeof(*tree));
+        struct bplus_tree *tree = (struct bplus_tree*) calloc(1, sizeof(*tree));
         assert(tree != NULL);
         list_init(&tree->free_blocks);
         strcpy(tree->filename, filename);
@@ -1107,7 +1107,7 @@ struct bplus_tree *bplus_tree_init(char *filename, int block_size)
                 tree->file_size = offset_load(fd);
                 /* load free blocks */
                 while ((i = offset_load(fd)) != INVALID_OFFSET) {
-                        struct free_block *block = malloc(sizeof(*block));
+                        struct free_block *block = (struct free_block*) malloc(sizeof(*block));
                         assert(block != NULL);
                         block->offset = i;
                         list_add(&block->link, &tree->free_blocks);
@@ -1125,7 +1125,7 @@ struct bplus_tree *bplus_tree_init(char *filename, int block_size)
         printf("config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
 
         /* init free node caches */
-        tree->caches = malloc(_block_size * MIN_CACHE_NUM);
+        tree->caches = (char*) malloc(_block_size * MIN_CACHE_NUM);
 
         /* open data file */
         tree->fd = bplus_open(filename);
