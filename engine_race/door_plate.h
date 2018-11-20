@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <map>
 #include <string>
-#include "include/engine.h"
+#include "../include/engine.h"
 #include "data_store.h"
 
 namespace polar_race {
@@ -16,8 +16,7 @@ struct Item {
   Item()  {
   }
   char key[kMaxKeyLen];
-  uint32_t fileNo;
-  uint32_t offset;
+  uint32_t info;
 };
 
 // Hash index for key
@@ -28,9 +27,9 @@ class DoorPlate  {
 
     RetCode Init();
 
-    RetCode AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset);
+    RetCode AddOrUpdate(const std::string& key, uint16_t fileNo, uint16_t offset);
 
-    RetCode Find(const std::string& key, uint32_t* fileNo, uint32_t* offset);
+    RetCode Find(const std::string& key, uint16_t * fileNo, uint16_t * offset);
 
     RetCode GetRangeLocation(const std::string& lower, const std::string& upper);
 

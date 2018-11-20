@@ -25,6 +25,46 @@ uint32_t StrHash(const char* s, int size) {
   return h;
 }
 
+long long strToLong(const char* key) {
+      long long ans = 0;
+      for (int i = 0; i < 64; i++) {
+        ans |= ((long long) ( (unsigned char) (key[i / 8] >> (i % 8)) & 1)) << i;
+      }
+      return ans;
+}
+
+void longToStr(long key, char* ans) {
+  for (int i = 0; i < 64; i++) {
+    ans[i / 8] |= (((key >> i) & 1) << (i % 8));
+  }
+}
+
+uint32_t wrap(uint16_t offset, uint16_t fileNo) {
+      uint32_t ans = 0;
+      for (int i = 0; i < 16; i++) {
+        ans |= ( ((uint32_t) ((offset >> i) & 1)) << i);
+        ans |= ( ((uint32_t) ((fileNo >> i) & 1)) << (16 + i));
+      }
+      return ans;
+    }
+
+uint16_t unwrapOffset(uint32_t wrapper) {
+      uint16_t ans = 0;
+      for (int i = 0; i < 16; i++) {
+        ans |= (((wrapper >> i) & 1) << i);
+      }
+      return ans;
+}
+
+uint16_t unwrapFileNo(uint32_t wrapper) {
+      uint16_t ans = 0;
+      for (int i = 0; i < 16; i++) {
+        ans |= (((wrapper >> (i + 16) ) & 1) << i);
+      }
+      return ans;
+}
+
+
 int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile) {
   int res = 0;
   result->clear();
@@ -71,6 +111,12 @@ uint32_t getSubFileSize(const std::string& path) {
 long long GetFileLength(const std::string& file) {
   struct stat stat_buf;
   long long rc = stat(file.c_str(), &stat_buf);
+  return rc == 0 ? stat_buf.st_size : -1;
+}
+
+long long GetFileLength(char* file) {
+  struct stat stat_buf;
+  long long rc = stat(file, &stat_buf);
   return rc == 0 ? stat_buf.st_size : -1;
 }
 

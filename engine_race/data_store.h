@@ -6,7 +6,7 @@
 #include <string>
 #include <pthread.h>
 #include <map>
-#include "include/engine.h"
+#include "../include/engine.h"
 
 namespace polar_race {
 
@@ -33,15 +33,15 @@ class DataStore  {
   }
 
   RetCode Init();
-  RetCode Read(uint32_t fileNo, uint32_t offset, std::string* value);
-  RetCode Append(const std::string& value, uint32_t* fileNo, uint32_t* offset);
+  RetCode Read(uint16_t fileNo, uint16_t offset, std::string* value);
+  RetCode Append(const std::string& value, uint16_t* fileNo, uint16_t* offset);
   RetCode initFD();
 
  private:
   int fd_;
   std::string dir_;
-  uint32_t cur_fileNo;
-  uint32_t cur_offset;
+  uint16_t cur_fileNo;
+  uint16_t cur_offset;
   std::map<int, int>* readFiles;
   RetCode OpenCurFile();
 };

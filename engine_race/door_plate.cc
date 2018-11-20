@@ -12,7 +12,7 @@
 
 namespace polar_race {
 
-static const uint32_t kMaxDoorCnt = 1024 * 1024 * 64;
+static const uint32_t kMaxDoorCnt = 1024 * 1024 * 96;
 static const std::string metaFilePath("/meta");
 static const std::string kMetaFileName("META");
 static const int kMaxRangeBufCount = kMaxDoorCnt;
@@ -29,7 +29,7 @@ static bool ItemKeyMatch(const Item &item, const std::string& target) {
 }
 
 static bool ItemTryPlace(const Item &item, const std::string& target) {
-  if (item.fileNo <=  0) {
+  if (item.info <=  0) {
     return true;
   }
   return ItemKeyMatch(item, target);
@@ -121,7 +121,7 @@ int DoorPlate::CalcIndex(const std::string& key) {
   return index;
 }
 
-RetCode DoorPlate::AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t offset) {
+RetCode DoorPlate::AddOrUpdate(const std::string& key, uint16_t fileNo, uint16_t offset) {
 
   int index = CalcIndex(key);
   if (index < 0) {
@@ -131,12 +131,11 @@ RetCode DoorPlate::AddOrUpdate(const std::string& key, uint32_t fileNo, uint32_t
 
   Item* iptr = items_ + index;
   memcpy(iptr->key, key.data(), 8);
-  iptr->fileNo = fileNo;
-  iptr->offset = offset;
+  iptr->info = wrap(fileNo, offset);
   return kSucc;
 }
 
-RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offset) {
+RetCode DoorPlate::Find(const std::string& key, uint16_t* fileNo, uint16_t* offset) {
   int index = CalcIndex(key);
   if (index < 0
       || !ItemKeyMatch(*(items_ + index), key)) {
@@ -144,8 +143,8 @@ RetCode DoorPlate::Find(const std::string& key, uint32_t* fileNo, uint32_t* offs
     return kNotFound;
   }
   Item* i = items_ + index;
-  (*fileNo) = i->fileNo;
-  (*offset) = i->offset;
+  (*fileNo) = unwrapFileNo(i->info);
+  (*offset) = unwrapOffset(i->info);
   return kSucc;
 }
 

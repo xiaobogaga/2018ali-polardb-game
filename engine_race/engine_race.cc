@@ -5,6 +5,7 @@
 #include <map>
 #include "util.h"
 #include "engine_race.h"
+#include "bplustree.h"
 
 namespace polar_race {
 
@@ -22,13 +23,19 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   engine_race->resetCounter();
-  
-  RetCode ret = engine_race->plate_.Init();
+  RetCode ret = kSucc;
+#ifdef USE_HASH_TABLE
+  ret = engine_race->plate_.Init();
+#else
+  engine_race->tree = bplus_tree_init( (name + "/btree.bin").c_str(), 4096);
+#endif
+
   if (ret != kSucc) {
     delete engine_race;
     fprintf(stderr, "[EngineRace] : init plate failed \n");
     return ret;
   }
+
   ret = engine_race->store_.Init();
   if (ret != kSucc) {
     fprintf(stderr, "[EngineRace] : init store failed \n");
@@ -48,6 +55,11 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 
 EngineRace::~EngineRace() {
   fprintf(stderr, "[EngineRace] : closing db\n");
+#ifdef USE_HASH_TABLE
+  ;
+#else
+  bplus_tree_deinit(tree);
+#endif
   if (db_lock_) {
     UnlockFile(db_lock_);
   }
@@ -62,11 +74,17 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
         k.size(), v.size());
   }
   
-  uint32_t offset = 0;
-  uint32_t fileNo = 0;
+  uint16_t offset = 0;
+  uint16_t fileNo = 0;
   RetCode ret = store_.Append(v, &fileNo, &offset);
   if (ret == kSucc) {
+
+#ifdef USE_HASH_TABLE
     ret = plate_.AddOrUpdate(k, fileNo, offset);
+#else
+    bplus_tree_put(tree, strToLong(key.data()), wrap(offset, fileNo));
+#endif
+
   }
   
   if (writeCounter == 0) {
@@ -89,9 +107,21 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 		k.size(), value->size());
   }
   
-  uint32_t fileNo = 0;
-  uint32_t offset = 0;
-  RetCode ret = plate_.Find(k, &fileNo, &offset);
+  uint16_t fileNo = 0;
+  uint16_t offset = 0;
+
+  RetCode ret = kSucc;
+#ifdef USE_HASH_TABLE
+  ret = plate_.Find(k, &fileNo, &offset);
+#else
+  long info = bplus_tree_get(tree, strToLong(key.data()));
+  if (info < 0) ret = kNotFound;
+  else {
+    offset = unwrapOffset(info);
+    fileNo = unwrapFileNo(info);
+  }
+#endif
+
   if (ret == kSucc) {
     value->clear();
     ret = store_.Read(fileNo, offset, value);
@@ -112,6 +142,14 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
     Visitor &visitor) {
   pthread_mutex_lock(&mu_);
+
+#ifdef USE_HASH_TABLE
+  ;
+#else
+  long long low = strToLong(lower.data());
+  long long high = strToLong(upper.data());
+  bplus_tree_get_range(tree, low, high, visitor, store_);
+#endif
 
   pthread_mutex_unlock(&mu_);
   return kSucc;

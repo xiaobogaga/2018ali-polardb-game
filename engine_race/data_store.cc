@@ -58,7 +58,7 @@ RetCode DataStore::initFD() {
     // fprintf(stderr, "[DataStore] : file : %s and index: %d for index %s \n", 
     //  (*it).c_str(), std::stoi(sindex), sindex.c_str());
     if (std::stoul(sindex) > cur_fileNo) {
-      cur_fileNo = std::stoi(sindex);
+      cur_fileNo = (uint16_t) std::stoi(sindex);
     }
   }
 
@@ -68,7 +68,7 @@ RetCode DataStore::initFD() {
   fprintf(stderr, "[DataStore] : open current file %s and length : %d\n", 
 	FileName(dataPath, cur_fileNo).c_str(), len);
   if (len > 0) {
-    cur_offset = len;
+    cur_offset = (uint16_t) len;
   }
 
   // Open file
@@ -77,7 +77,7 @@ RetCode DataStore::initFD() {
 
 
 
-RetCode DataStore::Append(const std::string& value, uint32_t* fileNo, uint32_t* offset) {
+RetCode DataStore::Append(const std::string& value, uint16_t* fileNo, uint16_t* offset) {
   if (fd_ < 0) {
 	  initFD();
   }
@@ -102,11 +102,11 @@ RetCode DataStore::Append(const std::string& value, uint32_t* fileNo, uint32_t* 
   }
   (*fileNo) = cur_fileNo;
   (*offset) = cur_offset;
-  cur_offset += valuesize;
+  cur_offset += 1;
   return kSucc;
 }
 
-RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
+RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
   int fd = -1;
   if (readFiles == NULL) readFiles = new std::map<int, int>();
   if (readFiles->count(fileNo) <= 0) {
@@ -120,7 +120,7 @@ RetCode DataStore::Read(uint32_t fileNo, uint32_t offset, std::string* value) {
  
   if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
   
-  lseek(fd, offset, SEEK_SET);
+  lseek(fd, ((uint32_t) offset) * valuesize, SEEK_SET);
   char* pos = buf;
   uint32_t value_len = valuesize;
   while (value_len > 0) {

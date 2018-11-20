@@ -25,7 +25,10 @@
         for (pos = (head)->next, n = pos->next; pos != (head); \
                 pos = n, n = pos->next)
 
-typedef int key_t;
+typedef long long key_t1;
+#include "../include/engine.h"
+
+#include "data_store.h"
 
 struct list_head {
         struct list_head *prev, *next;
@@ -117,6 +120,7 @@ struct bplus_tree {
         char *caches;
         int used[MIN_CACHE_NUM];
         char filename[1024];
+        int index_fd;
         int fd;
         int level;
         off_t root;
@@ -125,12 +129,18 @@ struct bplus_tree {
 };
 
 void bplus_tree_dump(struct bplus_tree *tree);
-long bplus_tree_get(struct bplus_tree *tree, key_t key);
-int bplus_tree_put(struct bplus_tree *tree, key_t key, long data);
-long bplus_tree_get_range(struct bplus_tree *tree, key_t key1, key_t key2);
-struct bplus_tree *bplus_tree_init(char *filename, int block_size);
-void bplus_tree_deinit(struct bplus_tree *tree);
-int bplus_open(char *filename);
+long bplus_tree_get(struct bplus_tree *tree, key_t1 key);
+int bplus_tree_put(struct bplus_tree *tree, key_t1 key, long data);
+long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2);
+long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
+                          polar_race::Visitor &visitor, polar_race::DataStore& store);
+struct bplus_tree *bplus_tree_init(const char *filename, int block_size);
+int bplus_open(const char *filename);
 void bplus_close(int fd);
+
+void bplus_tree_deinit(struct bplus_tree *tree);
+
+
+void flush_index(struct bplus_tree* tree);
 
 #endif  /* _BPLUS_TREE_H */
