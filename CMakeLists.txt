@@ -30,7 +30,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 # 创建共享库（把工程内的cpp文件都创建成共享库文件，方便通过头文件来调用）
 add_library(${PROJECT_NAME} SHARED
-    engine_race/engine_race.cc
+        engine_race/engine_race.cc
         engine_race/basic.cc
         engine_race/bplustree.cc
         engine_race/data_store.cc
@@ -38,6 +38,8 @@ add_library(${PROJECT_NAME} SHARED
         engine_race/util.cc
         engine_race/bitvector.cc
         engine_race/hash.cc
+        engine_race/test.cc
+   #     engine_race/test_with_kill.cc
         )
 # 这时候只需要cpp，不需要有主函数
 # ${PROJECT_NAME}是生成的库名 表示生成的共享库文件就叫做 lib工程名.so
@@ -55,7 +57,13 @@ add_library(${PROJECT_NAME} SHARED
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 # 可执行文件生成
-add_executable(test engine_race/testBplusTree.cpp)
+add_executable(test1 engine_race/testBplusTree.cpp)
 
 # 这个可执行文件所需的库（一般就是刚刚生成的工程的库咯）
-target_link_libraries(test ${PROJECT_NAME})
+target_link_libraries(test1 ${PROJECT_NAME})
+
+# 可执行文件生成
+add_executable(test2 engine_race/test.cc)
+
+# 这个可执行文件所需的库（一般就是刚刚生成的工程的库咯）
+target_link_libraries(test2 ${PROJECT_NAME})

@@ -69,10 +69,6 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   pthread_mutex_lock(&mu_);
   const std::string& v = value.ToString();
   const std::string& k = key.ToString();
-  if (writeCounter == 0) {
-    fprintf(stderr, "[EngineRace] : writing data. key length : %lu, value length : %lu\n",
-        k.size(), v.size());
-  }
   
   uint16_t offset = 0;
   uint16_t fileNo = 0;
@@ -82,6 +78,10 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 #ifdef USE_HASH_TABLE
     ret = plate_.AddOrUpdate(k, fileNo, offset);
 #else
+    if (writeCounter == 0) {
+      fprintf(stderr, "[EngineRace] : writing first... offset : %d, fileNo : %d, info : %d\n",
+              offset, fileNo, wrap(offset, fileNo));
+    }
     bplus_tree_put(tree, strToLong(key.data()), wrap(offset, fileNo));
 #endif
 
@@ -102,11 +102,6 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
   const std::string& k = key.ToString();
-  if (readCounter == 0) {
-	  fprintf(stderr, "[EngineRace] : reading first data, key : %lu, and get %lu value\n",
-		k.size(), value->size());
-  }
-  
   uint16_t fileNo = 0;
   uint16_t offset = 0;
 
@@ -119,6 +114,10 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   else {
     offset = unwrapOffset(info);
     fileNo = unwrapFileNo(info);
+    if (readCounter == 0) {
+      fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
+              offset, fileNo, wrap(offset, fileNo));
+    }
   }
 #endif
 

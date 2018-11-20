@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-de
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/home/tomzhu/software/clion-2018.2.6/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/home/tomzhu/software/clion-2018.2.6/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,19 +111,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test
-
-# Build rule for target.
-test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test
-.PHONY : test
-
-# fast build rule for target.
-test/fast:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/build
-.PHONY : test/fast
-
-#=============================================================================
 # Target rules for targets named engine_race
 
 # Build rule for target.
@@ -135,6 +122,32 @@ engine_race: cmake_check_build_system
 engine_race/fast:
 	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/build
 .PHONY : engine_race/fast
+
+#=============================================================================
+# Target rules for targets named test2
+
+# Build rule for target.
+test2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test2
+.PHONY : test2
+
+# fast build rule for target.
+test2/fast:
+	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/build
+.PHONY : test2/fast
+
+#=============================================================================
+# Target rules for targets named test1
+
+# Build rule for target.
+test1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test1
+.PHONY : test1
+
+# fast build rule for target.
+test1/fast:
+	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/build
+.PHONY : test1/fast
 
 engine_race/basic.o: engine_race/basic.cc.o
 
@@ -325,13 +338,43 @@ engine_race/hash.cc.s:
 	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/hash.cc.s
 .PHONY : engine_race/hash.cc.s
 
+engine_race/test.o: engine_race/test.cc.o
+
+.PHONY : engine_race/test.o
+
+# target to build an object file
+engine_race/test.cc.o:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/test.cc.o
+	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.o
+.PHONY : engine_race/test.cc.o
+
+engine_race/test.i: engine_race/test.cc.i
+
+.PHONY : engine_race/test.i
+
+# target to preprocess a source file
+engine_race/test.cc.i:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/test.cc.i
+	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.i
+.PHONY : engine_race/test.cc.i
+
+engine_race/test.s: engine_race/test.cc.s
+
+.PHONY : engine_race/test.s
+
+# target to generate assembly for a file
+engine_race/test.cc.s:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/test.cc.s
+	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.s
+.PHONY : engine_race/test.cc.s
+
 engine_race/testBplusTree.o: engine_race/testBplusTree.cpp.o
 
 .PHONY : engine_race/testBplusTree.o
 
 # target to build an object file
 engine_race/testBplusTree.cpp.o:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/engine_race/testBplusTree.cpp.o
+	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.o
 .PHONY : engine_race/testBplusTree.cpp.o
 
 engine_race/testBplusTree.i: engine_race/testBplusTree.cpp.i
@@ -340,7 +383,7 @@ engine_race/testBplusTree.i: engine_race/testBplusTree.cpp.i
 
 # target to preprocess a source file
 engine_race/testBplusTree.cpp.i:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/engine_race/testBplusTree.cpp.i
+	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.i
 .PHONY : engine_race/testBplusTree.cpp.i
 
 engine_race/testBplusTree.s: engine_race/testBplusTree.cpp.s
@@ -349,7 +392,7 @@ engine_race/testBplusTree.s: engine_race/testBplusTree.cpp.s
 
 # target to generate assembly for a file
 engine_race/testBplusTree.cpp.s:
-	$(MAKE) -f CMakeFiles/test.dir/build.make CMakeFiles/test.dir/engine_race/testBplusTree.cpp.s
+	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.s
 .PHONY : engine_race/testBplusTree.cpp.s
 
 engine_race/util.o: engine_race/util.cc.o
@@ -385,10 +428,11 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
-	@echo "... test"
 	@echo "... rebuild_cache"
 	@echo "... engine_race"
+	@echo "... test2"
+	@echo "... test1"
+	@echo "... edit_cache"
 	@echo "... engine_race/basic.o"
 	@echo "... engine_race/basic.i"
 	@echo "... engine_race/basic.s"
@@ -410,6 +454,9 @@ help:
 	@echo "... engine_race/hash.o"
 	@echo "... engine_race/hash.i"
 	@echo "... engine_race/hash.s"
+	@echo "... engine_race/test.o"
+	@echo "... engine_race/test.i"
+	@echo "... engine_race/test.s"
 	@echo "... engine_race/testBplusTree.o"
 	@echo "... engine_race/testBplusTree.i"
 	@echo "... engine_race/testBplusTree.s"

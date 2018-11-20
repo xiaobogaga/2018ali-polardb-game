@@ -1160,6 +1160,8 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
         list_init(&tree->free_blocks);
         strcpy(tree->filename, filename);
 
+        // fprintf(stderr, "[BPlusTree] : init bplus tree at %s\n", filename);
+
         /* load index boot file */
         int fd = open(strcat(tree->filename, ".boot"), O_CREAT | O_RDWR, 0644);
        // if (fd >= 0) {
@@ -1189,7 +1191,7 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
         /* set order and entries */
         _max_order = (_block_size - sizeof(node)) / (sizeof(key_t1) + sizeof(off_t));
         _max_entries = (_block_size - sizeof(node)) / (sizeof(key_t1) + sizeof(long));
-        printf("config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
+        fprintf(stderr, "config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
 
         /* init free node caches */
         tree->caches = (char*) malloc(_block_size * MIN_CACHE_NUM);
