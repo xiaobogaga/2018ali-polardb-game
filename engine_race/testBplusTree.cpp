@@ -22,7 +22,7 @@ int main() {
     std::vector<long long> vectors;
     long long min = INT64_MIN;
     long long max = INT64_MAX;
-    int size = 80000;
+    int size = 2;
     for (int i = 0; i < size;) {
         long value = generator();
         long long temp = value;
@@ -136,7 +136,7 @@ int main() {
     fprintf(stderr, "[Step-4] : finished, total : %d elements\n", maps.size());
 
    // bplus_tree_deinit(tree);
-    flush_index(tree);
+  //  flush_index(tree);
     tree = bplus_tree_init(fileName, block_size);
 
     for (std::map<long long, long>::iterator it = maps.begin(); it != maps.end(); ++it) {

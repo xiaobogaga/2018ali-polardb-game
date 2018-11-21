@@ -1177,7 +1177,7 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
                         block->offset = i;
                         list_add(&block->link, &tree->free_blocks);
                 }
-                close(fd);
+                // close(fd);
         } else {
                 tree->root = INVALID_OFFSET;
                 _block_size = block_size;
