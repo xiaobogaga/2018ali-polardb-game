@@ -48,9 +48,9 @@ add_library(${PROJECT_NAME} SHARED
 
 # 链接库
 # 把刚刚生成的${PROJECT_NAME}库和所需的其它库链接起来
-# target_link_libraries(${PROJECT_NAME}
-# /usr/lib/i386-linux-gnu/libboost_system.so
-# )
+#target_link_libraries(${PROJECT_NAME}
+#/usr/lib/i386-linux-gnu/libboost_system.so
+#)
 
 # 编译主函数，生成可执行文件
 
@@ -71,4 +71,7 @@ target_link_libraries(test2 ${PROJECT_NAME})
 
 add_executable(test3 engine_race/test_with_kill.cc)
 
-target_link_libraries(test3 ${PROJECT_NAME})
+target_link_libraries(test3
+        ${PROJECT_NAME}
+        pthread
+        )

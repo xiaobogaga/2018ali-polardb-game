@@ -10,6 +10,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "util.h"
 
 using polar_race::EngineRace;
 using polar_race::Engine;
@@ -97,17 +98,25 @@ public:
 		this->groups = NULL;
 		fprintf(stderr, "end writing \n");
 	}
+
+	std::map<PolarString, PolarString, PolarStringComparator>* getMaps() {
+		return &this->maps;
+	}
+
+	std::vector<PolarString>* getKeys() {
+		return &this->keys;
+	}
 	
 	~WriterTask() {
 	}
 
-	static std::map<PolarString, PolarString, PolarStringComparator> maps;
-	static std::vector<PolarString> keys;
+	std::map<PolarString, PolarString, PolarStringComparator> maps;
+	std::vector<PolarString> keys;
 
 private:
 	int threadSize;
 	std::thread** groups;
-	static Engine* engine;
+	Engine* engine;
 	std::default_random_engine random;
 };
 
@@ -117,14 +126,14 @@ void writeAValue(Engine* engine, PolarString& key,
 	std::vector<PolarString>* keys) {
 	
 	keys->push_back(key);
+	if (maps->count(key) > 0) maps->erase(key);
 	maps->insert( std::pair<PolarString, PolarString> (key, value));
 	engine->Write(key, value);
-	
-	
+
 }
 
 PolarString generateAKey(std::default_random_engine* random) {
-	char buf[8];
+	char* buf = new char[8];
 	for (int i = 0; i < 8; i++) {
 		buf[i] = (*random)() % 256;
 	}
@@ -132,8 +141,8 @@ PolarString generateAKey(std::default_random_engine* random) {
 }
 
 PolarString generateValue(std::default_random_engine* random) {
-	size_t size = (*random)() % 4096;
-	char buf[size];
+	size_t size = 4096;
+	char* buf = new char[size];
 	for (size_t i = 0; i < size; i++) {
 		buf[i] = (*random)() % 256;
 	}
@@ -145,9 +154,12 @@ void writeTask(Engine* engine, std::default_random_engine* random,
 	std::vector<PolarString>* keys) {
 	for (int i = 0; i < writeTimes && !shutdown; i++) {
 		mutex.lock();
-		if (i % 6 != 0) {
+		if (i % 6 == 0 && i != 0) {
 			PolarString value = generateValue(random);
-			writeAValue(engine, keys->at((*random)() % keys->size()),value, maps, keys);
+			int size = keys->size();
+			int loc = (*random)() % size;
+			PolarString key = keys->at(loc);
+			writeAValue(engine, key,value, maps, keys);
 		} else {	
 			PolarString key = generateAKey(random);
 			PolarString value = generateValue(random);
@@ -182,27 +194,31 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
 		std::string value;
 		RetCode code = RetCode::kSucc;
 		PolarString key;
+
 		if (i % 2 == 0) {
-			key = keys->at(i);
+			int loc = (*random)() % keys->size();
+			key = keys->at(loc);
 			code = engine->Read(key, &value);
 		} else {
 			key = generateAKey(random);
 			code = engine->Read(key, &value);
 		}
-		if (code == 0) {
+
+		if (code == RetCode::kSucc) {
 			std::map<PolarString, PolarString>::iterator ite = maps->find(key);
 			if (ite != maps->end()) {
-				if (ite->second.compare(value) != 0) {
-					fprintf(stderr, "find an unmatching key\n");
+				if (ite->second.compare(PolarString(value)) != 0) {
+					fprintf(stderr, "find an unmatching key. %lld\n", polar_race::strToLong(key.data()));
 				}
 			} else {
-				fprintf(stderr, "find a doesn't exist key\n");
+				fprintf(stderr, "find a doesn't exist key. %lld\n", polar_race::strToLong(key.data()));
 			}
 		} else {
-			if (maps->count(key) <= 0) {
-				fprintf(stderr, "error couldn't find key\n");
+			if (maps->count(key) > 0) {
+				fprintf(stderr, "error couldn't find key. %lld\n", polar_race::strToLong(key.data()));
 			}
 		}
+
 	}
 }
 
@@ -221,7 +237,6 @@ public :
 	~ReaderPro() {}
 	
 	void startReader(int threadSize, int readerTime) {
-		this->threadSize = threadSize;
 		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start reading\n");
 		for (int i = 0; i < threadSize; i++) {
@@ -240,7 +255,6 @@ public :
 	
 	
 private:
-	int threadSize;
 	Engine* engine;
 	std::map<PolarString, PolarString, PolarStringComparator>* maps;
 	std::thread** groups;
@@ -252,8 +266,14 @@ private:
 int main(int argc, char** argv) {
 	// test_with_kill threadSize writing_time
 	fprintf(stderr, "Correctness Test\n");
-	int threadSize = atoi(argv[1]);
-	int writingTime = atoi(argv[2]);
+	int threadSize = 1;
+	int writingTime = 10;
+	if (argc <= 1) {
+		;
+	} else {
+		threadSize = atoi(argv[1]);
+		writingTime = atoi(argv[2]);
+	}
 	std::string path(kDumpPath);
 	Engine* engine = NULL;
 	Engine::Open(path, &engine);
@@ -264,7 +284,7 @@ int main(int argc, char** argv) {
 	std::this_thread::sleep_for (std::chrono::seconds(10)); // sleeping for ten seconds.
 	shutdown = true;
 	writeTask.waitThreadEnd();
-	ReaderPro readerPro(engine, &writeTask.maps, &writeTask.keys);
+	ReaderPro readerPro(engine, writeTask.getMaps(), writeTask.getKeys());
 	readerPro.startReader(threadSize, writingTime);
 	delete engine; // finilize.
 	
