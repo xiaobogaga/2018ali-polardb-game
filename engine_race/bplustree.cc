@@ -13,23 +13,23 @@
 #include <sys/stat.h>
 
 #include "bplustree.h"
+#include "engine_race.h"
 #include "util.h"
 
 enum {
-        INVALID_OFFSET = 0xdeadbeef,
+    INVALID_OFFSET = 0xdeadbeef,
 };
 
 enum {
-        BPLUS_TREE_LEAF,
-        BPLUS_TREE_NON_LEAF = 1,
+    BPLUS_TREE_LEAF,
+    BPLUS_TREE_NON_LEAF = 1,
 };
 
 enum {
-        LEFT_SIBLING,
-        RIGHT_SIBLING = 1,
+    LEFT_SIBLING,
+    RIGHT_SIBLING = 1,
 };
 
-#define ADDR_STR_WIDTH 16
 #define offset_ptr(node) ((char *) (node) + sizeof(*node))
 #define key(node) ((key_t1 *)offset_ptr(node))
 #define data(node) ((long *)(offset_ptr(node) + _max_entries * sizeof(key_t1)))
@@ -156,10 +156,6 @@ static inline void node_flush(struct bplus_tree *tree, struct bplus_node *node)
                 assert(len == _block_size);
                 cache_defer(tree, node);
         }
-
-        if (node->self == tree->root) {
-                flush_index(tree);
-        }
 }
 
 static off_t new_node_append(struct bplus_tree *tree, struct bplus_node *node)
@@ -168,9 +164,8 @@ static off_t new_node_append(struct bplus_tree *tree, struct bplus_node *node)
         if (list_empty(&tree->free_blocks)) {
                 node->self = tree->file_size;
                 tree->file_size += _block_size;
-
-                // todo, flushing here.
-                flush_index(tree);
+                // todo, update file_size here.
+                flush_file_size(tree->index_fd, tree->file_size);
         } else {
                 struct free_block *block;
                 block = list_first_entry(&tree->free_blocks, struct free_block, link);
@@ -182,7 +177,7 @@ static off_t new_node_append(struct bplus_tree *tree, struct bplus_node *node)
 }
 
 static void node_delete(struct bplus_tree *tree, struct bplus_node *node,
-                	struct bplus_node *left, struct bplus_node *right)
+                        struct bplus_node *left, struct bplus_node *right)
 {
         if (left != NULL) {
                 if (right != NULL) {
@@ -211,7 +206,7 @@ static void node_delete(struct bplus_tree *tree, struct bplus_node *node,
 }
 
 static inline void sub_node_update(struct bplus_tree *tree, struct bplus_node *parent,
-                		   int index, struct bplus_node *sub_node)
+                                   int index, struct bplus_node *sub_node)
 {
         assert(sub_node->self != INVALID_OFFSET);
         sub(parent)[index] = sub_node->self;
@@ -295,7 +290,9 @@ static int parent_node_build(struct bplus_tree *tree, struct bplus_node *l_ch,
                 sub(parent)[1] = r_ch->self;
                 parent->children = 2;
                 /* write new parent and update root */
+                // todo, need updating root here.
                 tree->root = new_node_append(tree, parent);
+                flush_root_offset(tree->index_fd, tree->root);
                 l_ch->parent = parent->self;
                 r_ch->parent = parent->self;
                 tree->level++;
@@ -312,8 +309,8 @@ static int parent_node_build(struct bplus_tree *tree, struct bplus_node *l_ch,
 }
 
 static key_t1 non_leaf_split_left(struct bplus_tree *tree, struct bplus_node *node,
-                	         struct bplus_node *left, struct bplus_node *l_ch,
-                	         struct bplus_node *r_ch, key_t1 key, int insert)
+                                 struct bplus_node *left, struct bplus_node *l_ch,
+                                 struct bplus_node *r_ch, key_t1 key, int insert)
 {
         int i;
         key_t1 split_key;
@@ -369,8 +366,8 @@ static key_t1 non_leaf_split_left(struct bplus_tree *tree, struct bplus_node *no
 }
 
 static key_t1 non_leaf_split_right1(struct bplus_tree *tree, struct bplus_node *node,
-                        	   struct bplus_node *right, struct bplus_node *l_ch,
-                        	   struct bplus_node *r_ch, key_t1 key, int insert)
+                                   struct bplus_node *right, struct bplus_node *l_ch,
+                                   struct bplus_node *r_ch, key_t1 key, int insert)
 {
         int i;
 
@@ -407,8 +404,8 @@ static key_t1 non_leaf_split_right1(struct bplus_tree *tree, struct bplus_node *
 }
 
 static key_t1 non_leaf_split_right2(struct bplus_tree *tree, struct bplus_node *node,
-                        	   struct bplus_node *right, struct bplus_node *l_ch,
-                        	   struct bplus_node *r_ch, key_t1 key, int insert)
+                                   struct bplus_node *right, struct bplus_node *l_ch,
+                                   struct bplus_node *r_ch, key_t1 key, int insert)
 {
         int i;
 
@@ -451,8 +448,8 @@ static key_t1 non_leaf_split_right2(struct bplus_tree *tree, struct bplus_node *
 }
 
 static void non_leaf_simple_insert(struct bplus_tree *tree, struct bplus_node *node,
-                        	   struct bplus_node *l_ch, struct bplus_node *r_ch,
-                        	   key_t1 key, int insert)
+                                   struct bplus_node *l_ch, struct bplus_node *r_ch,
+                                   key_t1 key, int insert)
 {
         memmove(&key(node)[insert + 1], &key(node)[insert], (node->children - 1 - insert) * sizeof(key_t1));
         memmove(&sub(node)[insert + 2], &sub(node)[insert + 1], (node->children - 1 - insert) * sizeof(off_t));
@@ -464,7 +461,7 @@ static void non_leaf_simple_insert(struct bplus_tree *tree, struct bplus_node *n
 }
 
 static key_t1 non_leaf_insert(struct bplus_tree *tree, struct bplus_node *node,
-                	   struct bplus_node *l_ch, struct bplus_node *r_ch, key_t1 key)
+                           struct bplus_node *l_ch, struct bplus_node *r_ch, key_t1 key)
 {
         /* Search key location */
         int insert = key_binary_search(node, key);
@@ -499,7 +496,7 @@ static key_t1 non_leaf_insert(struct bplus_tree *tree, struct bplus_node *node,
 }
 
 static key_t1 leaf_split_left(struct bplus_tree *tree, struct bplus_node *leaf,
-                	     struct bplus_node *left, key_t1 key, long data, int insert)
+                             struct bplus_node *left, key_t1 key, long data, int insert)
 {
         /* split = [m/2] */
         int split = (leaf->children + 1) / 2;
@@ -533,7 +530,7 @@ static key_t1 leaf_split_left(struct bplus_tree *tree, struct bplus_node *leaf,
 }
 
 static key_t1 leaf_split_right(struct bplus_tree *tree, struct bplus_node *leaf,
-                	      struct bplus_node *right, key_t1 key, long data, int insert)
+                              struct bplus_node *right, key_t1 key, long data, int insert)
 {
         /* split = [m/2] */
         int split = (leaf->children + 1) / 2;
@@ -563,7 +560,7 @@ static key_t1 leaf_split_right(struct bplus_tree *tree, struct bplus_node *leaf,
 }
 
 static void leaf_simple_insert(struct bplus_tree *tree, struct bplus_node *leaf,
-                	       key_t1 key, long data, int insert)
+                               key_t1 key, long data, int insert)
 {
         memmove(&key(leaf)[insert + 1], &key(leaf)[insert], (leaf->children - insert) * sizeof(key_t1));
         memmove(&data(leaf)[insert + 1], &data(leaf)[insert], (leaf->children - insert) * sizeof(long));
@@ -577,8 +574,7 @@ static int leaf_insert(struct bplus_tree *tree, struct bplus_node *leaf, key_t1 
         /* Search key location */
         int insert = key_binary_search(leaf, key);
         if (insert >= 0) {
-                /* Already exists */
-                /* we replace this key */
+                /* Already exists then do updating */
                 data(leaf)[insert] = data;
                 node_flush(tree, leaf);
                 return -1;
@@ -642,6 +638,8 @@ static int bplus_tree_insert(struct bplus_tree *tree, key_t1 key, long data)
         tree->root = new_node_append(tree, root);
         tree->level = 1;
         node_flush(tree, root);
+        // todo, need update root.
+        flush_root_offset(tree->index_fd, tree->root);
         return 0;
 }
 
@@ -661,8 +659,8 @@ static inline int sibling_select(struct bplus_node *l_sib, struct bplus_node *r_
 }
 
 static void non_leaf_shift_from_left(struct bplus_tree *tree, struct bplus_node *node,
-                        	     struct bplus_node *left, struct bplus_node *parent,
-                        	     int parent_key_index, int remove)
+                                     struct bplus_node *left, struct bplus_node *parent,
+                                     int parent_key_index, int remove)
 {
         /* node's elements right shift */
         memmove(&key(node)[1], &key(node)[0], remove * sizeof(key_t1));
@@ -680,8 +678,8 @@ static void non_leaf_shift_from_left(struct bplus_tree *tree, struct bplus_node 
 }
 
 static void non_leaf_merge_into_left(struct bplus_tree *tree, struct bplus_node *node,
-                        	     struct bplus_node *left, struct bplus_node *parent,
-                        	     int parent_key_index, int remove)
+                                     struct bplus_node *left, struct bplus_node *parent,
+                                     int parent_key_index, int remove)
 {
         /* move parent key down */
         key(left)[left->children - 1] = key(parent)[parent_key_index];
@@ -705,8 +703,8 @@ static void non_leaf_merge_into_left(struct bplus_tree *tree, struct bplus_node 
 }
 
 static void non_leaf_shift_from_right(struct bplus_tree *tree, struct bplus_node *node,
-                        	      struct bplus_node *right, struct bplus_node *parent,
-                        	      int parent_key_index)
+                                      struct bplus_node *right, struct bplus_node *parent,
+                                      int parent_key_index)
 {
         /* parent key left rotation */
         key(node)[node->children - 1] = key(parent)[parent_key_index];
@@ -725,8 +723,8 @@ static void non_leaf_shift_from_right(struct bplus_tree *tree, struct bplus_node
 }
 
 static void non_leaf_merge_from_right(struct bplus_tree *tree, struct bplus_node *node,
-                        	      struct bplus_node *right, struct bplus_node *parent,
-                        	      int parent_key_index)
+                                      struct bplus_node *right, struct bplus_node *parent,
+                                      int parent_key_index)
 {
         /* move parent key down */
         key(node)[node->children - 1] = key(parent)[parent_key_index];
@@ -762,6 +760,9 @@ static void non_leaf_remove(struct bplus_tree *tree, struct bplus_node *node, in
                         struct bplus_node *root = node_fetch(tree, sub(node)[0]);
                         root->parent = INVALID_OFFSET;
                         tree->root = root->self;
+                        // todo, need flush node root here.
+                        flush_root_offset(tree->index_fd,
+                                tree->root);
                         tree->level--;
                         node_delete(tree, node, NULL, NULL);
                         node_flush(tree, root);
@@ -820,8 +821,8 @@ static void non_leaf_remove(struct bplus_tree *tree, struct bplus_node *node, in
 }
 
 static void leaf_shift_from_left(struct bplus_tree *tree, struct bplus_node *leaf,
-                		 struct bplus_node *left, struct bplus_node *parent,
-                		 int parent_key_index, int remove)
+                                 struct bplus_node *left, struct bplus_node *parent,
+                                 int parent_key_index, int remove)
 {
         /* right shift in leaf node */
         memmove(&key(leaf)[1], &key(leaf)[0], remove * sizeof(key_t1));
@@ -837,7 +838,7 @@ static void leaf_shift_from_left(struct bplus_tree *tree, struct bplus_node *lea
 }
 
 static void leaf_merge_into_left(struct bplus_tree *tree, struct bplus_node *leaf,
-                		 struct bplus_node *left, int parent_key_index, int remove)
+                                 struct bplus_node *left, int parent_key_index, int remove)
 {
         /* merge into left sibling, sum = leaf->children - 1*/
         memmove(&key(left)[left->children], &key(leaf)[0], remove * sizeof(key_t1));
@@ -896,7 +897,9 @@ static int leaf_remove(struct bplus_tree *tree, struct bplus_node *leaf, key_t1 
                 /* leaf as the root */
                 if (leaf->children == 1) {
                         /* delete the only last node */
+                        // todo, need flushing here
                         assert(key == key(leaf)[0]);
+                        // flush_root_offset()
                         tree->root = INVALID_OFFSET;
                         tree->level = 0;
                         node_delete(tree, leaf, NULL, NULL);
@@ -982,59 +985,11 @@ long bplus_tree_get(struct bplus_tree *tree, key_t1 key)
 
 int bplus_tree_put(struct bplus_tree *tree, key_t1 key, long data)
 {
-     //   if (data) {
+      //  if (data) {
                 return bplus_tree_insert(tree, key, data);
-     //   } else {
-         //       return bplus_tree_delete(tree, key);
-     //   }
-}
-
-long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
-        polar_race::Visitor &visitor, polar_race::DataStore& store)
-{
-        long start = -1;
-        key_t1 min = key1 <= key2 ? key1 : key2;
-        key_t1 max = min == key1 ? key2 : key1;
-        long size = 0;
-        struct bplus_node *node = node_seek(tree, tree->root);
-        while (node != NULL) {
-                int i = key_binary_search(node, min);
-                if (is_leaf(node)) {
-                        if (i < 0) {
-                                i = -i - 1;
-                                if (i >= node->children) {
-                                        node = node_seek(tree, node->next);
-                                }
-                        }
-                        long long key;
-                        while (node != NULL && (key = key(node)[i]) <= max) {
-                                size ++;
-                                start = data(node)[i];
-                                std::string value;
-                                char data[8];
-                                uint16_t offset = polar_race::unwrapOffset(start);
-                                uint16_t fileNo = polar_race::unwrapFileNo(start);
-                                store.Read(fileNo, offset, &value);
-                                polar_race::longToStr(key, data);
-                                visitor.Visit(polar_race::PolarString(data, 8) ,
-                                        polar_race::PolarString(value));
-                                if (++i >= node->children) {
-                                        node = node_seek(tree, node->next);
-                                        i = 0;
-                                }
-                        }
-                        break;
-                } else {
-                        if (i >= 0) {
-                                node = node_seek(tree, sub(node)[i + 1]);
-                        } else  {
-                                i = -i - 1;
-                                node = node_seek(tree, sub(node)[i]);
-                        }
-                }
-        }
-        // fprintf(stderr, "\n total : %ld elements\n", size);
-        return start;
+      //  } else {
+      //          return bplus_tree_delete(tree, key);
+      //  }
 }
 
 long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
@@ -1042,7 +997,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
         long start = -1;
         key_t1 min = key1 <= key2 ? key1 : key2;
         key_t1 max = min == key1 ? key2 : key1;
-        long size = 0;
+
         struct bplus_node *node = node_seek(tree, tree->root);
         while (node != NULL) {
                 int i = key_binary_search(node, min);
@@ -1053,9 +1008,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
                                         node = node_seek(tree, node->next);
                                 }
                         }
-                        long long key;
-                        while (node != NULL && (key = key(node)[i]) <= max) {
-                                size ++;
+                        while (node != NULL && key(node)[i] <= max) {
                                 start = data(node)[i];
                                 if (++i >= node->children) {
                                         node = node_seek(tree, node->next);
@@ -1072,6 +1025,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
                         }
                 }
         }
+
         return start;
 }
 
@@ -1082,8 +1036,8 @@ int bplus_open(const char *filename)
 
 void bplus_close(int indexfd, int fd)
 {
-        close(indexfd);
         close(fd);
+        close(indexfd);
 }
 
 static off_t str_to_hex(char *c, int len)
@@ -1127,6 +1081,54 @@ static inline ssize_t offset_store(int fd, off_t offset)
         return write(fd, buf, sizeof(buf));
 }
 
+long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
+                          polar_race::Visitor &visitor, polar_race::DataStore& store)
+{
+        long start = -1;
+        key_t1 min = key1 <= key2 ? key1 : key2;
+        key_t1 max = min == key1 ? key2 : key1;
+        long size = 0;
+        struct bplus_node *node = node_seek(tree, tree->root);
+        while (node != NULL) {
+                int i = key_binary_search(node, min);
+                if (is_leaf(node)) {
+                        if (i < 0) {
+                                i = -i - 1;
+                                if (i >= node->children) {
+                                        node = node_seek(tree, node->next);
+                                }
+                        }
+                        long long key;
+                        while (node != NULL && (key = key(node)[i]) <= max) {
+                                size ++;
+                                start = data(node)[i];
+                                std::string value;
+                                char data[8];
+                                uint16_t offset = polar_race::unwrapOffset(start);
+                                uint16_t fileNo = polar_race::unwrapFileNo(start);
+                                store.Read(fileNo, offset, &value);
+                                polar_race::longToStr(key, data);
+                                visitor.Visit(polar_race::PolarString(data, 8) ,
+                                              polar_race::PolarString(value));
+                                if (++i >= node->children) {
+                                        node = node_seek(tree, node->next);
+                                        i = 0;
+                                }
+                        }
+                        break;
+                } else {
+                        if (i >= 0) {
+                                node = node_seek(tree, sub(node)[i + 1]);
+                        } else  {
+                                i = -i - 1;
+                                node = node_seek(tree, sub(node)[i]);
+                        }
+                }
+        }
+        // fprintf(stderr, "\n total : %ld elements\n", size);
+        return start;
+}
+
 struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
 {
         int i;
@@ -1160,19 +1162,17 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
         list_init(&tree->free_blocks);
         strcpy(tree->filename, filename);
 
-        // fprintf(stderr, "[BPlusTree] : init bplus tree at %s\n", filename);
-
         /* load index boot file */
         int fd = open(strcat(tree->filename, ".boot"), O_CREAT | O_RDWR, 0644);
-       // if (fd >= 0) {
-        assert(fd >= 0);
+        lseek(fd, 0, SEEK_SET);
         if (polar_race::GetFileLength(tree->filename) > 0) {
                 tree->root = offset_load(fd);
-                _block_size = offset_load(fd);
+                // _block_size = offset_load(fd);
                 tree->file_size = offset_load(fd);
                 /* load free blocks */
                 while ((i = offset_load(fd)) != INVALID_OFFSET) {
-                        struct free_block *block = (struct free_block*) malloc(sizeof(*block));
+                        struct free_block *block = (struct free_block*)
+                                malloc(sizeof(*block));
                         assert(block != NULL);
                         block->offset = i;
                         list_add(&block->link, &tree->free_blocks);
@@ -1182,16 +1182,16 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
                 tree->root = INVALID_OFFSET;
                 _block_size = block_size;
                 tree->file_size = 0;
-                flush_index(tree);
+                //todo, need flushing here
+                flush_root_offset(fd, tree->root);
+                flush_file_size(fd, tree->file_size);
         }
-        tree->index_fd = fd;
-        /*
-        */
 
+        tree->index_fd = fd;
         /* set order and entries */
         _max_order = (_block_size - sizeof(node)) / (sizeof(key_t1) + sizeof(off_t));
         _max_entries = (_block_size - sizeof(node)) / (sizeof(key_t1) + sizeof(long));
-        fprintf(stderr, "config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
+        printf("config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
 
         /* init free node caches */
         tree->caches = (char*) malloc(_block_size * MIN_CACHE_NUM);
@@ -1202,31 +1202,22 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
         return tree;
 }
 
-void flush_index(struct bplus_tree* tree) {
-        // int fd = open(tree->filename, O_CREAT | O_RDWR, 0644);
-        assert(tree->index_fd >= 0);
-        assert(offset_store(tree->index_fd, tree->root) == ADDR_STR_WIDTH);
-        assert(offset_store(tree->index_fd, _block_size) == ADDR_STR_WIDTH);
-        assert(offset_store(tree->index_fd, tree->file_size) == ADDR_STR_WIDTH);
-}
-
-
-
 void bplus_tree_deinit(struct bplus_tree *tree)
 {
-       //  int fd = open(tree->filename, O_CREAT | O_RDWR, 0644);
-       //  assert(fd >= 0);
-        assert(offset_store(tree->index_fd, tree->root) == ADDR_STR_WIDTH);
-        assert(offset_store(tree->index_fd, _block_size) == ADDR_STR_WIDTH);
-        assert(offset_store(tree->index_fd, tree->file_size) == ADDR_STR_WIDTH);
+        // int fd = open(tree->filename, O_CREAT | O_RDWR, 0644);
+        int fd = tree->index_fd;
+        assert(fd >= 0);
+        lseek(fd, 0, SEEK_SET);
+        assert(offset_store(fd, tree->root) == ADDR_STR_WIDTH);
+        // assert(offset_store(fd, _block_size) == ADDR_STR_WIDTH);
+        assert(offset_store(fd, tree->file_size) == ADDR_STR_WIDTH);
 
         /* store free blocks in files for future reuse */
-
         struct list_head *pos, *n;
         list_for_each_safe(pos, n, &tree->free_blocks) {
                 list_del(pos);
                 struct free_block *block = list_entry(pos, struct free_block, link);
-                assert(offset_store(tree->index_fd, block->offset) == ADDR_STR_WIDTH);
+                assert(offset_store(fd, block->offset) == ADDR_STR_WIDTH);
                 free(block);
         }
 
@@ -1235,7 +1226,29 @@ void bplus_tree_deinit(struct bplus_tree *tree)
         free(tree);
 }
 
+void flush_file_size(int fd, off_t data) {
+        lseek(fd, 16, SEEK_SET);
+        offset_store(fd, data);
+}
 
+void flush_root_offset(int fd, off_t data) {
+        lseek(fd, 0, SEEK_SET);
+        offset_store(fd, data);
+}
+
+static inline off_t offset_load_with_seek(int fd)
+{
+        char buf[ADDR_STR_WIDTH];
+        ssize_t len = read(fd, buf, sizeof(buf));
+        return len > 0 ? str_to_hex(buf, sizeof(buf)) : INVALID_OFFSET;
+}
+
+static inline ssize_t offset_store_with_seek(int fd, off_t offset)
+{
+        char buf[ADDR_STR_WIDTH];
+        hex_to_str(offset, buf, sizeof(buf));
+        return write(fd, buf, sizeof(buf));
+}
 
 #ifdef _BPLUS_TREE_DEBUG
 

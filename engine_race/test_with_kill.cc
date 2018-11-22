@@ -29,8 +29,8 @@ struct PolarStringComparator {
 };
 
 void writeAValue(Engine* engine, PolarString& key,
-	const PolarString& value, std::map<PolarString, PolarString, PolarStringComparator>* maps,
-	std::vector<PolarString>* keys);
+				 PolarString& value, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+				 std::vector<PolarString>* keys);
 
 PolarString generateAKey(std::default_random_engine* random);
 
@@ -74,7 +74,7 @@ public:
 		this->groups = new std::thread*[threadSize];
 		fprintf(stderr, "start writing\n");
 		for (int i = 0; i < threadSize; i++) {
-			groups[i] = new std::thread(writeTask, engine,
+			groups[i] = new std::thread(writeTask2, engine,
 				&this->random, writeTimes, &this->maps, &this->keys);
 		}
 		for (int i = 0; i < threadSize; i++) {
@@ -249,7 +249,7 @@ private:
 };
 
 
-int main0(int argc, char** argv) {
+int main(int argc, char** argv) {
 	// test_with_kill threadSize writing_time
 	fprintf(stderr, "Correctness Test\n");
 	int threadSize = atoi(argv[1]);

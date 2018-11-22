@@ -149,6 +149,19 @@ test1/fast:
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/build
 .PHONY : test1/fast
 
+#=============================================================================
+# Target rules for targets named test3
+
+# Build rule for target.
+test3: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test3
+.PHONY : test3
+
+# fast build rule for target.
+test3/fast:
+	$(MAKE) -f CMakeFiles/test3.dir/build.make CMakeFiles/test3.dir/build
+.PHONY : test3/fast
+
 engine_race/basic.o: engine_race/basic.cc.o
 
 .PHONY : engine_race/basic.o
@@ -344,7 +357,6 @@ engine_race/test.o: engine_race/test.cc.o
 
 # target to build an object file
 engine_race/test.cc.o:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/test.cc.o
 	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.o
 .PHONY : engine_race/test.cc.o
 
@@ -354,7 +366,6 @@ engine_race/test.i: engine_race/test.cc.i
 
 # target to preprocess a source file
 engine_race/test.cc.i:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/test.cc.i
 	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.i
 .PHONY : engine_race/test.cc.i
 
@@ -364,7 +375,6 @@ engine_race/test.s: engine_race/test.cc.s
 
 # target to generate assembly for a file
 engine_race/test.cc.s:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/test.cc.s
 	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.s
 .PHONY : engine_race/test.cc.s
 
@@ -374,6 +384,7 @@ engine_race/testBplusTree.o: engine_race/testBplusTree.cpp.o
 
 # target to build an object file
 engine_race/testBplusTree.cpp.o:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.o
 .PHONY : engine_race/testBplusTree.cpp.o
 
@@ -383,6 +394,7 @@ engine_race/testBplusTree.i: engine_race/testBplusTree.cpp.i
 
 # target to preprocess a source file
 engine_race/testBplusTree.cpp.i:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.i
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.i
 .PHONY : engine_race/testBplusTree.cpp.i
 
@@ -392,8 +404,36 @@ engine_race/testBplusTree.s: engine_race/testBplusTree.cpp.s
 
 # target to generate assembly for a file
 engine_race/testBplusTree.cpp.s:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.s
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.s
 .PHONY : engine_race/testBplusTree.cpp.s
+
+engine_race/test_with_kill.o: engine_race/test_with_kill.cc.o
+
+.PHONY : engine_race/test_with_kill.o
+
+# target to build an object file
+engine_race/test_with_kill.cc.o:
+	$(MAKE) -f CMakeFiles/test3.dir/build.make CMakeFiles/test3.dir/engine_race/test_with_kill.cc.o
+.PHONY : engine_race/test_with_kill.cc.o
+
+engine_race/test_with_kill.i: engine_race/test_with_kill.cc.i
+
+.PHONY : engine_race/test_with_kill.i
+
+# target to preprocess a source file
+engine_race/test_with_kill.cc.i:
+	$(MAKE) -f CMakeFiles/test3.dir/build.make CMakeFiles/test3.dir/engine_race/test_with_kill.cc.i
+.PHONY : engine_race/test_with_kill.cc.i
+
+engine_race/test_with_kill.s: engine_race/test_with_kill.cc.s
+
+.PHONY : engine_race/test_with_kill.s
+
+# target to generate assembly for a file
+engine_race/test_with_kill.cc.s:
+	$(MAKE) -f CMakeFiles/test3.dir/build.make CMakeFiles/test3.dir/engine_race/test_with_kill.cc.s
+.PHONY : engine_race/test_with_kill.cc.s
 
 engine_race/util.o: engine_race/util.cc.o
 
@@ -429,10 +469,11 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
+	@echo "... edit_cache"
 	@echo "... engine_race"
 	@echo "... test2"
 	@echo "... test1"
-	@echo "... edit_cache"
+	@echo "... test3"
 	@echo "... engine_race/basic.o"
 	@echo "... engine_race/basic.i"
 	@echo "... engine_race/basic.s"
@@ -460,6 +501,9 @@ help:
 	@echo "... engine_race/testBplusTree.o"
 	@echo "... engine_race/testBplusTree.i"
 	@echo "... engine_race/testBplusTree.s"
+	@echo "... engine_race/test_with_kill.o"
+	@echo "... engine_race/test_with_kill.i"
+	@echo "... engine_race/test_with_kill.s"
 	@echo "... engine_race/util.o"
 	@echo "... engine_race/util.i"
 	@echo "... engine_race/util.s"

@@ -27,6 +27,16 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="engine_race">
 				<Option output="/home/tomzhu/test/engine6/2018ali-polardb-game/lib/libengine_race.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug"/>
@@ -171,11 +181,49 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="edit_cache">
-				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug"/>
-				<Option type="4"/>
+			<Target title="test3">
+				<Option output="/home/tomzhu/test/engine6/2018ali-polardb-game/bin/test3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/tomzhu/test/engine6/2018ali-polardb-game/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 test3"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="test3/fast">
+				<Option output="/home/tomzhu/test/engine6/2018ali-polardb-game/bin/test3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/tomzhu/test/engine6/2018ali-polardb-game/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 test3/fast"/>
 					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -225,11 +273,14 @@
 			<Option target="engine_race"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/test.cc">
-			<Option target="engine_race"/>
 			<Option target="test2"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/testBplusTree.cpp">
+			<Option target="engine_race"/>
 			<Option target="test1"/>
+		</Unit>
+		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/test_with_kill.cc">
+			<Option target="test3"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/util.cc">
 			<Option target="engine_race"/>

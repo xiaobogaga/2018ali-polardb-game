@@ -8,6 +8,7 @@
 #include "data_store.h"
 #include "util.h"
 #include "bplustree.h"
+#include <ctime>
 
 namespace polar_race {
 
@@ -48,6 +49,9 @@ class EngineRace : public Engine  {
   DataStore store_;
   uint32_t writeCounter;
   uint32_t readCounter;
+  time_t write_timer;
+  time_t read_timer;
+
 };
 
 }  // namespace polar_race

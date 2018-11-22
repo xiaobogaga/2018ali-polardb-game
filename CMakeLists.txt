@@ -38,8 +38,9 @@ add_library(${PROJECT_NAME} SHARED
         engine_race/util.cc
         engine_race/bitvector.cc
         engine_race/hash.cc
-        engine_race/test.cc
-   #     engine_race/test_with_kill.cc
+        engine_race/testBplusTree.cpp
+        # engine_race/test.cc
+        # engine_race/test_with_kill.cc
         )
 # 这时候只需要cpp，不需要有主函数
 # ${PROJECT_NAME}是生成的库名 表示生成的共享库文件就叫做 lib工程名.so
@@ -67,3 +68,7 @@ add_executable(test2 engine_race/test.cc)
 
 # 这个可执行文件所需的库（一般就是刚刚生成的工程的库咯）
 target_link_libraries(test2 ${PROJECT_NAME})
+
+add_executable(test3 engine_race/test_with_kill.cc)
+
+target_link_libraries(test3 ${PROJECT_NAME})

@@ -66,7 +66,7 @@ int main() {
   ret = engine->Read(PolarString(key1, 8), &strValue1);
   assert (ret == RetCode::kSucc);
   if (strValue1.compare(std::string(value1, 4096)) != 0) {
-      fprintf(stderr, "[Test] : find an unmatching key\n");
+      fprintf(stderr, "[Test-1] : find an unmatching key\n");
   }
 
   char value2[4096];
@@ -77,7 +77,7 @@ int main() {
   ret = engine->Read(PolarString(key1, 8), &strValue2);
   assert (ret == RetCode::kSucc);
   if (strValue2.compare(std::string(value2, 4096)) != 0) {
-      fprintf(stderr, "[Test] : find an unmatching key\n");
+      fprintf(stderr, "[Test-2] : find an unmatching key\n");
   }
 
     char key3[8];
@@ -90,7 +90,7 @@ int main() {
     ret = engine->Read(PolarString(key3, 8), &strValue3);
     assert (ret == RetCode::kSucc);
     if (strValue3.compare(std::string(value3, 4096)) != 0) {
-        fprintf(stderr, "[Test] : find an unmatching key\n");
+        fprintf(stderr, "[Test-3] : find an unmatching key\n");
     }
 
     char value4[4096];
@@ -101,15 +101,15 @@ int main() {
     ret = engine->Read(PolarString(key3, 8), &strValue4);
     assert (ret == RetCode::kSucc);
     if (strValue4.compare(std::string(value4, 4096)) != 0) {
-        fprintf(stderr, "[Test] : find an unmatching key\n");
+        fprintf(stderr, "[Test-4] : find an unmatching key\n");
     }
 
   ret = Engine::Open(path, &engine);
   assert (ret == RetCode::kSucc);
   ret = engine->Read(PolarString(key1, 8), &strValue1);
   assert (ret == RetCode::kSucc);
-  if (strValue1.compare(std::string(value1, 4096)) != 0) {
-    fprintf(stderr, "[Test] : find an unmatching key\n");
+  if (strValue1.compare(std::string(value2, 4096)) != 0) {
+    fprintf(stderr, "[Test-5] : find an unmatching key\n");
   }
 
   return 0;

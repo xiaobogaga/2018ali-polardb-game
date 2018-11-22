@@ -16,6 +16,8 @@ CMakeFiles/engine_race.dir/engine_race/bitvector.cc.o: ../engine_race/bitvector.
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/bplustree.cc
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/bplustree.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/data_store.h
+CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/door_plate.h
+CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/engine_race.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/util.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../include/engine.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../include/polar_string.h
@@ -47,14 +49,11 @@ CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/hash.cc
 CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/hash.h
 CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/object.h
 
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../engine_race/bplustree.h
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../engine_race/data_store.h
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../engine_race/door_plate.h
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../engine_race/engine_race.h
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../engine_race/test.cc
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../engine_race/util.h
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../include/engine.h
-CMakeFiles/engine_race.dir/engine_race/test.cc.o: ../include/polar_string.h
+CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/bplustree.h
+CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/data_store.h
+CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/testBplusTree.cpp
+CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../include/engine.h
+CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../include/polar_string.h
 
 CMakeFiles/engine_race.dir/engine_race/util.cc.o: ../engine_race/util.cc
 CMakeFiles/engine_race.dir/engine_race/util.cc.o: ../engine_race/util.h

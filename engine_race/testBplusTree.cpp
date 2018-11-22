@@ -5,10 +5,10 @@
 
 #include <iostream>
 #include <map>
-#include "bplustree.h"
 #include <chrono>
 #include <random>
 #include <vector>
+#include "bplustree.h"
 
 using namespace std;
 
@@ -22,7 +22,7 @@ int main() {
     std::vector<long long> vectors;
     long long min = INT64_MIN;
     long long max = INT64_MAX;
-    int size = 2;
+    int size = 20000;
     for (int i = 0; i < size;) {
         long value = generator();
         long long temp = value;
@@ -85,6 +85,7 @@ int main() {
     bplus_tree_get_range(tree, min, max);
     fprintf(stderr, "[Step-2] : finished, total : %d elements\n", maps.size());
 
+    // bplus_tree_deinit(tree);
     // now testing closing.
     tree = bplus_tree_init(fileName, block_size);
     for (std::map<long long, long>::iterator it = maps.begin(); it != maps.end(); ++it) {

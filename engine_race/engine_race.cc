@@ -79,6 +79,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     ret = plate_.AddOrUpdate(k, fileNo, offset);
 #else
     if (writeCounter == 0) {
+      time(&write_timer);
       fprintf(stderr, "[EngineRace] : writing first... offset : %d, fileNo : %d, info : %d\n",
               offset, fileNo, wrap(offset, fileNo));
     }
@@ -92,8 +93,10 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
         k.size(), v.size());
   }
   writeCounter ++;
-  if (writeCounter % 390000 == 0) {
-    fprintf(stderr, "[EngineRace] : have writing 390000 data\n");
+  if (writeCounter % 300000 == 0) {
+    time_t current_time = time(NULL);
+    fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f time\n", difftime(current_time, write_timer));
+    write_timer = current_time;
   }
   pthread_mutex_unlock(&mu_);
   return ret;
@@ -115,6 +118,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     offset = unwrapOffset(info);
     fileNo = unwrapFileNo(info);
     if (readCounter == 0) {
+      time(&read_timer);
       fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
               offset, fileNo, wrap(offset, fileNo));
     }
@@ -131,8 +135,10 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 		k.size(), value->size());
   }
   readCounter ++;
-  if (readCounter % 390000 == 0) {
-	  fprintf(stderr, "[EngineRace] : have read 390000 data\n");
+  if (readCounter % 300000 == 0) {
+      time_t current_time = time(NULL);
+	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f time\n", difftime(current_time, read_timer));
+	  read_timer = current_time;
   }
   pthread_mutex_unlock(&mu_);
   return ret;
