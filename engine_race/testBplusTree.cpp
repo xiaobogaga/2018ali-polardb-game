@@ -47,8 +47,8 @@ int main() {
 
     // do range search here.
 
-    bplus_tree_get_range(tree, min, max);
-    fprintf(stderr, "[Step-1] : finished, total : %d elements\n", maps.size());
+    long ans = bplus_tree_get_range(tree, min, max);
+    fprintf(stderr, "[Step-1] : finished, total : %d elements == ret %ld elements\n", maps.size(), ans);
 
     std::vector<int>::size_type sz = vectors.size();
     // testing updating and adding
@@ -82,8 +82,8 @@ int main() {
         }
     }
 
-    bplus_tree_get_range(tree, min, max);
-    fprintf(stderr, "[Step-2] : finished, total : %d elements\n", maps.size());
+    ans = bplus_tree_get_range(tree, min, max);
+    fprintf(stderr, "[Step-2] : finished, total : %d elements == ret %ld elements\n", maps.size(), ans);
 
     // bplus_tree_deinit(tree);
     // now testing closing.
@@ -97,8 +97,8 @@ int main() {
         }
     }
 
-    bplus_tree_get_range(tree, min, max);
-    fprintf(stderr, "[Step-3] : finished, total : %d elements\n", maps.size());
+    ans = bplus_tree_get_range(tree, min, max);
+    fprintf(stderr, "[Step-3] : finished, total : %d elements == ret %ld elements\n", maps.size(), ans);
 
     sz = vectors.size();
 
@@ -133,8 +133,8 @@ int main() {
         }
     }
 
-    bplus_tree_get_range(tree, min, max);
-    fprintf(stderr, "[Step-4] : finished, total : %d elements\n", maps.size());
+    ans = bplus_tree_get_range(tree, min, max);
+    fprintf(stderr, "[Step-4] : finished, total : %d elements == ret %ld elements\n", maps.size(), ans);
 
    // bplus_tree_deinit(tree);
   //  flush_index(tree);
@@ -149,8 +149,8 @@ int main() {
         }
     }
 
-    bplus_tree_get_range(tree, min, max);
-    fprintf(stderr, "[Step-5] : finished, total : %d elements\n", maps.size());
+    ans = bplus_tree_get_range(tree, min, max);
+    fprintf(stderr, "[Step-5] : finished, total : %d elements == ret %ld elements\n", maps.size(), ans);
 
     sz = vectors.size();
 
@@ -185,8 +185,8 @@ int main() {
         }
     }
 
-    bplus_tree_get_range(tree, min, max);
-    fprintf(stderr, "[Step-6] : finished, total : %d elements\n", maps.size());
+    ans = bplus_tree_get_range(tree, min, max);
+    fprintf(stderr, "[Step-6] : finished, total : %d elements == ret %ld elements\n", maps.size(), ans);
 
     return 0;
 }

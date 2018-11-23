@@ -997,7 +997,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
         long start = -1;
         key_t1 min = key1 <= key2 ? key1 : key2;
         key_t1 max = min == key1 ? key2 : key1;
-
+        long size = 0;
         struct bplus_node *node = node_seek(tree, tree->root);
         while (node != NULL) {
                 int i = key_binary_search(node, min);
@@ -1009,6 +1009,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
                                 }
                         }
                         while (node != NULL && key(node)[i] <= max) {
+                                size ++;
                                 start = data(node)[i];
                                 if (++i >= node->children) {
                                         node = node_seek(tree, node->next);
@@ -1026,7 +1027,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
                 }
         }
 
-        return start;
+        return size;
 }
 
 int bplus_open(const char *filename)
@@ -1106,8 +1107,10 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                                 char data[8];
                                 uint16_t offset = polar_race::unwrapOffset(start);
                                 uint16_t fileNo = polar_race::unwrapFileNo(start);
-                                store.Read(fileNo, offset, &value);
+                                polar_race::RetCode ret = store.Read(fileNo, offset, &value);
+                                assert(ret == polar_race::RetCode::kSucc);
                                 polar_race::longToStr(key, data);
+                             //   fprintf(stderr, "[BPlusTree] : visiting %lld key\n", key);
                                 visitor.Visit(polar_race::PolarString(data, 8) ,
                                               polar_race::PolarString(value));
                                 if (++i >= node->children) {
@@ -1126,7 +1129,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                 }
         }
         // fprintf(stderr, "\n total : %ld elements\n", size);
-        return start;
+        return size;
 }
 
 struct bplus_tree *bplus_tree_init(const char *filename, int block_size)

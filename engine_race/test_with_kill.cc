@@ -17,17 +17,57 @@ using polar_race::Engine;
 using polar_race::PolarString;
 using polar_race::RetCode;
 
-static const char kEnginePath[] = "/tmp/test_engine";
-static const char kDumpPath[] = "/tmp/test_dump";
-static std::mutex mutex;
-static volatile bool shutdown = false;
-
-
 struct PolarStringComparator {
     bool operator()(const PolarString &x, const PolarString &y) const {
         return x.compare(y) < 0;
     }
 };
+
+namespace polar_race {
+
+    class MyVisitor : public Visitor {
+
+    public:
+        void Visit(const PolarString &key, const PolarString &value) override {
+            long long k = polar_race::strToLong(key.data());
+        //    fprintf(stderr, "[Visitor] : visiting %lld key \n", k);
+            if (tempMaps.count(k) > 0) {
+                fprintf(stderr, "[Visitor] : iterator duplicate keys %lld\n", k);
+                exit(1);
+            }
+            tempMaps.insert( std::pair<long long, int> (k, 1) );
+            std::map<PolarString, PolarString>::iterator ite = maps->find(key);
+            if (ite != maps->end()) {
+                if (ite->second.compare(PolarString(value)) != 0) {
+                    fprintf(stderr, "[Visitor] : find an unmatching key. %lld\n", k);
+                }
+            } else {
+                fprintf(stderr, "[Visitor] : visit an unexist key %lld\n", k);
+            }
+        }
+
+        MyVisitor(std::map<PolarString, PolarString, PolarStringComparator>* maps) {
+            this->maps = maps;
+        }
+
+        void checkSizeEqual() {
+            if (maps->size() != tempMaps.size())
+                fprintf(stderr, "[Visitor] : elements size error. ite %d elements but real %d elements\n",
+                        tempMaps.size(), maps->size());
+        }
+
+    private:
+        std::map<long long, int> tempMaps;
+        std::map<PolarString, PolarString, PolarStringComparator>* maps;
+    };
+
+}
+
+static const char kEnginePath[] = "/tmp/test_engine";
+static const char kDumpPath[] = "/tmp/test_dump";
+static std::mutex mutex;
+static volatile bool shutdown = false;
+
 
 void writeAValue(Engine* engine, PolarString& key,
                  PolarString& value, std::map<PolarString, PolarString, PolarStringComparator>* maps,
@@ -208,21 +248,26 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
             std::map<PolarString, PolarString>::iterator ite = maps->find(key);
             if (ite != maps->end()) {
                 if (ite->second.compare(PolarString(value)) != 0) {
-                    fprintf(stderr, "find an unmatching key. %lld\n", polar_race::strToLong(key.data()));
+                    fprintf(stderr, "[Reader] : find an unmatching key. %lld\n", polar_race::strToLong(key.data()));
                     break;
                 }
             } else {
-                fprintf(stderr, "find a doesn't exist key. %lld\n", polar_race::strToLong(key.data()));
+                fprintf(stderr, "[Reader] : find a doesn't exist key. %lld\n", polar_race::strToLong(key.data()));
                 break;
             }
         } else {
             if (maps->count(key) > 0) {
-                fprintf(stderr, "error couldn't find key. %lld\n", polar_race::strToLong(key.data()));
+                fprintf(stderr, "[Reader] : error couldn't find key. %lld\n", polar_race::strToLong(key.data()));
                 break;
             }
         }
 
     }
+    fprintf(stderr, "[Reader] : start testing range query\n");
+    polar_race::MyVisitor visit(maps);
+    engine->Range(PolarString(std::string("")),
+                  PolarString(std::string("")), visit);
+    visit.checkSizeEqual();
 }
 
 class ReaderPro {
@@ -270,7 +315,7 @@ int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 4;
-    int writingTime = 100000;
+    int writingTime = 100;
     if (argc <= 1) {
         ;
     } else {
