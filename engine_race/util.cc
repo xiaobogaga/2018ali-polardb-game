@@ -28,7 +28,7 @@ uint32_t StrHash(const char* s, int size) {
 long long strToLong(const char* key) {
       long long ans = 0;
       for (int i = 0; i < 64; i++) {
-        ans |= (((long long) (((uint8_t) key[i / 8]) >> (i % 8)) & 1) << i);
+        ans |= (((long long) (( key[i / 8]) >> (i % 8)) & 1) << i);
       }
       return ans;
 }

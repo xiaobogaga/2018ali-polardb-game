@@ -25,7 +25,7 @@
         for (pos = (head)->next, n = pos->next; pos != (head); \
                 pos = n, n = pos->next)
 
-typedef long long key_t1;
+typedef unsigned long long key_t1;
 #define ADDR_STR_WIDTH 16
 #include "../include/engine.h"
 

@@ -75,3 +75,7 @@ target_link_libraries(test3
         ${PROJECT_NAME}
         pthread
         )
+
+add_executable(tempTest engine_race/tempTest.cpp)
+
+target_link_libraries(tempTest ${PROJECT_NAME})

@@ -19,7 +19,7 @@ class EngineRace : public Engine  {
   explicit EngineRace(const std::string& dir)
     : mu_(PTHREAD_MUTEX_INITIALIZER),
     db_lock_(NULL), plate_(dir), tree(NULL), store_(dir), writeCounter(0),
-	readCounter(0) {
+	readCounter(0), rangeCounter(0) {
 		fprintf(stderr, "[EngineRace] : creating an engineRace instance at %s\n", 
 			dir.c_str());
     }
@@ -49,9 +49,10 @@ class EngineRace : public Engine  {
   DataStore store_;
   uint32_t writeCounter;
   uint32_t readCounter;
+  uint32_t rangeCounter;
   time_t write_timer;
   time_t read_timer;
-
+  time_t reader_timer;
 };
 
 }  // namespace polar_race

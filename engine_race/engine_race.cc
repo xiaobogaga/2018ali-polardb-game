@@ -154,8 +154,12 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
 #ifdef USE_HASH_TABLE
   ;
 #else
-  long long low = strToLong(lower.data());
-  long long high = strToLong(upper.data());
+  long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
+  long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
+  if (rangeCounter == 0) {
+    fprintf(stderr, "[EngineRace] : range read. [%lld, %lld)", low, high);
+  }
+  rangeCounter ++;
   bplus_tree_get_range(tree, low, high, visitor, store_);
 #endif
 

@@ -124,6 +124,19 @@ engine_race/fast:
 .PHONY : engine_race/fast
 
 #=============================================================================
+# Target rules for targets named tempTest
+
+# Build rule for target.
+tempTest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tempTest
+.PHONY : tempTest
+
+# fast build rule for target.
+tempTest/fast:
+	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
+.PHONY : tempTest/fast
+
+#=============================================================================
 # Target rules for targets named test2
 
 # Build rule for target.
@@ -351,6 +364,33 @@ engine_race/hash.cc.s:
 	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/hash.cc.s
 .PHONY : engine_race/hash.cc.s
 
+engine_race/tempTest.o: engine_race/tempTest.cpp.o
+
+.PHONY : engine_race/tempTest.o
+
+# target to build an object file
+engine_race/tempTest.cpp.o:
+	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/engine_race/tempTest.cpp.o
+.PHONY : engine_race/tempTest.cpp.o
+
+engine_race/tempTest.i: engine_race/tempTest.cpp.i
+
+.PHONY : engine_race/tempTest.i
+
+# target to preprocess a source file
+engine_race/tempTest.cpp.i:
+	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/engine_race/tempTest.cpp.i
+.PHONY : engine_race/tempTest.cpp.i
+
+engine_race/tempTest.s: engine_race/tempTest.cpp.s
+
+.PHONY : engine_race/tempTest.s
+
+# target to generate assembly for a file
+engine_race/tempTest.cpp.s:
+	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/engine_race/tempTest.cpp.s
+.PHONY : engine_race/tempTest.cpp.s
+
 engine_race/test.o: engine_race/test.cc.o
 
 .PHONY : engine_race/test.o
@@ -471,6 +511,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... engine_race"
+	@echo "... tempTest"
 	@echo "... test2"
 	@echo "... test1"
 	@echo "... test3"
@@ -495,6 +536,9 @@ help:
 	@echo "... engine_race/hash.o"
 	@echo "... engine_race/hash.i"
 	@echo "... engine_race/hash.s"
+	@echo "... engine_race/tempTest.o"
+	@echo "... engine_race/tempTest.i"
+	@echo "... engine_race/tempTest.s"
 	@echo "... engine_race/test.o"
 	@echo "... engine_race/test.i"
 	@echo "... engine_race/test.s"

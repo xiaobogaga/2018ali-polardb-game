@@ -1099,7 +1099,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                                 }
                         }
                         long long key;
-                        while (node != NULL && (key = key(node)[i]) <= max) {
+                        while (node != NULL && (key = key(node)[i]) < max) {
                                 size ++;
                                 start = data(node)[i];
                                 std::string value;
