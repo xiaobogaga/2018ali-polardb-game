@@ -12,7 +12,7 @@ namespace polar_race {
 static const std::string dataFilePath("/data");
 static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
-static const int kSingleFileSize = 1024 * 1024 * 256;
+static const int kSingleFileSize = 1024 * 1024 * 128;
 static const int keysize = 8;
 static const int valuesize = 4096;
 static char buf[valuesize];
@@ -81,13 +81,8 @@ RetCode DataStore::Append(const std::string& value, uint16_t* fileNo, uint16_t* 
   if (fd_ < 0) {
 	  initFD();
   }
-	
-  if (value.size() > kSingleFileSize) {
-	fprintf(stderr, "[DataStore] : value size not correct\n");
-    return kInvalidArgument;
-  }
 
-  if (cur_offset + valuesize > kSingleFileSize) {
+  if (cur_offset * valuesize + valuesize > kSingleFileSize) {
     // Swtich to new file
     close(fd_);
     cur_fileNo += 1;
@@ -108,17 +103,17 @@ RetCode DataStore::Append(const std::string& value, uint16_t* fileNo, uint16_t* 
 
 RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
   int fd = -1;
-  if (readFiles == NULL) readFiles = new std::map<int, int>();
+  if (readFiles == NULL) readFiles = new std::map<uint16_t , int>();
   if (readFiles->count(fileNo) <= 0) {
 	fd = open(FileName(dir_ + dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
 	if (fd < 0) {
 		fprintf(stderr, "[DataStore] : open file for read failed\n");
 		return kIOError;
 	}
-	readFiles->insert(std::pair<int, int> (fileNo, fd));
+	readFiles->insert(std::pair<uint16_t , int> (fileNo, fd));
   } else fd = readFiles->find(fileNo)->second;
  
-  if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
+  // if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
   
   lseek(fd, ((uint32_t) offset) * valuesize, SEEK_SET);
   char* pos = buf;

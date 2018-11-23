@@ -26,7 +26,7 @@ class DataStore  {
       close(fd_);
     }
 	if (readFiles != NULL && !readFiles->empty()) {
-		  for (std::map<int,int>::iterator it = readFiles->begin(); it != readFiles->end(); ++it)
+		  for (std::map<uint16_t ,int>::iterator it = readFiles->begin(); it != readFiles->end(); ++it)
 			close(it->second);
 		delete readFiles;
 	}
@@ -42,7 +42,7 @@ class DataStore  {
   std::string dir_;
   uint16_t cur_fileNo;
   uint16_t cur_offset;
-  std::map<int, int>* readFiles;
+  std::map<uint16_t , int>* readFiles;
   RetCode OpenCurFile();
 };
 

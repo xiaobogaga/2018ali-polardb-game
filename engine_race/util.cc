@@ -28,12 +28,12 @@ uint32_t StrHash(const char* s, int size) {
 long long strToLong(const char* key) {
       long long ans = 0;
       for (int i = 0; i < 64; i++) {
-        ans |= ((long long) ( (unsigned char) (key[i / 8] >> (i % 8)) & 1)) << i;
+        ans |= (((long long) (((uint8_t) key[i / 8]) >> (i % 8)) & 1) << i);
       }
       return ans;
 }
 
-void longToStr(long key, char* ans) {
+void longToStr(long long key, char* ans) {
   for (int i = 0; i < 64; i++) {
     ans[i / 8] |= (((key >> i) & 1) << (i % 8));
   }

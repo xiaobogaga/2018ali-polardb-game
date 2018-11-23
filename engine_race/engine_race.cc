@@ -85,8 +85,8 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     }
     bplus_tree_put(tree, strToLong(key.data()), wrap(offset, fileNo));
 #endif
-    fprintf(stderr, "[EngineRace] : writing data. key : %lld, offset : %d, fileNo : %d, info : %ld\n",
-            strToLong(key.data()), offset, fileNo, wrap(offset, fileNo));
+ //   fprintf(stderr, "[EngineRace] : writing data. key : %lld, offset : %d, fileNo : %d, info : %ld\n",
+ //           strToLong(key.data()), offset, fileNo, wrap(offset, fileNo));
   }
   
   if (writeCounter == 0) {
@@ -96,7 +96,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   writeCounter ++;
   if (writeCounter % 300000 == 0) {
     time_t current_time = time(NULL);
-    fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f time\n", difftime(current_time, write_timer));
+    fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
     write_timer = current_time;
   }
   pthread_mutex_unlock(&mu_);
@@ -123,8 +123,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
       fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
               offset, fileNo, wrap(offset, fileNo));
     }
-    fprintf(stderr, "[EngineRace] : reading data. key : %lld, offset : %d, fileNo : %d, info : %ld\n",
-              strToLong(key.data()), offset, fileNo, wrap(offset, fileNo));
+//    fprintf(stderr, "[EngineRace] : reading data. key : %lld, offset : %d, fileNo : %d, info : %ld\n",
+ //             strToLong(key.data()), offset, fileNo, wrap(offset, fileNo));
   }
 #endif
 
@@ -140,7 +140,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   readCounter ++;
   if (readCounter % 300000 == 0) {
       time_t current_time = time(NULL);
-	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f time\n", difftime(current_time, read_timer));
+	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
 	  read_timer = current_time;
   }
   pthread_mutex_unlock(&mu_);
