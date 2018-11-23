@@ -68,7 +68,7 @@ RetCode DataStore::initFD() {
   fprintf(stderr, "[DataStore] : open current file %s and length : %d\n", 
 	FileName(dataPath, cur_fileNo).c_str(), len);
   if (len > 0) {
-    cur_offset = (uint16_t) len;
+    cur_offset = (uint16_t) len / (valuesize);
   }
 
   // Open file

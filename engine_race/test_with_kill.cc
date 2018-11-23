@@ -214,9 +214,12 @@ void writeTask2(Engine* engine, std::default_random_engine* random,
                 std::vector<PolarString>* keys) {
     for (int i = 0; i < writeTimes; i++) {
         mutex.lock();
-        if (i % 6 != 0) {
+        if (i % 6 == 0 && i != 0) {
             PolarString value = generateValue(random);
-            writeAValue(engine, keys->at( (*random)() % keys->size()), value, maps, keys);
+            int size = keys->size();
+            int loc = (*random)() % size;
+            PolarString key = keys->at(loc);
+            writeAValue(engine, key, value, maps, keys);
         } else {
             PolarString key = generateAKey(random);
             PolarString value = generateValue(random);
@@ -313,6 +316,7 @@ private:
 
 int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
+    system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 4;
     int writingTime = 100;
@@ -329,13 +333,26 @@ int main(int argc, char** argv) {
     EngineRace::Open(path, &engine);
     WriterTask writeTask(engine);
     writeTask.startKillableWriter(threadSize, writingTime);
-//    std::this_thread::sleep_for (std::chrono::seconds(10)); // sleeping for ten seconds.
-//    shutdown = true;
+    std::this_thread::sleep_for (std::chrono::seconds(5)); // sleeping for ten seconds.
+    shutdown = true;
     writeTask.waitThreadEnd();
     Engine::Open(path, &engine);
     ReaderPro readerPro(engine, writeTask.getMaps(), writeTask.getKeys());
     readerPro.startReader(threadSize, writingTime);
     delete engine; // finilize.
 
+    // after do finilize, then we can do performance test.
+    fprintf(stderr, "Performance Test\n");
+    // first clear dirs.
+    system("rm -rf /tmp/test_dump/*");
+    EngineRace::Open(path, &engine);
+    WriterTask performanceWriterTask(engine);
+    threadSize = 4;
+    writingTime = 20000;
+    performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
+    ReaderPro performanceReaderTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
+    performanceReaderTask.startReader(threadSize, writingTime);
+    delete engine; // finilize.
+    system("rm -rf /tmp/test_dump/*");
     return 0;
 }

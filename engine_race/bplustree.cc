@@ -1173,6 +1173,9 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
                 // _block_size = offset_load(fd);
                 tree->file_size = offset_load(fd);
                 /* load free blocks */
+
+
+
                 while ((i = offset_load(fd)) != INVALID_OFFSET) {
                         struct free_block *block = (struct free_block*)
                                 malloc(sizeof(*block));
@@ -1180,6 +1183,9 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
                         block->offset = i;
                         list_add(&block->link, &tree->free_blocks);
                 }
+
+
+
                 // close(fd);
         } else {
                 tree->root = INVALID_OFFSET;
@@ -1208,14 +1214,14 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
 void bplus_tree_deinit(struct bplus_tree *tree)
 {
         // int fd = open(tree->filename, O_CREAT | O_RDWR, 0644);
-        int fd = tree->index_fd;
-        assert(fd >= 0);
-        lseek(fd, 0, SEEK_SET);
-        assert(offset_store(fd, tree->root) == ADDR_STR_WIDTH);
-        // assert(offset_store(fd, _block_size) == ADDR_STR_WIDTH);
-        assert(offset_store(fd, tree->file_size) == ADDR_STR_WIDTH);
 
-        /* store free blocks in files for future reuse */
+
+
+        int fd = tree->index_fd;
+        lseek(fd, 32, SEEK_SET);
+  //      assert(offset_store(fd, tree->root) == ADDR_STR_WIDTH);
+  //      assert(offset_store(fd, tree->file_size) == ADDR_STR_WIDTH);
+
         struct list_head *pos, *n;
         list_for_each_safe(pos, n, &tree->free_blocks) {
                 list_del(pos);
@@ -1223,6 +1229,7 @@ void bplus_tree_deinit(struct bplus_tree *tree)
                 assert(offset_store(fd, block->offset) == ADDR_STR_WIDTH);
                 free(block);
         }
+
 
         bplus_close(tree->index_fd, tree->fd);
         free(tree->caches);

@@ -52,7 +52,7 @@ class EngineRace : public Engine  {
   uint32_t rangeCounter;
   time_t write_timer;
   time_t read_timer;
-  time_t reader_timer;
+  time_t range_timer;
 };
 
 }  // namespace polar_race

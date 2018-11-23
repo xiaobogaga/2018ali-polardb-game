@@ -157,10 +157,14 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
   long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
   if (rangeCounter == 0) {
-    fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) \n", low, high);
+    time(&range_timer);
+  }
+  long size = bplus_tree_get_range(tree, low, high, visitor, store_);
+  if (rangeCounter == 0) {
+      fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
+              size, difftime(time(NULL), range_timer), low, high);
   }
   rangeCounter ++;
-  bplus_tree_get_range(tree, low, high, visitor, store_);
 #endif
 
   pthread_mutex_unlock(&mu_);
