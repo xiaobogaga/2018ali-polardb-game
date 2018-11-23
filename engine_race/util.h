@@ -17,6 +17,7 @@ uint32_t wrap(uint16_t offset, uint16_t fileNo);
 uint16_t unwrapOffset(uint32_t wrapper);
 uint16_t unwrapFileNo(uint32_t wrapper);
 void longToStr(long long key, char* ans);
+void printlonglong(long long value);
 
 // Env
 int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile);

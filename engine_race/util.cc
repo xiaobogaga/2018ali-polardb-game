@@ -25,19 +25,46 @@ uint32_t StrHash(const char* s, int size) {
   return h;
 }
 
-long long strToLong(const char* key) {
+//long long strToLong(const char* key) {
+//      long long ans = 0;
+//      for (int i = 0; i < 64; i++) {
+//        ans |= (((long long) ((key[i / 8]) >> (i % 8)) & 1) << i);
+//        fprintf(stderr, "%d : %lld\n", i, ans);
+//      }
+//      return ans;
+//}
+//
+//void longToStr(long long key, char* ans) {
+//  for (int i = 0; i < 64; i++) {
+//    ans[i / 8] |= (((key >> i) & 1) << (i % 8));
+//  }
+//}
+
+    void printlonglong(long long value) {
+      for (int i = 63; i >= 0; i --)
+        fprintf(stderr, "%d", ((value >> i) & 1) );
+      fprintf(stderr, "\n");
+  }
+
+    long long strToLong(const char* key) {
       long long ans = 0;
       for (int i = 0; i < 64; i++) {
-        ans |= (((long long) (( key[i / 8]) >> (i % 8)) & 1) << i);
+        ans |= (((long long) ((key[i / 8]) >> (7 - i % 8)) & 1) << (63 - i));
+     //   printlonglong(ans);
       }
       return ans;
-}
+    }
 
-void longToStr(long long key, char* ans) {
-  for (int i = 0; i < 64; i++) {
-    ans[i / 8] |= (((key >> i) & 1) << (i % 8));
-  }
-}
+    void longToStr(long long key, char* ans) {
+      memset(ans, 0, sizeof(char) * 8);
+      for (int i = 0; i < 64; i++) {
+      //  if (i % 8 == 0) fprintf(stderr, "\n");
+        char c = (char) (((key >> i) & 1) << (i % 8));
+       // fprintf(stderr, "%d", c);
+        ans[7 - i / 8] |= c;
+      }
+      // fprintf(stderr, "\n");
+    }
 
 uint32_t wrap(uint16_t offset, uint16_t fileNo) {
       uint32_t ans = 0;
