@@ -21,8 +21,8 @@ Engine::~Engine() {
 
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   fprintf(stderr, "[EngineRace] : open db\n");
-  int i = name.size() == 0 ? 0 : 1;
-  assert (i == 0);
+ // int i = name.size() == 0 ? 0 : 1;
+ // assert (i == 0);
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   engine_race->resetCounter();
@@ -41,7 +41,7 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 
   ret = engine_race->store_.Init();
   if (ret != kSucc) {
-    fprintf(stderr, "[EngineRace] : init store failed %d\n", i);
+    fprintf(stderr, "[EngineRace] : init store failed\n");
     delete engine_race;
     return ret;
   }
