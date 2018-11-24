@@ -162,7 +162,7 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   long size = bplus_tree_get_range(tree, low, high, visitor, store_);
   if (rangeCounter == 0) {
       fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
-              size, difftime(time(NULL), range_timer), low, high);
+              low, high, size, difftime(time(NULL), range_timer));
   }
   rangeCounter ++;
 #endif

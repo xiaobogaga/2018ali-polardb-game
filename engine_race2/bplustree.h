@@ -25,11 +25,7 @@
         for (pos = (head)->next, n = pos->next; pos != (head); \
                 pos = n, n = pos->next)
 
-typedef long long key_t1;
-#define ADDR_STR_WIDTH 16
-#include "../include/engine.h"
-
-#include "data_store.h"
+typedef long key_t1;
 
 struct list_head {
         struct list_head *prev, *next;
@@ -129,24 +125,18 @@ struct bplus_tree {
         struct list_head free_blocks;
 };
 
-
-struct OffsetData {
-    char root[ADDR_STR_WIDTH];
-    char blockSize[ADDR_STR_WIDTH];
-    char fileSize[ADDR_STR_WIDTH];
-};
-
 void bplus_tree_dump(struct bplus_tree *tree);
 long bplus_tree_get(struct bplus_tree *tree, key_t1 key);
 int bplus_tree_put(struct bplus_tree *tree, key_t1 key, long data);
 long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2);
-long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
-                          polar_race::Visitor &visitor, polar_race::DataStore& store);
-struct bplus_tree *bplus_tree_init(const char *filename, int block_size);
-int bplus_open(const char *filename);
-void bplus_close(int indexfd, int fd);
+struct bplus_tree *bplus_tree_init(char *filename, int block_size);
+int bplus_open(char *filename);
+void bplus_close(int fd);
+
+/*
 void bplus_tree_deinit(struct bplus_tree *tree);
-static inline void  flush_root_offset(int fd, off_t data);
-static inline void  flush_file_size(int fd, off_t data);
+*/
+
+void flush_index(struct bplus_tree* tree);
 
 #endif  /* _BPLUS_TREE_H */

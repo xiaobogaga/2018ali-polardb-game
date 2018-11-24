@@ -319,7 +319,7 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 4;
-    int writingTime = 100;
+    int writingTime = 10000;
     if (argc <= 1) {
         ;
     } else {
@@ -328,8 +328,8 @@ int main(int argc, char** argv) {
     }
     std::string path(kDumpPath);
     Engine* engine = NULL;
-    Engine::Open(path, &engine);
-    delete engine; // finilize.
+    // Engine::Open(path, &engine);
+    // delete engine; // finilize.
     EngineRace::Open(path, &engine);
     WriterTask writeTask(engine);
     writeTask.startKillableWriter(threadSize, writingTime);
