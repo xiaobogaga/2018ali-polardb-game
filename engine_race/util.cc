@@ -42,7 +42,7 @@ uint32_t StrHash(const char* s, int size) {
 
     void printlonglong(long long value) {
       for (int i = 63; i >= 0; i --)
-        fprintf(stderr, "%d", ((value >> i) & 1) );
+        fprintf(stderr, "%lld", ((value >> i) & 1) );
       fprintf(stderr, "\n");
   }
 

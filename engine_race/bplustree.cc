@@ -39,6 +39,9 @@ static int _block_size;
 static int _max_entries;
 static int _max_order;
 
+static inline void flush_file_size(int fd, off_t data);
+static inline void flush_root_offset(int fd, off_t data);
+
 static inline int is_leaf(struct bplus_node *node)
 {
         return node->type == BPLUS_TREE_LEAF;
@@ -84,6 +87,7 @@ static inline struct bplus_node *cache_refer(struct bplus_tree *tree)
                 }
         }
         assert(0);
+        return NULL;
 }
 
 static inline void cache_defer(struct bplus_tree *tree, struct bplus_node *node)
@@ -147,6 +151,7 @@ static struct bplus_node *node_seek(struct bplus_tree *tree, off_t offset)
                 }
         }
         assert(0);
+        return NULL;
 }
 
 static inline void node_flush(struct bplus_tree *tree, struct bplus_node *node)
@@ -994,7 +999,7 @@ int bplus_tree_put(struct bplus_tree *tree, key_t1 key, long data)
 
 long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
 {
-        long start = -1;
+        // long start = -1;
         key_t1 min = key1 <= key2 ? key1 : key2;
         key_t1 max = min == key1 ? key2 : key1;
         long size = 0;
@@ -1010,7 +1015,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
                         }
                         while (node != NULL && key(node)[i] <= max) {
                                 size ++;
-                                start = data(node)[i];
+                            //    start = data(node)[i];
                                 if (++i >= node->children) {
                                         node = node_seek(tree, node->next);
                                         i = 0;
@@ -1092,6 +1097,16 @@ static inline ssize_t offset_store(int fd, off_t offset)
         return write(fd, buf, sizeof(buf));
 }
 
+static inline void flush_file_size(int fd, off_t data) {
+    lseek(fd, 16, SEEK_SET);
+    assert(offset_store(fd, data) == ADDR_STR_WIDTH);
+}
+
+static inline void flush_root_offset(int fd, off_t data) {
+    lseek(fd, 0, SEEK_SET);
+    assert(offset_store(fd, data) == ADDR_STR_WIDTH);
+}
+
 long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                           polar_race::Visitor &visitor, polar_race::DataStore& store)
 {
@@ -1117,8 +1132,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                                 char data[8];
                                 uint16_t offset = polar_race::unwrapOffset(start);
                                 uint16_t fileNo = polar_race::unwrapFileNo(start);
-                                polar_race::RetCode ret = store.Read(fileNo, offset, &value);
-                                assert(ret == polar_race::RetCode::kSucc);
+                                store.Read(fileNo, offset, &value);
                                 polar_race::longToStr(key, data);
                              //   fprintf(stderr, "[BPlusTree] : visiting %lld key\n", key);
                                 visitor.Visit(polar_race::PolarString(data, 8) ,
@@ -1244,16 +1258,6 @@ void bplus_tree_deinit(struct bplus_tree *tree)
         bplus_close(tree->index_fd, tree->fd);
         free(tree->caches);
         free(tree);
-}
-
-static inline void flush_file_size(int fd, off_t data) {
-        lseek(fd, 16, SEEK_SET);
-        assert(offset_store(fd, data) == ADDR_STR_WIDTH);
-}
-
-static inline void flush_root_offset(int fd, off_t data) {
-        lseek(fd, 0, SEEK_SET);
-        assert(offset_store(fd, data) == ADDR_STR_WIDTH);
 }
 
 #ifdef _BPLUS_TREE_DEBUG

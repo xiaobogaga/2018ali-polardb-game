@@ -146,7 +146,5 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size);
 int bplus_open(const char *filename);
 void bplus_close(int indexfd, int fd);
 void bplus_tree_deinit(struct bplus_tree *tree);
-static inline void  flush_root_offset(int fd, off_t data);
-static inline void  flush_file_size(int fd, off_t data);
 
 #endif  /* _BPLUS_TREE_H */
