@@ -79,3 +79,8 @@ target_link_libraries(test3
 add_executable(tempTest engine_race/tempTest.cpp)
 
 target_link_libraries(tempTest ${PROJECT_NAME})
+
+add_executable(pressureTestBplus engine_race/pressureTestForBplusTree.cpp)
+
+# 这个可执行文件所需的库（一般就是刚刚生成的工程的库咯）
+target_link_libraries(pressureTestBplus ${PROJECT_NAME})

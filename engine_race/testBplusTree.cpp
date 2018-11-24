@@ -22,7 +22,7 @@ int main() {
     std::vector<long long> vectors;
     long long min = INT64_MIN;
     long long max = INT64_MAX;
-    int size = 20000;
+    long size = 10000;
     for (int i = 0; i < size;) {
         long value = generator();
         long long temp = value;
