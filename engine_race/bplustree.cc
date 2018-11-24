@@ -1094,7 +1094,18 @@ static inline ssize_t offset_store(int fd, off_t offset)
 {
         char buf[ADDR_STR_WIDTH];
         hex_to_str(offset, buf, sizeof(buf));
-        return write(fd, buf, sizeof(buf));
+        ssize_t len = ADDR_STR_WIDTH;
+        char* pos = buf;
+        while (len > 0) {
+                ssize_t ret = write(fd, pos, len);
+                if (len <= 0) {
+                        fprintf(stderr, "[BplusTree] : offset_store write error\n");
+                        return -1;
+                }
+                len -= ret;
+                pos += ret;
+        }
+        return ADDR_STR_WIDTH;
 }
 
 static inline void flush_file_size(int fd, off_t data) {

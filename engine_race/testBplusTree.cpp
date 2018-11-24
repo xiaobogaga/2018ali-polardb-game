@@ -13,6 +13,7 @@
 using namespace std;
 
 int main() {
+    system("rm -rf /tmp/btree*");
     char fileName[] = "/tmp/btree.bin";
     int block_size = 4096;
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
