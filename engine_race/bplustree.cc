@@ -1138,6 +1138,10 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                         long long key;
                         while (node != NULL && (key = key(node)[i]) < max) {
                                 size ++;
+                                if (size >  1000005) {
+                                        assert(size == 10000000);
+                                        return size;
+                                }
                                 start = data(node)[i];
                                 std::string value;
                                 char data[8];
