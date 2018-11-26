@@ -94,8 +94,8 @@ void IndexStore::initMaps() {
         close(fd_);
         fd_ = -1;
     }
-  //  fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
-  //          party_, this->size, difftime(time(NULL), t));
+    fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+            party_, this->size, difftime(time(NULL), t));
 }
 
 void IndexStore::finalize() {
