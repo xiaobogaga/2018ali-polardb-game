@@ -39,6 +39,9 @@ static int _block_size;
 static int _max_entries;
 static int _max_order;
 
+static inline void flush_file_size(int fd, off_t data);
+static inline void flush_root_offset(int fd, off_t data);
+
 static inline int is_leaf(struct bplus_node *node)
 {
         return node->type == BPLUS_TREE_LEAF;
@@ -84,6 +87,7 @@ static inline struct bplus_node *cache_refer(struct bplus_tree *tree)
                 }
         }
         assert(0);
+        return NULL;
 }
 
 static inline void cache_defer(struct bplus_tree *tree, struct bplus_node *node)
@@ -147,6 +151,7 @@ static struct bplus_node *node_seek(struct bplus_tree *tree, off_t offset)
                 }
         }
         assert(0);
+        return NULL;
 }
 
 static inline void node_flush(struct bplus_tree *tree, struct bplus_node *node)
@@ -994,7 +999,7 @@ int bplus_tree_put(struct bplus_tree *tree, key_t1 key, long data)
 
 long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
 {
-        long start = -1;
+        // long start = -1;
         key_t1 min = key1 <= key2 ? key1 : key2;
         key_t1 max = min == key1 ? key2 : key1;
         long size = 0;
@@ -1010,7 +1015,7 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2)
                         }
                         while (node != NULL && key(node)[i] <= max) {
                                 size ++;
-                                start = data(node)[i];
+                            //    start = data(node)[i];
                                 if (++i >= node->children) {
                                         node = node_seek(tree, node->next);
                                         i = 0;
@@ -1071,15 +1076,46 @@ static inline void hex_to_str(off_t offset, char *buf, int len)
 static inline off_t offset_load(int fd)
 {
         char buf[ADDR_STR_WIDTH];
-        ssize_t len = read(fd, buf, sizeof(buf));
-        return len > 0 ? str_to_hex(buf, sizeof(buf)) : INVALID_OFFSET;
+        char* pos = buf;
+        ssize_t len = ADDR_STR_WIDTH;
+        while (len > 0) {
+                ssize_t ret = read(fd, pos, len);
+                if (ret <= 0) {
+                    fprintf(stderr, "[BplusTree] : offset_load. read error\n");
+                    return INVALID_OFFSET;
+                }
+                len -= ret;
+                pos += ret;
+        }
+        return str_to_hex(buf, sizeof(buf));
 }
 
 static inline ssize_t offset_store(int fd, off_t offset)
 {
         char buf[ADDR_STR_WIDTH];
         hex_to_str(offset, buf, sizeof(buf));
-        return write(fd, buf, sizeof(buf));
+        ssize_t len = ADDR_STR_WIDTH;
+        char* pos = buf;
+        while (len > 0) {
+                ssize_t ret = write(fd, pos, len);
+                if (len <= 0) {
+                        fprintf(stderr, "[BplusTree] : offset_store write error\n");
+                        return -1;
+                }
+                len -= ret;
+                pos += ret;
+        }
+        return ADDR_STR_WIDTH;
+}
+
+static inline void flush_file_size(int fd, off_t data) {
+    lseek(fd, 16, SEEK_SET);
+    assert(offset_store(fd, data) == ADDR_STR_WIDTH);
+}
+
+static inline void flush_root_offset(int fd, off_t data) {
+    lseek(fd, 0, SEEK_SET);
+    assert(offset_store(fd, data) == ADDR_STR_WIDTH);
 }
 
 long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
@@ -1102,13 +1138,16 @@ long bplus_tree_get_range(struct bplus_tree *tree, key_t1 key1, key_t1 key2,
                         long long key;
                         while (node != NULL && (key = key(node)[i]) < max) {
                                 size ++;
+                                if (size >  1000005) {
+                                        assert(size == 10000000);
+                                        return size;
+                                }
                                 start = data(node)[i];
                                 std::string value;
                                 char data[8];
                                 uint16_t offset = polar_race::unwrapOffset(start);
                                 uint16_t fileNo = polar_race::unwrapFileNo(start);
-                                polar_race::RetCode ret = store.Read(fileNo, offset, &value);
-                                assert(ret == polar_race::RetCode::kSucc);
+                                store.Read(fileNo, offset, &value);
                                 polar_race::longToStr(key, data);
                              //   fprintf(stderr, "[BPlusTree] : visiting %lld key\n", key);
                                 visitor.Visit(polar_race::PolarString(data, 8) ,
@@ -1200,7 +1239,7 @@ struct bplus_tree *bplus_tree_init(const char *filename, int block_size)
         /* set order and entries */
         _max_order = (_block_size - sizeof(node)) / (sizeof(key_t1) + sizeof(off_t));
         _max_entries = (_block_size - sizeof(node)) / (sizeof(key_t1) + sizeof(long));
-    //    printf("config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
+        printf("config node order:%d and leaf entries:%d\n", _max_order, _max_entries);
 
         /* init free node caches */
         tree->caches = (char*) malloc(_block_size * MIN_CACHE_NUM);
@@ -1234,30 +1273,6 @@ void bplus_tree_deinit(struct bplus_tree *tree)
         bplus_close(tree->index_fd, tree->fd);
         free(tree->caches);
         free(tree);
-}
-
-void flush_file_size(int fd, off_t data) {
-        lseek(fd, 16, SEEK_SET);
-        offset_store(fd, data);
-}
-
-void flush_root_offset(int fd, off_t data) {
-        lseek(fd, 0, SEEK_SET);
-        offset_store(fd, data);
-}
-
-static inline off_t offset_load_with_seek(int fd)
-{
-        char buf[ADDR_STR_WIDTH];
-        ssize_t len = read(fd, buf, sizeof(buf));
-        return len > 0 ? str_to_hex(buf, sizeof(buf)) : INVALID_OFFSET;
-}
-
-static inline ssize_t offset_store_with_seek(int fd, off_t offset)
-{
-        char buf[ADDR_STR_WIDTH];
-        hex_to_str(offset, buf, sizeof(buf));
-        return write(fd, buf, sizeof(buf));
 }
 
 #ifdef _BPLUS_TREE_DEBUG

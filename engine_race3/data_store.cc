@@ -9,10 +9,11 @@
 
 namespace polar_race {
 
-static const std::string dataPath("/data");
+static const std::string dataFilePath("/data");
 static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
 static const int kSingleFileSize = 1024 * 1024 * 128;
+static const int keysize = 8;
 static const int valuesize = 4096;
 static char buf[valuesize];
 
@@ -21,27 +22,28 @@ static std::string FileName(const std::string &dir, uint32_t fileno) {
 }
 
 RetCode DataStore::Init() {
- // fprintf(stderr, "[DataStore] : init data_store\n");
+  fprintf(stderr, "[DataStore] : init data_store\n");
   if (!FileExists(dir_)
       && 0 != mkdir(dir_.c_str(), 0755)) {
     fprintf(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
     return kIOError;
   }
 
-  this->dataFilePath = dir_ + dataPath + std::to_string(this->party);
+  std::string dataPath = dir_ + dataFilePath;
 
-  if (!FileExists(this->dataFilePath) &&
-      0 != mkdir( this->dataFilePath.c_str(), 0755)) {
-      fprintf(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
+  if (!FileExists(dataPath) && 
+      0 != mkdir( dataPath.c_str(), 0755)) {
+      fprintf(stderr, "[DataStore] : %s mkdir failed\n", dataPath.c_str());
       return kIOError;
   }
   return kSucc;
 }
 
 RetCode DataStore::initFD() {
- // fprintf(stderr, "[DataStore] : initFD\n");
+  fprintf(stderr, "[DataStore] : initFD\n");
+  std::string dataPath = dir_ + dataFilePath;
   std::vector<std::string> files;
-  GetDirFiles(this->dataFilePath, &files, false);
+  GetDirFiles(dataPath, &files, false);
 
   cur_offset = 0;
 
@@ -62,9 +64,9 @@ RetCode DataStore::initFD() {
 
   cur_fileNo = (cur_fileNo == 0) ? 1 : cur_fileNo;
   // Get last data file offset
-  int len = (int) GetFileLength(FileName(this->dataFilePath, cur_fileNo));
-//  fprintf(stderr, "[DataStore] : open current file %s and length : %d\n",
-//	FileName(dataPath, cur_fileNo).c_str(), len);
+  int len = (int) GetFileLength(FileName(dataPath, cur_fileNo));
+  fprintf(stderr, "[DataStore] : open current file %s and length : %d\n", 
+	FileName(dataPath, cur_fileNo).c_str(), len);
   if (len > 0) {
     cur_offset = (uint16_t) len / (valuesize);
   }
@@ -103,7 +105,7 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
   int fd = -1;
   if (readFiles == NULL) readFiles = new std::map<uint16_t , int>();
   if (readFiles->count(fileNo) <= 0) {
-	fd = open(FileName(this->dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
+	fd = open(FileName(dir_ + dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
 	if (fd < 0) {
 		fprintf(stderr, "[DataStore] : open file for read failed\n");
 		return kIOError;
@@ -135,9 +137,9 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
 }
 
 RetCode DataStore::OpenCurFile() {
-  std::string file_name = FileName(this->dataFilePath, cur_fileNo);
+  std::string file_name = FileName(dir_ + dataFilePath, cur_fileNo);
   int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
- // fprintf(stderr, "[DataStore] : open a new file %s and cur_fileNo : %d\n",file_name.c_str(), cur_fileNo);
+  fprintf(stderr, "[DataStore] : open a new file %s and cur_fileNo : %d\n",file_name.c_str(), cur_fileNo);
   if (fd < 0) {
     fprintf(stderr, "[DataStore] : create file failed\n");
     return kIOError;

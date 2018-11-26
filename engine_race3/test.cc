@@ -63,11 +63,6 @@ int main() {
     generateValue(random, value1);
     ret = engine->Write(key1, PolarString(value1, 4096));
     assert (ret == RetCode::kSucc);
-
-    delete engine;
-    ret = Engine::Open(path, &engine);
-    assert (ret == RetCode::kSucc);
-
     std::string strValue1;
     ret = engine->Read(PolarString(key1, 8), &strValue1);
     assert (ret == RetCode::kSucc);
@@ -78,10 +73,6 @@ int main() {
     char value2[4096];
     generateValue(random, value2);
     ret = engine->Write(key1, PolarString(value2, 4096));
-    assert (ret == RetCode::kSucc);
-
-    delete engine;
-    ret = Engine::Open(path, &engine);
     assert (ret == RetCode::kSucc);
     std::string strValue2;
     ret = engine->Read(PolarString(key1, 8), &strValue2);
@@ -96,10 +87,6 @@ int main() {
     generateValue(random, value3);
     ret = engine->Write(key3, PolarString(value3, 4096));
     assert (ret == RetCode::kSucc);
-
-    delete engine;
-    ret = Engine::Open(path, &engine);
-    assert (ret == RetCode::kSucc);
     std::string strValue3;
     ret = engine->Read(PolarString(key3, 8), &strValue3);
     assert (ret == RetCode::kSucc);
@@ -110,10 +97,6 @@ int main() {
     char value4[4096];
     generateValue(random, value4);
     ret = engine->Write(key3, PolarString(value4, 4096));
-    assert (ret == RetCode::kSucc);
-
-    delete engine;
-    ret = Engine::Open(path, &engine);
     assert (ret == RetCode::kSucc);
     std::string strValue4;
     ret = engine->Read(PolarString(key3, 8), &strValue4);

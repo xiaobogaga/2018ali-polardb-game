@@ -20,19 +20,8 @@ class DataStore  {
         readFiles = NULL;
     }
 
-    DataStore() {
-        fd_ = -1;
-        cur_fileNo = 0;
-        cur_offset = 0;
-        readFiles = NULL;
-  }
-
-  void setDir(const std::string dir) {
-      this->dir_ = dir;
-  }
-
   ~DataStore() {
-   // fprintf(stderr, "[DataStore] : finalized\n");
+    fprintf(stderr, "[DataStore] : finalized\n");
     if (fd_ >= 0) {
       close(fd_);
     }
@@ -43,10 +32,6 @@ class DataStore  {
 	}
   }
 
-  void setParty(int party) {
-      this->party = party;
-  }
-
   RetCode Init();
   RetCode Read(uint16_t fileNo, uint16_t offset, std::string* value);
   RetCode Append(const std::string& value, uint16_t* fileNo, uint16_t* offset);
@@ -55,12 +40,10 @@ class DataStore  {
  private:
   int fd_;
   std::string dir_;
-  std::string dataFilePath;
   uint16_t cur_fileNo;
   uint16_t cur_offset;
   std::map<uint16_t , int>* readFiles;
   RetCode OpenCurFile();
-  int party;
 };
 
 }  // namespace polar_race

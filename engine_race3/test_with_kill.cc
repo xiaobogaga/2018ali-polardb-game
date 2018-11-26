@@ -89,9 +89,6 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
                 std::vector<PolarString>* keys, int readerTime,
                 std::default_random_engine* random);
 
-void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
-               std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random);
-
 class WriterTask {
 
 public:
@@ -269,10 +266,6 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
         }
 
     }
-}
-
-void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
-                std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
     fprintf(stderr, "[Reader] : start testing range query\n");
     polar_race::MyVisitor visit(maps);
     engine->Range(PolarString(std::string("")),
@@ -320,51 +313,12 @@ private:
     std::vector<PolarString>* keys;
 };
 
-class RangePro {
-public:
-    RangePro (Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
-            std::vector<PolarString>* keys) {
-        this->engine = engine;
-        this->maps = maps;
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-        this->random.seed(seed);
-        this->keys = keys;
-    }
-
-    ~RangePro() {}
-
-    void startRange(int threadSize, int readerTime) {
-        this->groups = new std::thread*[threadSize];
-        fprintf(stderr, "start range reading\n");
-        for (int i = 0; i < threadSize; i++) {
-            this->groups[i] = new std::thread(testRange, this->engine,
-                                              this->maps, this->keys, readerTime, &this->random);
-        }
-        for (int i = 0; i < threadSize; i++) {
-            this->groups[i]->join();
-        }
-        fprintf(stderr, "end range reading\n");
-        for (int i = 0; i < threadSize; i++)
-            delete this->groups[i];
-        delete[] this->groups;
-        this->groups = NULL;
-    }
-
-
-private:
-    Engine* engine;
-    std::map<PolarString, PolarString, PolarStringComparator>* maps;
-    std::thread** groups;
-    std::default_random_engine random;
-    std::vector<PolarString>* keys;
-};
-
 
 int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
-    int threadSize = 1;
+    int threadSize = 4;
     int writingTime = 10000;
     if (argc <= 1) {
         ;
@@ -374,19 +328,17 @@ int main(int argc, char** argv) {
     }
     std::string path(kDumpPath);
     Engine* engine = NULL;
- //   Engine::Open(path, &engine);
- //   delete engine; // finilize.
+    // Engine::Open(path, &engine);
+    // delete engine; // finilize.
     EngineRace::Open(path, &engine);
     WriterTask writeTask(engine);
     writeTask.startKillableWriter(threadSize, writingTime);
     std::this_thread::sleep_for (std::chrono::seconds(5)); // sleeping for ten seconds.
-    // shutdown = true;
+    shutdown = true;
     writeTask.waitThreadEnd();
     Engine::Open(path, &engine);
     ReaderPro readerPro(engine, writeTask.getMaps(), writeTask.getKeys());
     readerPro.startReader(threadSize, writingTime);
-    RangePro rangePro(engine, writeTask.getMaps(), writeTask.getKeys());
-    rangePro.startRange(threadSize, writingTime);
     delete engine; // finilize.
 
     // after do finilize, then we can do performance test.
@@ -395,16 +347,11 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask(engine);
-    threadSize = 1;
+    threadSize = 4;
     writingTime = 20000;
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
-
-    EngineRace::Open(path, &engine);
     ReaderPro performanceReaderTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceReaderTask.startReader(threadSize, writingTime);
-    RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
-    performanceRangeTask.startRange(threadSize, writingTime);
-
     delete engine; // finilize.
     system("rm -rf /tmp/test_dump/*");
     return 0;

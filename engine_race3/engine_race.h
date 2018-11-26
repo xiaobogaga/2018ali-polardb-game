@@ -4,10 +4,10 @@
 #include <pthread.h>
 #include <string>
 #include "../include/engine.h"
-#include "indexstore.h"
+#include "door_plate.h"
 #include "data_store.h"
 #include "util.h"
-#include <mutex>
+#include "bplustree.h"
 #include <ctime>
 
 namespace polar_race {
@@ -18,15 +18,8 @@ class EngineRace : public Engine  {
 
   explicit EngineRace(const std::string& dir)
     : mu_(PTHREAD_MUTEX_INITIALIZER),
-    db_lock_(NULL), writeCounter(0),
-	readCounter(0), rangeCounter(0), parties(64), visitorSize(0) {
-  		this->store_ = new DataStore[parties];
-  		this->indexStore_= new IndexStore[parties];
-  		for (int i = 0; i < parties; i++) {
-			this->store_[i].setDir(dir);
-			this->indexStore_[i].init(dir, i);
-  		}
-  		this->mutexes = new std::mutex[64];
+    db_lock_(NULL), plate_(dir), tree(NULL), store_(dir), writeCounter(0),
+	readCounter(0), rangeCounter(0) {
 		fprintf(stderr, "[EngineRace] : creating an engineRace instance at %s\n", 
 			dir.c_str());
     }
@@ -51,18 +44,15 @@ class EngineRace : public Engine  {
  private:
   pthread_mutex_t mu_;
   FileLock* db_lock_;
-  IndexStore* indexStore_;
-  DataStore* store_;
+  DoorPlate plate_;
+  bplus_tree*  tree;
+  DataStore store_;
   uint32_t writeCounter;
   uint32_t readCounter;
   uint32_t rangeCounter;
   time_t write_timer;
   time_t read_timer;
   time_t range_timer;
-  int parties;
-  std::mutex* mutexes;
-  Visitor* visitor[64];
-  int visitorSize;
 };
 
 }  // namespace polar_race

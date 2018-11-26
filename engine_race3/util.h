@@ -12,8 +12,6 @@ namespace polar_race {
 // Hash
 uint32_t StrHash(const char* s, int size);
 
-int partition(long long key);
-
 long long strToLong(const char* key);
 uint32_t wrap(uint16_t offset, uint16_t fileNo);
 uint16_t unwrapOffset(uint32_t wrapper);

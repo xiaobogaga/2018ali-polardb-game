@@ -24,14 +24,6 @@ class DoorPlate  {
  public:
     explicit DoorPlate(const std::string& path);
     ~DoorPlate();
-    DoorPlate() {
-      this->fd_ = -1;
-      this->items_ = NULL;
-    }
-
-    void setDir(const std::string& path) {
-      this->dir_ = path;
-    }
 
     RetCode Init();
 

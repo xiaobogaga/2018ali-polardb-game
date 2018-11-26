@@ -6,6 +6,7 @@
 #include "util.h"
 #include "engine_race.h"
 #include "bplustree.h"
+#include <assert.h>
 
 namespace polar_race {
 
@@ -20,6 +21,8 @@ Engine::~Engine() {
 
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   fprintf(stderr, "[EngineRace] : open db\n");
+ // int i = name.size() == 0 ? 0 : 1;
+ // assert (i == 0);
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   engine_race->resetCounter();
@@ -27,7 +30,7 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 #ifdef USE_HASH_TABLE
   ret = engine_race->plate_.Init();
 #else
-  ;
+  engine_race->tree = bplus_tree_init( (name + "/btree.bin").c_str(), 4096);
 #endif
 
   if (ret != kSucc) {
@@ -36,14 +39,11 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
     return ret;
   }
 
-  for (int i = 0; i < engine_race->parties; i++) {
-    engine_race->store_[i].setParty(i);
-    ret = engine_race->store_[i].Init();
-    if (ret != kSucc) {
-      fprintf(stderr, "[EngineRace] : init store failed \n");
-      delete engine_race;
-      return ret;
-    }
+  ret = engine_race->store_.Init();
+  if (ret != kSucc) {
+    fprintf(stderr, "[EngineRace] : init store failed\n");
+    delete engine_race;
+    return ret;
   }
 
   if (0 != LockFile(name + "/" + kLockFile, &(engine_race->db_lock_))) {
@@ -61,51 +61,40 @@ EngineRace::~EngineRace() {
 #ifdef USE_HASH_TABLE
   ;
 #else
-//  for (int i = 0; i < this->parties; i++) {
-//    bplus_tree_deinit(this->tree[i]);
-//  }
-;
+  bplus_tree_deinit(tree);
 #endif
   if (db_lock_) {
     UnlockFile(db_lock_);
   }
-  delete[] this->mutexes;
-  delete[] this->store_;
-  delete[] this->indexStore_;
 }
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
+  pthread_mutex_lock(&mu_);
   const std::string& v = value.ToString();
-  long long k = strToLong(key.data());
-  int party = partition(k);
-  this->mutexes[party].lock();
+  const std::string& k = key.ToString();
   
   uint16_t offset = 0;
   uint16_t fileNo = 0;
-  RetCode ret = store_[party].Append(v, &fileNo, &offset);
-  uint32_t info = wrap(offset, fileNo);
+  RetCode ret = store_.Append(v, &fileNo, &offset);
   if (ret == kSucc) {
 
 #ifdef USE_HASH_TABLE
     ret = plate_.AddOrUpdate(k, fileNo, offset);
 #else
-    ;
-    // bplus_tree_put(tree[party], k, );
-#endif
- //   fprintf(stderr, "[EngineRace] : writing data. key : %lld, offset : %d, fileNo : %d, info : %ld\n",
- //           strToLong(key.data()), offset, fileNo, wrap(offset, fileNo));
-
     if (writeCounter == 0) {
       time(&write_timer);
       fprintf(stderr, "[EngineRace] : writing first... offset : %d, fileNo : %d, info : %d\n",
-              offset, fileNo, info);
+              offset, fileNo, wrap(offset, fileNo));
     }
-    this->indexStore_[party].add(key, info);
+    bplus_tree_put(tree, strToLong(key.data()), wrap(offset, fileNo));
+#endif
+ //   fprintf(stderr, "[EngineRace] : writing data. key : %lld, offset : %d, fileNo : %d, info : %ld\n",
+ //           strToLong(key.data()), offset, fileNo, wrap(offset, fileNo));
   }
   
   if (writeCounter == 0) {
 	  fprintf(stderr, "[EngineRace] : writing first data finished. key length : %lu, value length : %lu\n",
-        key.size(), v.size());
+        k.size(), v.size());
   }
   writeCounter ++;
   if (writeCounter % 300000 == 0) {
@@ -113,27 +102,25 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
     write_timer = current_time;
   }
-  this->mutexes[party].unlock();
+  pthread_mutex_unlock(&mu_);
   return ret;
 }
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
-  long long k = strToLong(key.data());
-  int party = partition(k);
-  uint16_t fileNo = -1;
-  uint16_t offset = -1;
-  uint32_t ans = 0;
-  this->mutexes[party].lock();
+  pthread_mutex_lock(&mu_);
+  const std::string& k = key.ToString();
+  uint16_t fileNo = 0;
+  uint16_t offset = 0;
 
   RetCode ret = kSucc;
 #ifdef USE_HASH_TABLE
   ret = plate_.Find(k, &fileNo, &offset);
 #else
-  this->indexStore_[party].get(key, &ans);
-  if (ans == 0) ret = kNotFound;
+  long info = bplus_tree_get(tree, strToLong(key.data()));
+  if (info < 0) ret = kNotFound;
   else {
-    offset = unwrapOffset(ans);
-    fileNo = unwrapFileNo(ans);
+    offset = unwrapOffset(info);
+    fileNo = unwrapFileNo(info);
     if (readCounter == 0) {
       time(&read_timer);
       fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
@@ -146,12 +133,12 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 
   if (ret == kSucc) {
     value->clear();
-    ret = store_[party].Read(fileNo, offset, value);
+    ret = store_.Read(fileNo, offset, value);
   } 
   
   if (readCounter == 0) {
 	  fprintf(stderr, "[EngineRace] : reading first data finished, key : %lu, and get %lu value\n",
-		key.size(), value->size());
+		k.size(), value->size());
   }
   readCounter ++;
   if (readCounter % 300000 == 0) {
@@ -159,13 +146,12 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
 	  read_timer = current_time;
   }
-  this->mutexes[party].unlock();
+  pthread_mutex_unlock(&mu_);
   return ret;
 }
 
 RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
     Visitor &visitor) {
-
   pthread_mutex_lock(&mu_);
 
 #ifdef USE_HASH_TABLE
@@ -176,14 +162,7 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   if (rangeCounter == 0) {
     time(&range_timer);
   }
-  // long size = bplus_tree_get_range(tree[0], low, high, visitor, store_[0]);
-
-  // do range query.
-  for (int i = 0; i < parties; i++) {
-    this->indexStore_[i].rangeSearch(lower, upper, visitor, this->store_[i]);
-  }
-
-  long size = 0;
+  long size = bplus_tree_get_range(tree, low, high, visitor, store_);
   if (rangeCounter == 0) {
       fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
               low, high, size, difftime(time(NULL), range_timer));
@@ -193,7 +172,6 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
 
   pthread_mutex_unlock(&mu_);
   return kSucc;
-
 }
 
 }  // namespace polar_race
