@@ -117,7 +117,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  this->mutexes[party].lock();
+  pthread_mutex_lock(&mu_);
+  // this->mutexes[party].lock();
 
   RetCode ret = kSucc;
 #ifdef USE_HASH_TABLE
@@ -128,11 +129,11 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   else {
     offset = unwrapOffset(ans);
     fileNo = unwrapFileNo(ans);
-  //  if (readCounter == 0) {
-  //    time(&read_timer);
+    if (readCounter == 0) {
+      time(&read_timer);
   //    fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
   //            offset, fileNo, wrap(offset, fileNo));
-  //  }
+    }
   //  fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
   //            k, party, offset, fileNo, wrap(offset, fileNo));
   }
@@ -148,14 +149,15 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
  //		key.size(), value->size());
  // }
   readCounter ++;
-//  if (readCounter % 300000 == 0) {
-//      time_t current_time = time(NULL);
-//	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
-//	  read_timer = current_time;
-//  }
+  if (readCounter % 300000 == 0) {
+      time_t current_time = time(NULL);
+	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
+	  read_timer = current_time;
+  }
 
-  this->mutexes[party].unlock();
-  return ret;
+  // this->mutexes[party].unlock();
+    pthread_mutex_unlock(&mu_);
+    return ret;
 }
 
 RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
