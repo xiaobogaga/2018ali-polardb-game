@@ -236,6 +236,7 @@ void writeTask2(Engine* engine, std::default_random_engine* random,
 
 void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
+    mutex.lock();
     for (int i = 0; i < readerTime; i++) {
         std::string value;
         RetCode code = RetCode::kSucc;
@@ -269,6 +270,7 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
         }
 
     }
+    mutex.unlock();
 }
 
 void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
@@ -389,7 +391,7 @@ int main(int argc, char** argv) {
     rangePro.startRange(threadSize, writingTime);
     delete engine; // finilize.
 
-    exit(0);
+    // exit(0);
 
     // after do finilize, then we can do performance test.
     fprintf(stderr, "Performance Test\n");

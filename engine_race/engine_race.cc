@@ -93,26 +93,20 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     // bplus_tree_put(tree[party], k, );
 #endif
   //  fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-  //          strToLong(key.data()), party, offset, fileNo, wrap(offset, fileNo));
+  //          k, party, offset, fileNo, wrap(offset, fileNo));
 
     if (writeCounter == 0) {
-      time(&write_timer);
-      fprintf(stderr, "[EngineRace] : writing first... offset : %d, fileNo : %d, info : %d\n",
-              offset, fileNo, info);
+    //  time(&write_timer);
     }
     this->indexStore_[party].add(key, info);
   }
-  
-  if (writeCounter == 0) {
-	  fprintf(stderr, "[EngineRace] : writing first data finished. key length : %lu, value length : %lu\n",
-        key.size(), v.size());
-  }
+
   writeCounter ++;
-  if (writeCounter % 300000 == 0) {
-    time_t current_time = time(NULL);
-    fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
-    write_timer = current_time;
-  }
+ // if (writeCounter % 300000 == 0) {
+   // time_t current_time = time(NULL);
+   //  fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
+   // write_timer = current_time;
+ // }
   this->mutexes[party].unlock();
   return ret;
 }
@@ -134,13 +128,13 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   else {
     offset = unwrapOffset(ans);
     fileNo = unwrapFileNo(ans);
-    if (readCounter == 0) {
-      time(&read_timer);
-      fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
-              offset, fileNo, wrap(offset, fileNo));
-    }
+  //  if (readCounter == 0) {
+  //    time(&read_timer);
+  //    fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
+  //            offset, fileNo, wrap(offset, fileNo));
+  //  }
   //  fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-  //            strToLong(key.data()), party, offset, fileNo, wrap(offset, fileNo));
+  //            k, party, offset, fileNo, wrap(offset, fileNo));
   }
 #endif
 
@@ -154,11 +148,12 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
  //		key.size(), value->size());
  // }
   readCounter ++;
-  if (readCounter % 300000 == 0) {
-      time_t current_time = time(NULL);
-	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
-	  read_timer = current_time;
-  }
+//  if (readCounter % 300000 == 0) {
+//      time_t current_time = time(NULL);
+//	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
+//	  read_timer = current_time;
+//  }
+
   this->mutexes[party].unlock();
   return ret;
 }
