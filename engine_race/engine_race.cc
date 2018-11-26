@@ -149,10 +149,10 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     ret = store_[party].Read(fileNo, offset, value);
   } 
   
-  if (readCounter == 0) {
-	  fprintf(stderr, "[EngineRace] : reading first data finished, key : %lu, and get %lu value\n",
-		key.size(), value->size());
-  }
+ // if (readCounter == 0) {
+ //	  fprintf(stderr, "[EngineRace] : reading first data finished, key : %lu, and get %lu value\n",
+ //		key.size(), value->size());
+ // }
   readCounter ++;
   if (readCounter % 300000 == 0) {
       time_t current_time = time(NULL);
@@ -179,11 +179,12 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   // long size = bplus_tree_get_range(tree[0], low, high, visitor, store_[0]);
 
   // do range query.
-  for (int i = 0; i < parties; i++) {
-    this->indexStore_[i].rangeSearch(lower, upper, visitor, this->store_[i]);
+    long size = 0;
+
+    for (int i = 0; i < parties; i++) {
+        size += this->indexStore_[i].rangeSearch(lower, upper, visitor, this->store_[i]);
   }
 
-  long size = 0;
   if (rangeCounter == 0) {
       fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
               low, high, size, difftime(time(NULL), range_timer));

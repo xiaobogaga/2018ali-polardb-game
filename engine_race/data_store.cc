@@ -146,7 +146,7 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
 RetCode DataStore::OpenCurFile() {
   std::string file_name = FileName(this->dataFilePath, cur_fileNo);
   int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
- // fprintf(stderr, "[DataStore] : open a new file %s and cur_fileNo : %d\n",file_name.c_str(), cur_fileNo);
+  // fprintf(stderr, "[DataStore] : open a new file %s and cur_fileNo : %d\n",file_name.c_str(), cur_fileNo);
   if (fd < 0) {
     fprintf(stderr, "[DataStore] : create file failed\n");
     return kIOError;

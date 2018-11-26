@@ -364,7 +364,7 @@ int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
-    int threadSize = 64;
+    int threadSize = 8;
     int writingTime = 8;
     if (argc <= 1) {
         ;

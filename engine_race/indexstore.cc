@@ -18,7 +18,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     this->indexPath_ = dir + indexPrefix;
     if (!polar_race::FileExists(this->indexPath_) &&
         0 != mkdir(this->indexPath_.c_str(), 0755)) {
-        fprintf(stderr, "[IndexStore] : mkdir failed %s\n", this->indexPath_.c_str());
+        fprintf(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, this->indexPath_.c_str());
         return polar_race::kIOError;
     }
     bool new_create = false;
@@ -30,14 +30,14 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
         if (fd >= 0) {
             new_create = true;
             if (posix_fallocate(fd, 0, map_size) != 0) {
-                fprintf(stderr, "[IndexStore] : posix_fallocate failed\n");
+                fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party);
                 close(fd);
                 return polar_race::kIOError;
             }
         }
     }
     if (fd < 0) {
-        fprintf(stderr, "[IndexStore] : file %s open failed\n", this->fileName_.c_str());
+        fprintf(stderr, "[IndexStore-%d] : file %s open failed\n", party, this->fileName_.c_str());
         return polar_race::kIOError;
     }
     this->fd_ = fd;
@@ -45,7 +45,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     void* ptr = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
                      MAP_SHARED, this->fd_, 0);
     if (ptr == MAP_FAILED) {
-        fprintf(stderr, "[IndexStore] : MAP_FAILED\n");
+        fprintf(stderr, "[IndexStore-%d] : MAP_FAILED\n", party);
         close(fd);
         return polar_race::kIOError;
     }
@@ -83,7 +83,7 @@ void IndexStore::initMaps() {
     time_t t;
     time(&t);
     struct Item* temp = items_;
-    while (temp->info > 0) {
+    while (temp->info != 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
         (*maps)[std::string(temp->key, 8)] = temp->info;
         this->size ++;
@@ -94,8 +94,8 @@ void IndexStore::initMaps() {
         close(fd_);
         fd_ = -1;
     }
-    fprintf(stderr, "[IndexStore] : init radix_tree finished, total: %d data, taken %f s\n",
-            this->size, difftime(time(NULL), t));
+  //  fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+  //          party_, this->size, difftime(time(NULL), t));
 }
 
 void IndexStore::finalize() {
@@ -118,20 +118,24 @@ void IndexStore::finalize() {
     }
 }
 
-void IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
+int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
                  polar_race::Visitor& visitor, polar_race::DataStore& store) {
     std::string value;
+    int ans = 0;
+    if (this->maps == NULL) initMaps();
     for (std::map<std::string, uint32_t >::iterator ite = maps->begin(); ite != maps->end(); ite++) {
         uint32_t k = ite->second;
         uint16_t offset = polar_race::unwrapOffset(k);
         uint16_t fileNo = polar_race::unwrapFileNo(k);
         store.Read(fileNo, offset, &value);
         visitor.Visit(polar_race::PolarString(ite->first), polar_race::PolarString(value));
+        ans ++;
     }
+    return ans;
 }
 
 IndexStore::~IndexStore() {
-    fprintf(stderr, "[IndexStore] : finalize index store\n");
+   // fprintf(stderr, "[IndexStore] : finalize index store\n");
     if (fd_ >= 0) {
         munmap(items_, map_size);
         close(fd_);

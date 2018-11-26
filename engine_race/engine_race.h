@@ -53,8 +53,8 @@ class EngineRace : public Engine  {
   FileLock* db_lock_;
   IndexStore* indexStore_;
   DataStore* store_;
-  uint32_t writeCounter;
-  uint32_t readCounter;
+  volatile uint32_t writeCounter;
+  volatile uint32_t readCounter;
   uint32_t rangeCounter;
   time_t write_timer;
   time_t read_timer;
