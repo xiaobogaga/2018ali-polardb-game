@@ -9,7 +9,6 @@
 #include "util.h"
 #include "../include/engine.h"
 #include "../include/polar_string.h"
-#include "radix_tree.hpp"
 #include "data_store.h"
 
 static std::string indexPrefix("/index/");
@@ -23,9 +22,9 @@ class IndexStore {
 
 public:
 
-    IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), size(0) { }
+    IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), size(0), maps(NULL) { }
 
-    IndexStore() : party_(-1), fd_(-1), items_(NULL), size(0) {}
+    IndexStore() : party_(-1), fd_(-1), items_(NULL), size(0), maps(NULL) {}
 
     polar_race::RetCode init(const std::string& dir, int party);
 
@@ -55,7 +54,7 @@ private:
     int fd_;
     struct Item* items_;
     int size;
-    std::map<std::string, long> maps;
+    std::map<std::string, uint32_t >* maps;
 };
 
 #endif //ENGINE_RACE_INDEXSTORE_H

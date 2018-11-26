@@ -50,7 +50,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
         return polar_race::kIOError;
     }
     if (new_create) {
-        fprintf(stderr, "[IndexStore] : create a new mmap \n");
+     //   fprintf(stderr, "[IndexStore] : create a new mmap \n");
         memset(ptr, 0, map_size);
     }
     items_ = reinterpret_cast<Item *>(ptr);
@@ -65,10 +65,10 @@ void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
 }
 
 void IndexStore::get(const polar_race::PolarString& key, uint32_t* ans) {
-    if (this->maps.empty()) initMaps();
+    if (this->maps == NULL) initMaps();
     // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
-    std::map<std::string, long>::iterator ite = maps.find(std::string(key.data(), 8));
-    if (ite != maps.end()) {
+    std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
+    if (ite != maps->end()) {
         (*ans) = ite->second;
     } else {
         (*ans) = 0;
@@ -79,12 +79,13 @@ void IndexStore::get(const polar_race::PolarString& key, uint32_t* ans) {
 void IndexStore::initMaps() {
     // here we would init a radix tree from this structure.
    // this->tree_ = new radix_tree<std::string, long>();
+   this->maps = new std::map<std::string, uint32_t>();
     time_t t;
     time(&t);
     struct Item* temp = items_;
     while (temp->info > 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
-        maps[std::string(temp->key, 8)] = temp->info;
+        (*maps)[std::string(temp->key, 8)] = temp->info;
         this->size ++;
         temp++;
     }
@@ -98,8 +99,9 @@ void IndexStore::initMaps() {
 }
 
 void IndexStore::finalize() {
-    fprintf(stderr, "[IndexStore] : finalize index store\n");
+    fprintf(stderr, "[IndexStore] : finalize index store with size %d\n", this->size);
     if (fd_ >= 0) {
+        items_ = NULL;
         munmap(items_, map_size);
         close(fd_);
         fd_ = -1;
@@ -110,13 +112,17 @@ void IndexStore::finalize() {
         this->tree_ = NULL;
     }
     */
+    if (this->maps != NULL) {
+        delete this->maps;
+        this->maps = NULL;
+    }
 }
 
 void IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
                  polar_race::Visitor& visitor, polar_race::DataStore& store) {
     std::string value;
-    for (std::map<std::string, long>::iterator ite = maps.begin(); ite != maps.end(); ite++) {
-        long k = ite->second;
+    for (std::map<std::string, uint32_t >::iterator ite = maps->begin(); ite != maps->end(); ite++) {
+        uint32_t k = ite->second;
         uint16_t offset = polar_race::unwrapOffset(k);
         uint16_t fileNo = polar_race::unwrapFileNo(k);
         store.Read(fileNo, offset, &value);

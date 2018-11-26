@@ -364,8 +364,8 @@ int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
-    int threadSize = 1;
-    int writingTime = 10000;
+    int threadSize = 64;
+    int writingTime = 8;
     if (argc <= 1) {
         ;
     } else {
@@ -379,7 +379,7 @@ int main(int argc, char** argv) {
     EngineRace::Open(path, &engine);
     WriterTask writeTask(engine);
     writeTask.startKillableWriter(threadSize, writingTime);
-    std::this_thread::sleep_for (std::chrono::seconds(5)); // sleeping for ten seconds.
+    // std::this_thread::sleep_for (std::chrono::seconds(5)); // sleeping for ten seconds.
     // shutdown = true;
     writeTask.waitThreadEnd();
     Engine::Open(path, &engine);
@@ -389,14 +389,16 @@ int main(int argc, char** argv) {
     rangePro.startRange(threadSize, writingTime);
     delete engine; // finilize.
 
+    exit(0);
+
     // after do finilize, then we can do performance test.
     fprintf(stderr, "Performance Test\n");
     // first clear dirs.
     system("rm -rf /tmp/test_dump/*");
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask(engine);
-    threadSize = 1;
-    writingTime = 20000;
+    threadSize = 2;
+    writingTime = 4;
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
 
     EngineRace::Open(path, &engine);

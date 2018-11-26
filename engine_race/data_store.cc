@@ -9,7 +9,7 @@
 
 namespace polar_race {
 
-static const std::string dataPath("/data");
+static const std::string dataPath("/data/");
 static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
 static const int kSingleFileSize = 1024 * 1024 * 128;
@@ -28,13 +28,22 @@ RetCode DataStore::Init() {
     return kIOError;
   }
 
-  this->dataFilePath = dir_ + dataPath + std::to_string(this->party);
+  this->dataFilePath = dir_ + dataPath;
 
   if (!FileExists(this->dataFilePath) &&
       0 != mkdir( this->dataFilePath.c_str(), 0755)) {
       fprintf(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
       return kIOError;
   }
+
+  this->dataFilePath += std::to_string(this->party) + "/";
+
+  if (!FileExists(this->dataFilePath) &&
+        0 != mkdir( this->dataFilePath.c_str(), 0755)) {
+        fprintf(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
+        return kIOError;
+  }
+
   return kSucc;
 }
 
