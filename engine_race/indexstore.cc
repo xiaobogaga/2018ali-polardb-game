@@ -16,9 +16,9 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     this->dir_ = dir;
     this->party_ = party;
 
-    if (!polar_race::FileExists(dir) &&
-        0 != mkdir(dir.c_str(), 0755)) {
-        fprintf(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, dir.c_str());
+    if (!polar_race::FileExists(dir_)
+        && 0 != mkdir(dir_.c_str(), 0755)) {
+        fprintf(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
         return polar_race::kIOError;
     }
 
@@ -72,27 +72,37 @@ void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
 }
 
 void IndexStore::get(const polar_race::PolarString& key, uint32_t* ans) {
-    if (this->maps == NULL) initMaps();
+    if (this->tree == NULL) initMaps();
     // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
-    std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
-    if (ite != maps->end()) {
-        (*ans) = ite->second;
-    } else {
+    // std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
+    uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
+//    if (ite != maps->end()) {
+//        (*ans) = ite->second;
+//    } else {
+//        (*ans) = 0;
+//        return;
+//    }
+    if (ret == 0) {
         (*ans) = 0;
         return;
+    } else {
+        (*ans) = (uint32_t) ret;
     }
+
 }
 
 void IndexStore::initMaps() {
     // here we would init a radix tree from this structure.
-   // this->tree_ = new radix_tree<std::string, long>();
-   this->maps = new std::map<std::string, uint32_t>();
+    // this->tree_ = new radix_tree<std::string, long>(); // too slow
+    // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
+    this->tree = (art_tree*) malloc(sizeof(art_tree));
+    art_tree_init(this->tree);
     time_t t;
     time(&t);
     struct Item* temp = items_;
     while (temp->info != 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
-        (*maps)[std::string(temp->key, 8)] = temp->info;
+        art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
         this->size ++;
         temp++;
     }
@@ -108,8 +118,9 @@ void IndexStore::initMaps() {
 void IndexStore::finalize() {
     fprintf(stderr, "[IndexStore] : finalize index store with size %d\n", this->size);
     if (fd_ >= 0) {
-        items_ = NULL;
+        // items_ = NULL;
         munmap(items_, map_size);
+        items_ = NULL;
         close(fd_);
         fd_ = -1;
     }
@@ -119,27 +130,54 @@ void IndexStore::finalize() {
         this->tree_ = NULL;
     }
     */
-    if (this->maps != NULL) {
-        delete this->maps;
-        this->maps = NULL;
+//    if (this->maps != NULL) {
+//        delete this->maps;
+//        this->maps = NULL;
+//    }
+
+    if (this->tree != NULL) {
+        free(this->tree);
+        this->tree = NULL;
     }
+
+}
+
+int visit(void *d, const unsigned char *key, uint32_t key_len, void *value) {
+    void** data = (void**) d;
+    uint32_t* size = (uint32_t*) data[0];
+    (*size) ++;
+    uint32_t v = (uint32_t) (uintptr_t) value;
+    uint16_t offset = polar_race::unwrapOffset(v);
+    uint16_t fileNo = polar_race::unwrapFileNo(v);
+    polar_race::Visitor* visitor = (polar_race::Visitor*) data[1];
+    polar_race::DataStore* store = (polar_race::DataStore*) data[2];
+    std::string str;
+    store->Read(fileNo, offset, &str);
+    visitor->Visit(polar_race::PolarString((char*) key, 8), polar_race::PolarString(str));
+    return 0;
 }
 
 int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
-                 polar_race::Visitor& visitor, polar_race::DataStore& store) {
+                 polar_race::Visitor* visitor, polar_race::DataStore* store) {
     std::string value;
     int ans = 0;
-    if (this->maps == NULL) initMaps();
-    for (std::map<std::string, uint32_t >::iterator ite = maps->begin(); ite != maps->end(); ite++) {
-        uint32_t k = ite->second;
-        uint16_t offset = polar_race::unwrapOffset(k);
-        uint16_t fileNo = polar_race::unwrapFileNo(k);
-        store.Read(fileNo, offset, &value);
-        visitor.Visit(polar_race::PolarString(ite->first), polar_race::PolarString(value));
-        ans ++;
-    }
-    return ans;
+    if (this->tree == NULL) initMaps();
+//    for (std::map<std::string, uint32_t >::iterator ite = maps->begin(); ite != maps->end(); ite++) {
+//        uint32_t k = ite->second;
+//        uint16_t offset = polar_race::unwrapOffset(k);
+//        uint16_t fileNo = polar_race::unwrapFileNo(k);
+//        store.Read(fileNo, offset, &value);
+//        visitor.Visit(polar_race::PolarString(ite->first), polar_race::PolarString(value));
+//        ans ++;
+//    }
+//    return ans;
+
+    uint32_t size = 0;
+    void* data[] = {&size, visitor, store};
+    art_iter(this->tree, visit, &data);
+    return size;
 }
+
 
 IndexStore::~IndexStore() {
    // fprintf(stderr, "[IndexStore] : finalize index store\n");
@@ -147,6 +185,7 @@ IndexStore::~IndexStore() {
         munmap(items_, map_size);
         close(fd_);
         fd_ = -1;
+        items_ = NULL;
     }
     /*
     if (this->tree_ != NULL) {
@@ -154,4 +193,15 @@ IndexStore::~IndexStore() {
         this->tree_ = NULL;
     }
      */
+
+    //    if (this->maps != NULL) {
+//        delete this->maps;
+//        this->maps = NULL;
+//    }
+
+    if (this->tree != NULL) {
+        free(this->tree);
+        this->tree = NULL;
+    }
+
 }

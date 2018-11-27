@@ -179,7 +179,7 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
     long size = 0;
 
     for (int i = 0; i < parties; i++) {
-        size += this->indexStore_[i].rangeSearch(lower, upper, visitor, this->store_[i]);
+        size += this->indexStore_[i].rangeSearch(lower, upper, &visitor, &this->store_[i]);
   }
 
   if (rangeCounter == 0) {
