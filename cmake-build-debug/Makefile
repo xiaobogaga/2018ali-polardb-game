@@ -124,19 +124,6 @@ engine_race/fast:
 .PHONY : engine_race/fast
 
 #=============================================================================
-# Target rules for targets named pressureTestBplus
-
-# Build rule for target.
-pressureTestBplus: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 pressureTestBplus
-.PHONY : pressureTestBplus
-
-# fast build rule for target.
-pressureTestBplus/fast:
-	$(MAKE) -f CMakeFiles/pressureTestBplus.dir/build.make CMakeFiles/pressureTestBplus.dir/build
-.PHONY : pressureTestBplus/fast
-
-#=============================================================================
 # Target rules for targets named tempTest
 
 # Build rule for target.
@@ -377,32 +364,32 @@ engine_race/hash.cc.s:
 	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/hash.cc.s
 .PHONY : engine_race/hash.cc.s
 
-engine_race/pressureTestForBplusTree.o: engine_race/pressureTestForBplusTree.cpp.o
+engine_race/indexstore.o: engine_race/indexstore.cc.o
 
-.PHONY : engine_race/pressureTestForBplusTree.o
+.PHONY : engine_race/indexstore.o
 
 # target to build an object file
-engine_race/pressureTestForBplusTree.cpp.o:
-	$(MAKE) -f CMakeFiles/pressureTestBplus.dir/build.make CMakeFiles/pressureTestBplus.dir/engine_race/pressureTestForBplusTree.cpp.o
-.PHONY : engine_race/pressureTestForBplusTree.cpp.o
+engine_race/indexstore.cc.o:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o
+.PHONY : engine_race/indexstore.cc.o
 
-engine_race/pressureTestForBplusTree.i: engine_race/pressureTestForBplusTree.cpp.i
+engine_race/indexstore.i: engine_race/indexstore.cc.i
 
-.PHONY : engine_race/pressureTestForBplusTree.i
+.PHONY : engine_race/indexstore.i
 
 # target to preprocess a source file
-engine_race/pressureTestForBplusTree.cpp.i:
-	$(MAKE) -f CMakeFiles/pressureTestBplus.dir/build.make CMakeFiles/pressureTestBplus.dir/engine_race/pressureTestForBplusTree.cpp.i
-.PHONY : engine_race/pressureTestForBplusTree.cpp.i
+engine_race/indexstore.cc.i:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/indexstore.cc.i
+.PHONY : engine_race/indexstore.cc.i
 
-engine_race/pressureTestForBplusTree.s: engine_race/pressureTestForBplusTree.cpp.s
+engine_race/indexstore.s: engine_race/indexstore.cc.s
 
-.PHONY : engine_race/pressureTestForBplusTree.s
+.PHONY : engine_race/indexstore.s
 
 # target to generate assembly for a file
-engine_race/pressureTestForBplusTree.cpp.s:
-	$(MAKE) -f CMakeFiles/pressureTestBplus.dir/build.make CMakeFiles/pressureTestBplus.dir/engine_race/pressureTestForBplusTree.cpp.s
-.PHONY : engine_race/pressureTestForBplusTree.cpp.s
+engine_race/indexstore.cc.s:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/indexstore.cc.s
+.PHONY : engine_race/indexstore.cc.s
 
 engine_race/tempTest.o: engine_race/tempTest.cpp.o
 
@@ -551,7 +538,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... engine_race"
-	@echo "... pressureTestBplus"
 	@echo "... tempTest"
 	@echo "... test2"
 	@echo "... test1"
@@ -577,9 +563,9 @@ help:
 	@echo "... engine_race/hash.o"
 	@echo "... engine_race/hash.i"
 	@echo "... engine_race/hash.s"
-	@echo "... engine_race/pressureTestForBplusTree.o"
-	@echo "... engine_race/pressureTestForBplusTree.i"
-	@echo "... engine_race/pressureTestForBplusTree.s"
+	@echo "... engine_race/indexstore.o"
+	@echo "... engine_race/indexstore.i"
+	@echo "... engine_race/indexstore.s"
 	@echo "... engine_race/tempTest.o"
 	@echo "... engine_race/tempTest.i"
 	@echo "... engine_race/tempTest.s"

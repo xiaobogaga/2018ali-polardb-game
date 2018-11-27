@@ -13,14 +13,12 @@ CMakeFiles/engine_race.dir/engine_race/basic.cc.o: ../engine_race/wrap.h
 CMakeFiles/engine_race.dir/engine_race/bitvector.cc.o: ../engine_race/bitvector.cc
 CMakeFiles/engine_race.dir/engine_race/bitvector.cc.o: ../engine_race/bitvector.h
 
+CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/art.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/bplustree.cc
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/bplustree.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/data_store.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/engine_race.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/indexstore.h
-CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/radix_tree.hpp
-CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/radix_tree_it.hpp
-CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/radix_tree_node.hpp
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../engine_race/util.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../include/engine.h
 CMakeFiles/engine_race.dir/engine_race/bplustree.cc.o: ../include/polar_string.h
@@ -38,14 +36,12 @@ CMakeFiles/engine_race.dir/engine_race/door_plate.cc.o: ../engine_race/util.h
 CMakeFiles/engine_race.dir/engine_race/door_plate.cc.o: ../include/engine.h
 CMakeFiles/engine_race.dir/engine_race/door_plate.cc.o: ../include/polar_string.h
 
+CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/art.h
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/bplustree.h
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/data_store.h
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/engine_race.cc
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/engine_race.h
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/indexstore.h
-CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/radix_tree.hpp
-CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/radix_tree_it.hpp
-CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/radix_tree_node.hpp
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../engine_race/util.h
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../include/engine.h
 CMakeFiles/engine_race.dir/engine_race/engine_race.cc.o: ../include/polar_string.h
@@ -54,6 +50,14 @@ CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/h3.h
 CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/hash.cc
 CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/hash.h
 CMakeFiles/engine_race.dir/engine_race/hash.cc.o: ../engine_race/object.h
+
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../engine_race/art.h
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../engine_race/data_store.h
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../engine_race/indexstore.cc
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../engine_race/indexstore.h
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../engine_race/util.h
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../include/engine.h
+CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../include/polar_string.h
 
 CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/bplustree.h
 CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/data_store.h
