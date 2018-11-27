@@ -19,14 +19,14 @@ class EngineRace : public Engine  {
   explicit EngineRace(const std::string& dir)
     : mu_(PTHREAD_MUTEX_INITIALIZER),
     db_lock_(NULL), writeCounter(0),
-	readCounter(0), rangeCounter(0), parties(1), visitorSize(0) {
+	readCounter(0), rangeCounter(0), parties(64) {
   		this->store_ = new DataStore[parties];
   		this->indexStore_= new IndexStore[parties];
   		for (int i = 0; i < parties; i++) {
 			this->store_[i].setDir(dir);
 			this->indexStore_[i].init(dir, i);
   		}
-  		// this->mutexes = new std::mutex[64];
+  		this->mutexes = new std::mutex[parties];
 		fprintf(stderr, "[EngineRace] : creating an engineRace instance at %s\n", 
 			dir.c_str());
     }
@@ -60,9 +60,7 @@ class EngineRace : public Engine  {
   time_t read_timer;
   time_t range_timer;
   int parties;
-  // std::mutex* mutexes;
-  Visitor* visitor[64];
-  int visitorSize;
+  std::mutex* mutexes;
 };
 
 }  // namespace polar_race

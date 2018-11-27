@@ -38,10 +38,10 @@ int main() {
     random.seed(seed);
     std::string path("/tmp/test_dump/");
     system("rm -rf /tmp/test_dump/*");
-    int parties = 1;
+    int parties = 128;
     time_t timer;
     time(&timer);
-    IndexStore indexStore[64];
+    IndexStore indexStore[parties];
     for (int i = 0; i < parties; i++) indexStore[i].init(path, i);
     // test how many times it would consume to save 64000000 items and fetch almost 64000000 items.
     long long total = 64000000;
@@ -61,7 +61,7 @@ int main() {
     for (int i = 0;  i < parties; i++) indexStore[i].finalize();
     // now test reading.
 
-    IndexStore indexStore2[64];
+    IndexStore indexStore2[parties];
     for (int i = 0; i < parties; i++) indexStore2[i].init(path , i);
     time(&timer);
     for (long long i = 0; i < total; ) {

@@ -74,12 +74,22 @@ EngineRace::~EngineRace() {
   delete[] this->indexStore_;
 }
 
+bool checkAll(const char* data, int len) {
+    for (int i = 0; i < len; i++) {
+        if (!isalnum(data[i]) ) return false;
+    }
+    return true;
+}
+
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
+    if (!checkAll(key.data(), 8)) {
+        fprintf(stderr, "[EngineRace] : error key\n");
+        return kIOError;
+    }
   const std::string& v = value.ToString();
   long long k = strToLong(key.data());
   int party = partition(k);
- // this->mutexes[party].lock();
-  pthread_mutex_lock(&mu_);
+ this->mutexes[party].lock();
   uint16_t offset = 0;
   uint16_t fileNo = 0;
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
@@ -97,6 +107,8 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 
     if (writeCounter == 0) {
     //  time(&write_timer);
+        fprintf(stderr, "[EngineRace] : writing data. key : %s, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+                  std::string(key.data(), 8).c_str(), party, offset, fileNo, wrap(offset, fileNo));
     }
     this->indexStore_[party].add(key, info);
   }
@@ -107,8 +119,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
    //  fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
    // write_timer = current_time;
  // }
-//  this->mutexes[party].unlock();
-  pthread_mutex_unlock(&mu_);
+  this->mutexes[party].unlock();
 
   return ret;
 }

@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include "util.h"
 
-static const int map_size = 1024 * 1024 * 768;
+static const int map_size = 1024 * 1024 * 16;
 
 polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     this->dir_ = dir;
@@ -94,13 +94,13 @@ void IndexStore::get(const polar_race::PolarString& key, uint32_t* ans) {
 
 void IndexStore::initMaps() {
     // here we would init a radix tree from this structure.
-    // this->tree_ = new radix_tree<std::string, long>(); // too slow
+    //  this->tree_ = new radix_tree<std::string, long>(); // too slow
     // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
     this->tree = (art_tree*) malloc(sizeof(art_tree));
     art_tree_init(this->tree);
     time_t t;
     time(&t);
-    struct Item* temp = items_;
+    struct Item* temp = head_;
     while (temp->info != 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
         art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
@@ -108,9 +108,10 @@ void IndexStore::initMaps() {
         temp++;
     }
     if (fd_ >= 0) {
-        munmap(items_, map_size);
+        munmap(head_, map_size);
         close(fd_);
         fd_ = -1;
+        head_ = NULL;
     }
     fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
             party_, this->size, difftime(time(NULL), t));
