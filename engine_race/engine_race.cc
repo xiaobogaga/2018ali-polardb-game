@@ -76,7 +76,7 @@ EngineRace::~EngineRace() {
 
 bool checkAll(const char* data, int len) {
     for (int i = 0; i < len; i++) {
-        if (!isalnum(data[i]) ) return false;
+        if ( data[i] <= 0 ) return false;
     }
     return true;
 }
