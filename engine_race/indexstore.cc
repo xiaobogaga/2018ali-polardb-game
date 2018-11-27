@@ -12,6 +12,25 @@
 
 static const int map_size = 1024 * 1024 * 16;
 
+int compare (const void * a, const void * b)
+{
+    struct Info* infoA = (struct Info*) a;
+    struct Info* infoB = (struct Info*) b;
+    if (infoA->key == infoB->key) {
+        // duplated key.
+        return polar_race::unwrapOffset(infoA->info) <
+            polar_race::unwrapOffset(infoB->info) ? -1 : 1;
+    }
+    return infoA->key < infoB->key ? -1 : 1;
+}
+
+int bcompare (const void* a, const void *b) {
+    long long infoA = (*(long long*) a);
+    struct Info* infoB = (struct Info*) b;
+    if (infoA == infoB->key) return 0;
+    return infoA < infoB->key ? -1 : 1;
+}
+
 polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     this->dir_ = dir;
     this->party_ = party;
@@ -62,6 +81,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     }
     items_ = reinterpret_cast<Item *>(ptr);
     head_ = items_;
+    return polar_race::RetCode::kSucc;
 }
 
 void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
@@ -72,22 +92,32 @@ void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
     this->size ++;
 }
 
-void IndexStore::get(const polar_race::PolarString& key, uint32_t* ans) {
-    if (this->tree == NULL) initMaps();
+void IndexStore::get(long long key, uint32_t* ans) {
+    if (this->infos == NULL) initMaps();
     // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
     // std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
-    uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
+    // uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
+    struct Info* ret = (struct Info*) bsearch(&key, this->infos, this->size,
+            sizeof(struct Info), bcompare);
+
+    // make sure it is the latest.
+    while (ret != NULL && ret < this->infos + this->size && (ret + 1)->key == key) {
+        ret ++;
+    }
 //    if (ite != maps->end()) {
 //        (*ans) = ite->second;
 //    } else {
 //        (*ans) = 0;
 //        return;
 //    }
-    if (ret == 0) {
+
+
+
+    if (ret == NULL) {
         (*ans) = 0;
         return;
     } else {
-        (*ans) = (uint32_t) ret;
+        (*ans) = ret->info;
     }
 
 }
@@ -96,14 +126,18 @@ void IndexStore::initMaps() {
     // here we would init a radix tree from this structure.
     //  this->tree_ = new radix_tree<std::string, long>(); // too slow
     // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
-    this->tree = (art_tree*) malloc(sizeof(art_tree));
-    art_tree_init(this->tree);
+    // this->tree = (art_tree*) malloc(sizeof(art_tree));
+    // art_tree_init(this->tree);
+    this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
     time_t t;
     time(&t);
     struct Item* temp = head_;
+    this->size = 0;
     while (temp->info != 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
-        art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
+        // art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
+        this->infos[this->size].key = polar_race::strToLong(temp->key);
+        this->infos[this->size].info = temp->info;
         this->size ++;
         temp++;
     }
@@ -113,8 +147,9 @@ void IndexStore::initMaps() {
         fd_ = -1;
         head_ = NULL;
     }
-    fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
-            party_, this->size, difftime(time(NULL), t));
+    qsort(infos, this->size, sizeof(struct Info), compare);
+  //  fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+  //          party_, this->size, difftime(time(NULL), t));
 }
 
 void IndexStore::finalize() {
@@ -138,10 +173,10 @@ void IndexStore::finalize() {
 //        this->maps = NULL;
 //    }
 
-    if (this->tree != NULL) {
-        free(this->tree);
-        this->tree = NULL;
-    }
+//    if (this->tree != NULL) {
+//        free(this->tree);
+//        this->tree = NULL;
+//    }
 
 }
 
@@ -164,21 +199,24 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
                  polar_race::Visitor* visitor, polar_race::DataStore* store) {
     std::string value;
     int ans = 0;
-    if (this->tree == NULL) initMaps();
-//    for (std::map<std::string, uint32_t >::iterator ite = maps->begin(); ite != maps->end(); ite++) {
-//        uint32_t k = ite->second;
-//        uint16_t offset = polar_race::unwrapOffset(k);
-//        uint16_t fileNo = polar_race::unwrapFileNo(k);
-//        store.Read(fileNo, offset, &value);
-//        visitor.Visit(polar_race::PolarString(ite->first), polar_race::PolarString(value));
-//        ans ++;
-//    }
-//    return ans;
+    if (this->infos == NULL) initMaps();
+    char buf[8];
+    for (int i = 0; i < this->size; i++) {
+        if (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) continue;
+        uint32_t k = this->infos[i].info;
+        uint16_t offset = polar_race::unwrapOffset(k);
+        uint16_t fileNo = polar_race::unwrapFileNo(k);
+        store->Read(fileNo, offset, &value);
+        polar_race::longToStr(this->infos[i].key, buf);
+        visitor->Visit(polar_race::PolarString(buf, 8), polar_race::PolarString(value));
+        ans ++;
+    }
+    return ans;
 
-    uint32_t size = 0;
-    void* data[] = {&size, visitor, store};
-    art_iter(this->tree, visit, &data);
-    return size;
+//    uint32_t size = 0;
+//    void* data[] = {&size, visitor, store};
+//    art_iter(this->tree, visit, &data);
+
 }
 
 
@@ -203,9 +241,14 @@ IndexStore::~IndexStore() {
 //        this->maps = NULL;
 //    }
 
-    if (this->tree != NULL) {
-        free(this->tree);
-        this->tree = NULL;
+//    if (this->tree != NULL) {
+//        free(this->tree);
+//        this->tree = NULL;
+//    }
+
+    if (this->infos != NULL) {
+        free(this->infos);
+        this->infos = NULL;
     }
 
 }

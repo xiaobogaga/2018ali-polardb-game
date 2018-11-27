@@ -366,8 +366,8 @@ int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
-    int threadSize = 8;
-    int writingTime = 8;
+    int threadSize = 4;
+    int writingTime = 6400;
     if (argc <= 1) {
         ;
     } else {
@@ -399,8 +399,8 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask(engine);
-    threadSize = 2;
-    writingTime = 4;
+    threadSize = 4;
+    writingTime = 10000;
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
 
     EngineRace::Open(path, &engine);

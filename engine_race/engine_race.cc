@@ -74,22 +74,11 @@ EngineRace::~EngineRace() {
   delete[] this->indexStore_;
 }
 
-bool checkAll(const char* data, int len) {
-    for (int i = 0; i < len; i++) {
-        if (!isalnum(data[i]) ) return false;
-    }
-    return true;
-}
-
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
-    if (!checkAll(key.data(), 8)) {
-        fprintf(stderr, "[EngineRace] : error key\n");
-        return kIOError;
-    }
   const std::string& v = value.ToString();
   long long k = strToLong(key.data());
   int party = partition(k);
- this->mutexes[party].lock();
+  this->mutexes[party].lock();
   uint16_t offset = 0;
   uint16_t fileNo = 0;
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
@@ -105,11 +94,11 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   //  fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
   //          k, party, offset, fileNo, wrap(offset, fileNo));
 
-    if (writeCounter == 0) {
+   // if (writeCounter == 0) {
     //  time(&write_timer);
-        fprintf(stderr, "[EngineRace] : writing data. key : %s, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-                  std::string(key.data(), 8).c_str(), party, offset, fileNo, wrap(offset, fileNo));
-    }
+  //      fprintf(stderr, "[EngineRace] : writing data. key : %s, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+   //               std::string(key.data(), 8).c_str(), party, offset, fileNo, wrap(offset, fileNo));
+    // }
     this->indexStore_[party].add(key, info);
   }
 
@@ -137,7 +126,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 #ifdef USE_HASH_TABLE
   ret = plate_.Find(k, &fileNo, &offset);
 #else
-  this->indexStore_[party].get(key, &ans);
+  this->indexStore_[party].get(k, &ans);
   if (ans == 0) ret = kNotFound;
   else {
     offset = unwrapOffset(ans);
@@ -147,8 +136,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   //    fprintf(stderr, "[EngineRace] : reading first... offset : %d, fileNo : %d, info : %d\n",
   //            offset, fileNo, wrap(offset, fileNo));
     }
-  //  fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-  //            k, party, offset, fileNo, wrap(offset, fileNo));
+   // fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+   //           k, party, offset, fileNo, wrap(offset, fileNo));
   }
 #endif
 
