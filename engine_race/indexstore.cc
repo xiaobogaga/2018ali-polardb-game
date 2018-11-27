@@ -15,6 +15,13 @@ static const int map_size = 1024 * 1024 * 16;
 polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     this->dir_ = dir;
     this->party_ = party;
+
+    if (!polar_race::FileExists(dir) &&
+        0 != mkdir(dir.c_str(), 0755)) {
+        fprintf(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, dir.c_str());
+        return polar_race::kIOError;
+    }
+
     this->indexPath_ = dir + indexPrefix;
     if (!polar_race::FileExists(this->indexPath_) &&
         0 != mkdir(this->indexPath_.c_str(), 0755)) {
