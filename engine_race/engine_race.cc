@@ -69,7 +69,7 @@ EngineRace::~EngineRace() {
   if (db_lock_) {
     UnlockFile(db_lock_);
   }
-  delete[] this->mutexes;
+  // delete[] this->mutexes;
   delete[] this->store_;
   delete[] this->indexStore_;
 }
@@ -78,8 +78,8 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   const std::string& v = value.ToString();
   long long k = strToLong(key.data());
   int party = partition(k);
-  this->mutexes[party].lock();
-  
+ // this->mutexes[party].lock();
+  pthread_mutex_lock(&mu_);
   uint16_t offset = 0;
   uint16_t fileNo = 0;
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
@@ -107,7 +107,9 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
    //  fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
    // write_timer = current_time;
  // }
-  this->mutexes[party].unlock();
+//  this->mutexes[party].unlock();
+  pthread_mutex_unlock(&mu_);
+
   return ret;
 }
 

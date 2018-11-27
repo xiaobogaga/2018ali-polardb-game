@@ -23,9 +23,9 @@ class IndexStore {
 
 public:
 
-    IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), size(0), tree(NULL)   { }
+    IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), tree(NULL)   { }
 
-    IndexStore() : party_(-1), fd_(-1), items_(NULL), size(0), tree(NULL)  {}
+    IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), tree(NULL)  {}
 
     polar_race::RetCode init(const std::string& dir, int party);
 
@@ -54,6 +54,7 @@ private:
     int party_;
     int fd_;
     struct Item* items_;
+    struct Item* head_;
     int size;
  //   std::map<std::string, uint32_t >* maps;
     art_tree* tree;

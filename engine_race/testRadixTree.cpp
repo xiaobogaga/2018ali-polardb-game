@@ -38,7 +38,7 @@ int main() {
     random.seed(seed);
     std::string path("/tmp/test_dump/");
     system("rm -rf /tmp/test_dump/*");
-    int parties = 64;
+    int parties = 1;
     time_t timer;
     time(&timer);
     IndexStore indexStore[64];

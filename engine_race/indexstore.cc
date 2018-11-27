@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include "util.h"
 
-static const int map_size = 1024 * 1024 * 16;
+static const int map_size = 1024 * 1024 * 768;
 
 polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     this->dir_ = dir;
@@ -61,6 +61,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
         memset(ptr, 0, map_size);
     }
     items_ = reinterpret_cast<Item *>(ptr);
+    head_ = items_;
 }
 
 void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
@@ -119,8 +120,9 @@ void IndexStore::finalize() {
     fprintf(stderr, "[IndexStore] : finalize index store with size %d\n", this->size);
     if (fd_ >= 0) {
         // items_ = NULL;
-        munmap(items_, map_size);
+        munmap(head_, map_size);
         items_ = NULL;
+        head_ = NULL;
         close(fd_);
         fd_ = -1;
     }
@@ -182,10 +184,11 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
 IndexStore::~IndexStore() {
    // fprintf(stderr, "[IndexStore] : finalize index store\n");
     if (fd_ >= 0) {
-        munmap(items_, map_size);
+        munmap(head_, map_size);
         close(fd_);
         fd_ = -1;
         items_ = NULL;
+        head_ = NULL;
     }
     /*
     if (this->tree_ != NULL) {
