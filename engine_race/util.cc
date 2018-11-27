@@ -25,14 +25,14 @@ uint32_t StrHash(const char* s, int size) {
   return h;
 }
 
-int partition(long long key) {
-  return key & (64 - 1);
-}
+// int partition(long long key) {
+  // return key & (64 - 1);
+// }
 
-//int partition(long long key) {
-//  int party = (key / 288230376151711743 - INT64_MIN / 288230376151711743);
-//  return party == 64 ? 63 : party;
-//}
+int partition(long long key) {
+  int party = (key / 288230376151711743 - INT64_MIN / 288230376151711743);
+  return party == 64 ? 63 : party;
+}
 
 //int partition2(long long key) {
 //  return key & (64 - 1);
