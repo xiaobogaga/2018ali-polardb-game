@@ -250,7 +250,9 @@ int visit(void *d, const unsigned char *key, uint32_t key_len, void *value) {
 }
 
 int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
-                 polar_race::Visitor* visitor, polar_race::DataStore* store) {
+                 polar_race::Visitor** visitor, polar_race::DataStore* store) {
+    time_t timer;
+    time(&timer);
     std::string value;
     int ans = 0;
     if (this->infos == NULL) initMaps();
@@ -262,14 +264,14 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
         uint16_t fileNo = polar_race::unwrapFileNo(k);
         store->Read(fileNo, offset, &value);
         polar_race::longToStr(this->infos[i].key, buf);
-        visitor->Visit(polar_race::PolarString(buf, 8), polar_race::PolarString(value));
+        polar_race::PolarString keyP(buf, 8);
+        polar_race::PolarString valueP(value);
+        for (int j = 0; j < 64; j++) visitor[j]->Visit(keyP, valueP);
         ans ++;
     }
+    fprintf(stderr, "[IndexStore-%d] : finished range search within %f s under %d data\n",
+            party_, difftime(time(NULL), timer), ans);
     return ans;
-
-//    uint32_t size = 0;
-//    void* data[] = {&size, visitor, store};
-//    art_iter(this->tree, visit, &data);
 
 }
 

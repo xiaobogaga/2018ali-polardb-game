@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <map>
+#include <thread>
 #include "util.h"
 #include "engine_race.h"
 #include "bplustree.h"
@@ -165,32 +166,47 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
     Visitor &visitor) {
 
+  // pthread_mutex_lock(&mu_);
+  // 这里我们等所有线程都到达了以后，一次IO读取所有.
+
+  this->visitors[this->idx++] = &visitor;
+
+  while (this->idx.load() < 64) {
+    // if other threads are waiting. then wait them.
+    std::this_thread::sleep_for(std::chrono::microseconds(200));
+  }
+
   pthread_mutex_lock(&mu_);
 
-#ifdef USE_HASH_TABLE
-  ;
-#else
-  long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
-  long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
-  if (rangeCounter == 0) {
-    time(&range_timer);
-  }
-  // long size = bplus_tree_get_range(tree[0], low, high, visitor, store_[0]);
+  if (!this->finished) {
 
-  // do range query.
+#ifdef USE_HASH_TABLE
+    ;
+#else
+    long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
+    long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
+    fprintf(stderr , "[EngineRace] : range search for [%lld, %lld] \n", low, high);
+    if (rangeCounter == 0) {
+      time(&range_timer);
+    }
+    // long size = bplus_tree_get_range(tree[0], low, high, visitor, store_[0]);
+
+    // do range query.
     long size = 0;
 
     for (int i = 0; i < parties; i++) {
-        size += this->indexStore_[i].rangeSearch(lower, upper, &visitor, &this->store_[i]);
-  }
+      size += this->indexStore_[i].rangeSearch(lower, upper, this->visitors, &this->store_[i]);
+    }
 
-  if (rangeCounter == 0) {
+    if (rangeCounter == 0) {
       fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
               low, high, size, difftime(time(NULL), range_timer));
-  }
-  rangeCounter ++;
+    }
+    rangeCounter++;
 #endif
+  }
 
+  this->finished = true;
   pthread_mutex_unlock(&mu_);
   return kSucc;
 

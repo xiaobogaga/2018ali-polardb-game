@@ -45,7 +45,7 @@ public:
     void get(long long key, uint32_t* ans);
 
     int rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
-            polar_race::Visitor* visitor, polar_race::DataStore* store);
+            polar_race::Visitor** visitor, polar_race::DataStore* store);
 
     void initMaps();
 
