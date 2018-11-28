@@ -44,7 +44,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
 
     if (!polar_race::FileExists(dir_)
         && 0 != mkdir(dir_.c_str(), 0755)) {
-        fprintf(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
+        fprintf(stderr, "[IndexStore-%d] : %s mkdir failed\n", party, dir_.c_str());
         return polar_race::kIOError;
     }
 
@@ -159,8 +159,8 @@ void IndexStore::initMaps() {
         head_ = NULL;
     }
     qsort(infos, this->size, sizeof(struct Info), compare);
-  //  fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
-  //          party_, this->size, difftime(time(NULL), t));
+  fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+            party_, this->size, difftime(time(NULL), t));
 }
 
 void IndexStore::finalize() {

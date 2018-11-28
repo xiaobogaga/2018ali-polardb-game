@@ -402,7 +402,7 @@ int main(int argc, char** argv) {
     threadSize = 4;
     writingTime = 10000;
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
-
+    delete engine;
     EngineRace::Open(path, &engine);
     ReaderPro performanceReaderTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceReaderTask.startReader(threadSize, writingTime);

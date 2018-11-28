@@ -21,7 +21,7 @@ static std::string FileName(const std::string &dir, uint32_t fileno) {
 }
 
 RetCode DataStore::Init() {
- // fprintf(stderr, "[DataStore] : init data_store\n");
+    // fprintf(stderr, "[DataStore-%d] : init data_store\n", party);
   if (!FileExists(dir_)
       && 0 != mkdir(dir_.c_str(), 0755)) {
     fprintf(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());

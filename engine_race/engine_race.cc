@@ -119,8 +119,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  pthread_mutex_lock(&mu_);
-  // this->mutexes[party].lock();
+  // pthread_mutex_lock(&mu_);
+  this->mutexes[party].lock();
 
   RetCode ret = kSucc;
 #ifdef USE_HASH_TABLE
@@ -157,8 +157,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 	  read_timer = current_time;
   }
 
-    // this->mutexes[party].unlock();
-    pthread_mutex_unlock(&mu_);
+    this->mutexes[party].unlock();
+    // pthread_mutex_unlock(&mu_);
     return ret;
 }
 
