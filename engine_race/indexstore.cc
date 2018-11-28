@@ -139,6 +139,7 @@ void IndexStore::initMaps() {
     // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
     // this->tree = (art_tree*) malloc(sizeof(art_tree));
     // art_tree_init(this->tree);
+    fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
     time_t t;
     time(&t);
