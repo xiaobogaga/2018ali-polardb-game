@@ -5,8 +5,16 @@
 #include <cstdint>
 #include <cstdio>
 #include "util.h"
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include "engine.h"
+#include "polar_string.h"
 
-int main() {
+int main2() {
 
     long long min = INT64_MIN;
     long long max = INT64_MAX;
@@ -22,7 +30,170 @@ int main() {
 
     fprintf(stderr, "min : %lld, max : %lld, sep : %lld\n", min, max, sep);
 
+    for (long long t = min; t < min + sep; t++)
+        fprintf(stderr, "%d\n", polar_race::partition(t));
+
     return 0;
+}
+
+struct It {
+    int data;
+};
+
+int testRead();
+
+int main() {
+
+    testRead();
+
+    system("rm -rf /tmp/test_dump/*");
+    std::string fileName("/tmp/test_dump/test");
+    int fd = open(fileName.c_str(), O_RDWR, 0644);
+    size_t fileLength;
+    size_t map_size = 4096;
+    size_t newMapSize = map_size;
+    bool new_create = false;
+    if (fd < 0 && errno == ENOENT) {
+        // not exist, then create
+        fd = open(fileName.c_str(), O_RDWR | O_CREAT, 0644);
+        if (fd >= 0) {
+            new_create = true;
+            if (posix_fallocate(fd, 0, map_size) != 0) {
+                fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n");
+                close(fd);
+                return polar_race::kIOError;
+            }
+        }
+    }
+
+    if (fd < 0) {
+        fprintf(stderr, "[IndexStore] : file %s open failed\n", fileName.c_str());
+        return polar_race::kIOError;
+    } else {
+        fileLength = polar_race::GetFileLength(fileName);
+        if (fileLength > newMapSize) newMapSize = fileLength;
+    }
+    int fd_ = fd;
+
+    void* ptr = mmap(NULL, newMapSize, PROT_READ | PROT_WRITE,
+                     MAP_SHARED, fd_, 0);
+    if (ptr == MAP_FAILED) {
+        fprintf(stderr, "[IndexStore] : MAP_FAILED\n");
+        close(fd);
+        return polar_race::kIOError;
+    }
+    if (new_create) {
+        //   fprintf(stderr, "[IndexStore] : create a new mmap \n");
+        memset(ptr, 0, newMapSize);
+    }
+
+    fprintf(stderr, "%ld" , sysconf(_SC_PAGE_SIZE));
+
+    struct It* items_ = reinterpret_cast<It *>(ptr);
+    struct It* head_ = items_;
+    size_t start = newMapSize;
+    for (int i = 0; i < 4096; i++) {
+        if (items_ - head_ >= (newMapSize) / sizeof(struct It)) {
+            // reallocate.
+            // needs reallocate.
+            fprintf(stderr, "reallocate\n");
+            int ret = munmap(head_, newMapSize);
+            if (ret == -1) fprintf(stderr, "unmap failed\n");
+            // if (lseek(fd, newMapSize, SEEK_END) == -1) fprintf(stderr, "seek failed\n");
+            if (posix_fallocate(fd, start, newMapSize) != 0) {
+                fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n");
+                close(fd);
+                return polar_race::kIOError;
+            }
+            void* ptr = mmap(NULL, newMapSize, PROT_READ | PROT_WRITE,
+                             MAP_SHARED, fd_, start);
+            if (ptr == MAP_FAILED) {
+                fprintf(stderr, "[IndexStore] : MAP_FAILED\n");
+                close(fd);
+                return polar_race::kIOError;
+            }
+            items_ = reinterpret_cast<It *>(ptr);
+            head_ = items_;
+            start += newMapSize;
+        }
+        items_->data = i;
+        items_ ++;
+    }
+
+
+    if (fd_ >= 0) {
+        // items_ = NULL;
+        munmap(head_, newMapSize);
+        items_ = NULL;
+        head_ = NULL;
+        close(fd_);
+        fd_ = -1;
+    }
+
+}
+
+int testRead() {
+    std::string fileName("/tmp/test_dump/test");
+    int fd = open(fileName.c_str(), O_RDWR, 0644);
+    size_t fileLength;
+    size_t map_size = 4096;
+    size_t newMapSize = map_size;
+    bool new_create = false;
+    if (fd < 0 && errno == ENOENT) {
+        // not exist, then create
+        fd = open(fileName.c_str(), O_RDWR | O_CREAT, 0644);
+        if (fd >= 0) {
+            new_create = true;
+            if (posix_fallocate(fd, 0, map_size) != 0) {
+                fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n");
+                close(fd);
+                return polar_race::kIOError;
+            }
+        }
+    }
+
+    if (fd < 0) {
+        fprintf(stderr, "[IndexStore] : file %s open failed\n", fileName.c_str());
+        return polar_race::kIOError;
+    } else {
+        fileLength = polar_race::GetFileLength(fileName);
+        if (fileLength > newMapSize) newMapSize = fileLength;
+    }
+    int fd_ = fd;
+
+    void* ptr = mmap(NULL, newMapSize, PROT_READ | PROT_WRITE,
+                     MAP_SHARED, fd_, 0);
+    if (ptr == MAP_FAILED) {
+        fprintf(stderr, "[IndexStore] : MAP_FAILED\n");
+        close(fd);
+        return polar_race::kIOError;
+    }
+    if (new_create) {
+        //   fprintf(stderr, "[IndexStore] : create a new mmap \n");
+        memset(ptr, 0, newMapSize);
+    }
+
+    // fprintf(stderr, "%ld" , sysconf(_SC_PAGE_SIZE));
+
+    struct It* items_ = reinterpret_cast<It *>(ptr);
+    struct It* head_ = items_;
+
+    for (int i = 0; i < 4096; i++) {
+        fprintf(stderr, "%d\n", items_->data);
+        items_++;
+    }
+
+    exit(0);
+
+    if (fd_ >= 0) {
+        // items_ = NULL;
+        munmap(head_, newMapSize);
+        items_ = NULL;
+        head_ = NULL;
+        close(fd_);
+        fd_ = -1;
+    }
+
 }
 
 

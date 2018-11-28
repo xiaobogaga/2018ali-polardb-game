@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include "util.h"
 
-static const int map_size = 1024 * 1024 * 16;
+static const int map_size = 1024 * 1024 * 12;
 
 int compare (const void * a, const void * b)
 {
@@ -57,6 +57,8 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     bool new_create = false;
     this->fileName_ = this->indexPath_ + std::to_string(party);
     int fd = open(this->fileName_.c_str(), O_RDWR, 0644);
+    size_t fileLength;
+    newMapSize = map_size;
     if (fd < 0 && errno == ENOENT) {
         // not exist, then create
         fd = open(this->fileName_.c_str(), O_RDWR | O_CREAT, 0644);
@@ -69,13 +71,17 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
             }
         }
     }
+
     if (fd < 0) {
         fprintf(stderr, "[IndexStore-%d] : file %s open failed\n", party, this->fileName_.c_str());
         return polar_race::kIOError;
+    } else {
+        fileLength = polar_race::GetFileLength(this->fileName_);
+        if (fileLength > newMapSize) newMapSize = fileLength;
     }
     this->fd_ = fd;
 
-    void* ptr = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
+    void* ptr = mmap(NULL, newMapSize, PROT_READ | PROT_WRITE,
                      MAP_SHARED, this->fd_, 0);
     if (ptr == MAP_FAILED) {
         fprintf(stderr, "[IndexStore-%d] : MAP_FAILED\n", party);
@@ -84,17 +90,44 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     }
     if (new_create) {
      //   fprintf(stderr, "[IndexStore] : create a new mmap \n");
-        memset(ptr, 0, map_size);
+        memset(ptr, 0, newMapSize);
     }
     items_ = reinterpret_cast<Item *>(ptr);
     head_ = items_;
+    this->start = newMapSize;
+    this->sep = newMapSize / sizeof(struct Item);
     return polar_race::RetCode::kSucc;
+}
+
+void IndexStore::reAllocate() {
+    // needs reallocate.
+    if (munmap(head_, newMapSize) == -1) fprintf(stderr, "[IndexStore-%d] : unmap  failed\n", party_);
+    if (posix_fallocate(this->fd_, start, map_size) != 0) {
+        fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party_);
+        close(this->fd_);
+        return ;
+    }
+    void* ptr = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
+                     MAP_SHARED, this->fd_, this->start);
+    memset(ptr, 0, map_size);
+    this->start += map_size;
+    this->newMapSize = map_size;
+    this->sep = newMapSize / sizeof(struct Item);
+    if (ptr == MAP_FAILED) {
+        fprintf(stderr, "[IndexStore -%d] : MAP_FAILED\n", party_);
+        close(this->fd_);
+        return ;
+    }
+    items_ = reinterpret_cast<Item *>(ptr);
+    head_ = items_;
 }
 
 void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
    // fprintf(stderr, "[IndexStore] : adding key %lld with info %ld\n",
-   //         polar_race::strToLong(key.data()), info);
-    while (items_->info != 0) items_ ++;
+   //         polar_race::strToLong(key.data()), info)
+
+    while ((items_ - head_ < this->sep) && items_->info != 0) items_ ++;
+    if (items_ - head_ >= this->sep) reAllocate();
     items_->info = info;
     memcpy(items_->key, key.data(), 8);
     items_++;
@@ -163,7 +196,7 @@ void IndexStore::initMaps() {
         temp++;
     }
     if (fd_ >= 0) {
-        munmap(head_, map_size);
+        munmap(head_, newMapSize);
         close(fd_);
         fd_ = -1;
         head_ = NULL;
@@ -177,7 +210,7 @@ void IndexStore::finalize() {
     fprintf(stderr, "[IndexStore] : finalize index store with size %d\n", this->size);
     if (fd_ >= 0) {
         // items_ = NULL;
-        munmap(head_, map_size);
+        munmap(head_, newMapSize);
         items_ = NULL;
         head_ = NULL;
         close(fd_);
@@ -242,9 +275,9 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
 
 
 IndexStore::~IndexStore() {
-    fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
+    // fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
     if (fd_ >= 0) {
-        munmap(head_, map_size);
+        munmap(head_, newMapSize);
         close(fd_);
         fd_ = -1;
         items_ = NULL;
