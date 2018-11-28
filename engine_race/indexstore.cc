@@ -139,7 +139,9 @@ void IndexStore::initMaps() {
     // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
     // this->tree = (art_tree*) malloc(sizeof(art_tree));
     // art_tree_init(this->tree);
+    fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
+    uint32_t total1 = total;
     time_t t;
     time(&t);
     struct Item* temp = head_;
@@ -147,6 +149,14 @@ void IndexStore::initMaps() {
     while (temp->info != 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
         // art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
+        if (this->size >= total1) {
+            total1 *= 2;
+            this->infos = (struct Info*) realloc(this->infos, sizeof(struct Info) * total1);
+            if (this->infos == NULL) {
+                fprintf(stderr,
+                        "[IndexStore-%d] : opps try to larger infos array to %d failed\n", party_, total);
+            }
+        }
         this->infos[this->size].key = polar_race::strToLong(temp->key);
         this->infos[this->size].info = temp->info;
         this->size ++;
@@ -159,7 +169,7 @@ void IndexStore::initMaps() {
         head_ = NULL;
     }
     qsort(infos, this->size, sizeof(struct Info), compare);
-  fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+    fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
             party_, this->size, difftime(time(NULL), t));
 }
 

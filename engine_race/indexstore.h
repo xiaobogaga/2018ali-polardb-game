@@ -31,7 +31,7 @@ public:
     IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL),
         size(0), infos(NULL), total(1398102)   { }
 
-    IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(1000000)  {}
+    IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(1398102)  {}
 
     polar_race::RetCode init(const std::string& dir, int party);
 
@@ -65,7 +65,7 @@ private:
     struct Info* infos;
  //   std::map<std::string, uint32_t >* maps;
     // art_tree* tree;
-    int total;
+    uint32_t total;
 };
 
 #endif //ENGINE_RACE_INDEXSTORE_H
