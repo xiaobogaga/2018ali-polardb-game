@@ -12,7 +12,7 @@ namespace polar_race {
 static const std::string dataPath("/data/");
 static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
-static const int kSingleFileSize = 1024 * 1024 * 128;
+static const int kSingleFileSize = 1024 * 4 * 16;
 static const int valuesize = 4096;
 static char buf[valuesize];
 

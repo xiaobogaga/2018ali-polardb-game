@@ -18,8 +18,15 @@ int compare (const void * a, const void * b)
     struct Info* infoB = (struct Info*) b;
     if (infoA->key == infoB->key) {
         // duplated key.
-        return polar_race::unwrapOffset(infoA->info) <
-            polar_race::unwrapOffset(infoB->info) ? -1 : 1;
+        uint16_t fileNoA = polar_race::unwrapFileNo(infoA->info);
+        uint16_t fileNoB = polar_race::unwrapFileNo(infoB->info);
+        if (fileNoA == fileNoB) {
+            return polar_race::unwrapOffset(infoA->info) <
+                   polar_race::unwrapOffset(infoB->info) ? -1 : 1;
+        } else {
+            return fileNoA > fileNoB ? 1 : -1;
+        }
+
     }
     return infoA->key < infoB->key ? -1 : 1;
 }
@@ -85,6 +92,8 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
 }
 
 void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
+   // fprintf(stderr, "[IndexStore] : adding key %lld with info %ld\n",
+   //         polar_race::strToLong(key.data()), info);
     while (items_->info != 0) items_ ++;
     items_->info = info;
     memcpy(items_->key, key.data(), 8);
@@ -114,9 +123,11 @@ void IndexStore::get(long long key, uint32_t* ans) {
 
 
     if (ret == NULL) {
+     //   fprintf(stderr, "[IndexStore] : doesn't find key %lld\n", key);
         (*ans) = 0;
         return;
     } else {
+     //   fprintf(stderr, "[IndexStore] : finding key %lld with info %ld\n", key, ret->info);
         (*ans) = ret->info;
     }
 

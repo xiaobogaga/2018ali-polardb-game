@@ -150,6 +150,19 @@ test2/fast:
 .PHONY : test2/fast
 
 #=============================================================================
+# Target rules for targets named testIndexStore
+
+# Build rule for target.
+testIndexStore: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 testIndexStore
+.PHONY : testIndexStore
+
+# fast build rule for target.
+testIndexStore/fast:
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/build
+.PHONY : testIndexStore/fast
+
+#=============================================================================
 # Target rules for targets named test1
 
 # Build rule for target.
@@ -485,6 +498,33 @@ engine_race/testBplusTree.cpp.s:
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.s
 .PHONY : engine_race/testBplusTree.cpp.s
 
+engine_race/testIndexStore.o: engine_race/testIndexStore.cpp.o
+
+.PHONY : engine_race/testIndexStore.o
+
+# target to build an object file
+engine_race/testIndexStore.cpp.o:
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/engine_race/testIndexStore.cpp.o
+.PHONY : engine_race/testIndexStore.cpp.o
+
+engine_race/testIndexStore.i: engine_race/testIndexStore.cpp.i
+
+.PHONY : engine_race/testIndexStore.i
+
+# target to preprocess a source file
+engine_race/testIndexStore.cpp.i:
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/engine_race/testIndexStore.cpp.i
+.PHONY : engine_race/testIndexStore.cpp.i
+
+engine_race/testIndexStore.s: engine_race/testIndexStore.cpp.s
+
+.PHONY : engine_race/testIndexStore.s
+
+# target to generate assembly for a file
+engine_race/testIndexStore.cpp.s:
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/engine_race/testIndexStore.cpp.s
+.PHONY : engine_race/testIndexStore.cpp.s
+
 engine_race/testRadixTree.o: engine_race/testRadixTree.cpp.o
 
 .PHONY : engine_race/testRadixTree.o
@@ -577,6 +617,7 @@ help:
 	@echo "... engine_race"
 	@echo "... tempTest"
 	@echo "... test2"
+	@echo "... testIndexStore"
 	@echo "... test1"
 	@echo "... radixTreeTest"
 	@echo "... test3"
@@ -613,6 +654,9 @@ help:
 	@echo "... engine_race/testBplusTree.o"
 	@echo "... engine_race/testBplusTree.i"
 	@echo "... engine_race/testBplusTree.s"
+	@echo "... engine_race/testIndexStore.o"
+	@echo "... engine_race/testIndexStore.i"
+	@echo "... engine_race/testIndexStore.s"
 	@echo "... engine_race/testRadixTree.o"
 	@echo "... engine_race/testRadixTree.i"
 	@echo "... engine_race/testRadixTree.s"

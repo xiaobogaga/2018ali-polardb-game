@@ -181,6 +181,54 @@
 					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="testIndexStore">
+				<Option output="/home/tomzhu/test/engine6/2018ali-polardb-game/bin/testIndexStore" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/tomzhu/test/engine6/2018ali-polardb-game/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 testIndexStore"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="testIndexStore/fast">
+				<Option output="/home/tomzhu/test/engine6/2018ali-polardb-game/bin/testIndexStore" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/tomzhu/test/engine6/2018ali-polardb-game/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 testIndexStore/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="test1">
 				<Option output="/home/tomzhu/test/engine6/2018ali-polardb-game/bin/test1" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/tomzhu/test/engine6/2018ali-polardb-game/bin"/>
@@ -382,6 +430,9 @@
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/testBplusTree.cpp">
 			<Option target="test1"/>
+		</Unit>
+		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/testIndexStore.cpp">
+			<Option target="testIndexStore"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/testRadixTree.cpp">
 			<Option target="radixTreeTest"/>

@@ -34,7 +34,6 @@ PolarString generateValue(std::default_random_engine* random) {
 int main() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine random;
-    std::map<long long, bool> maps;
     random.seed(seed);
     std::string path("/tmp/test_dump/");
     system("rm -rf /tmp/test_dump/*");

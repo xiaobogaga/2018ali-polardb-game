@@ -176,6 +176,43 @@ clean: CMakeFiles/test2.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/testIndexStore.dir
+
+# All Build rule for target.
+CMakeFiles/testIndexStore.dir/all: CMakeFiles/engine_race.dir/all
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/depend
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/CMakeFiles --progress-num=21,22 "Built target testIndexStore"
+.PHONY : CMakeFiles/testIndexStore.dir/all
+
+# Include target in all.
+all: CMakeFiles/testIndexStore.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/testIndexStore.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/CMakeFiles 12
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/testIndexStore.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/testIndexStore.dir/rule
+
+# Convenience name for target.
+testIndexStore: CMakeFiles/testIndexStore.dir/rule
+
+.PHONY : testIndexStore
+
+# clean rule for target.
+CMakeFiles/testIndexStore.dir/clean:
+	$(MAKE) -f CMakeFiles/testIndexStore.dir/build.make CMakeFiles/testIndexStore.dir/clean
+.PHONY : CMakeFiles/testIndexStore.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/testIndexStore.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/test1.dir
 
 # All Build rule for target.

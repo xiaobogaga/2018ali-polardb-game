@@ -91,8 +91,8 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     ;
     // bplus_tree_put(tree[party], k, );
 #endif
-  //  fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-  //          k, party, offset, fileNo, wrap(offset, fileNo));
+ // fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+ //          k, party, offset, fileNo, wrap(offset, fileNo));
 
     if (writeCounter == 0) {
       time(&write_timer);
@@ -133,7 +133,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     fileNo = unwrapFileNo(ans);
     if (readCounter == 0) {
       time(&read_timer);
-      fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %d\n",
+      fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
               k, offset, fileNo, wrap(offset, fileNo));
     }
    // fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
