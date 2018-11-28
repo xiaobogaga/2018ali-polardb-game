@@ -212,7 +212,7 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
     int ans = 0;
     if (this->infos == NULL) initMaps();
     char buf[8];
-    for (int i = 0; i < this->size; i++) {
+    for (uint32_t i = 0; i < this->size; i++) {
         if (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) continue;
         uint32_t k = this->infos[i].info;
         uint16_t offset = polar_race::unwrapOffset(k);
@@ -232,7 +232,7 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
 
 
 IndexStore::~IndexStore() {
-   // fprintf(stderr, "[IndexStore] : finalize index store\n");
+    fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
     if (fd_ >= 0) {
         munmap(head_, map_size);
         close(fd_);
