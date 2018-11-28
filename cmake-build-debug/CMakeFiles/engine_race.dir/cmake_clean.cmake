@@ -7,7 +7,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/engine_race.dir/engine_race/util.cc.o"
   "CMakeFiles/engine_race.dir/engine_race/bitvector.cc.o"
   "CMakeFiles/engine_race.dir/engine_race/hash.cc.o"
-  "CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o"
   "CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o"
   "../lib/libengine_race.pdb"
   "../lib/libengine_race.so"

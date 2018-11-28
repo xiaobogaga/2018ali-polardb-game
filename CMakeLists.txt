@@ -38,8 +38,9 @@ add_library(${PROJECT_NAME} SHARED
         engine_race/util.cc
         engine_race/bitvector.cc
         engine_race/hash.cc
-        engine_race/testBplusTree.cpp
+        # engine_race/testBplusTree.cpp
         engine_race/indexstore.cc
+        # engine_race/testRadixTree.cpp
         # engine_race/test.cc
         # engine_race/test_with_kill.cc
         )
@@ -81,3 +82,6 @@ add_executable(tempTest engine_race/tempTest.cpp)
 
 target_link_libraries(tempTest ${PROJECT_NAME})
 
+add_executable(radixTreeTest engine_race/testRadixTree.cpp)
+
+target_link_libraries(radixTreeTest ${PROJECT_NAME})

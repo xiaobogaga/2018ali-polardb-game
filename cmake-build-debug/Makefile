@@ -163,6 +163,19 @@ test1/fast:
 .PHONY : test1/fast
 
 #=============================================================================
+# Target rules for targets named radixTreeTest
+
+# Build rule for target.
+radixTreeTest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 radixTreeTest
+.PHONY : radixTreeTest
+
+# fast build rule for target.
+radixTreeTest/fast:
+	$(MAKE) -f CMakeFiles/radixTreeTest.dir/build.make CMakeFiles/radixTreeTest.dir/build
+.PHONY : radixTreeTest/fast
+
+#=============================================================================
 # Target rules for targets named test3
 
 # Build rule for target.
@@ -451,7 +464,6 @@ engine_race/testBplusTree.o: engine_race/testBplusTree.cpp.o
 
 # target to build an object file
 engine_race/testBplusTree.cpp.o:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.o
 .PHONY : engine_race/testBplusTree.cpp.o
 
@@ -461,7 +473,6 @@ engine_race/testBplusTree.i: engine_race/testBplusTree.cpp.i
 
 # target to preprocess a source file
 engine_race/testBplusTree.cpp.i:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.i
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.i
 .PHONY : engine_race/testBplusTree.cpp.i
 
@@ -471,9 +482,35 @@ engine_race/testBplusTree.s: engine_race/testBplusTree.cpp.s
 
 # target to generate assembly for a file
 engine_race/testBplusTree.cpp.s:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.s
 	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.s
 .PHONY : engine_race/testBplusTree.cpp.s
+
+engine_race/testRadixTree.o: engine_race/testRadixTree.cpp.o
+
+.PHONY : engine_race/testRadixTree.o
+
+# target to build an object file
+engine_race/testRadixTree.cpp.o:
+	$(MAKE) -f CMakeFiles/radixTreeTest.dir/build.make CMakeFiles/radixTreeTest.dir/engine_race/testRadixTree.cpp.o
+.PHONY : engine_race/testRadixTree.cpp.o
+
+engine_race/testRadixTree.i: engine_race/testRadixTree.cpp.i
+
+.PHONY : engine_race/testRadixTree.i
+
+# target to preprocess a source file
+engine_race/testRadixTree.cpp.i:
+	$(MAKE) -f CMakeFiles/radixTreeTest.dir/build.make CMakeFiles/radixTreeTest.dir/engine_race/testRadixTree.cpp.i
+.PHONY : engine_race/testRadixTree.cpp.i
+
+engine_race/testRadixTree.s: engine_race/testRadixTree.cpp.s
+
+.PHONY : engine_race/testRadixTree.s
+
+# target to generate assembly for a file
+engine_race/testRadixTree.cpp.s:
+	$(MAKE) -f CMakeFiles/radixTreeTest.dir/build.make CMakeFiles/radixTreeTest.dir/engine_race/testRadixTree.cpp.s
+.PHONY : engine_race/testRadixTree.cpp.s
 
 engine_race/test_with_kill.o: engine_race/test_with_kill.cc.o
 
@@ -541,6 +578,7 @@ help:
 	@echo "... tempTest"
 	@echo "... test2"
 	@echo "... test1"
+	@echo "... radixTreeTest"
 	@echo "... test3"
 	@echo "... engine_race/basic.o"
 	@echo "... engine_race/basic.i"
@@ -575,6 +613,9 @@ help:
 	@echo "... engine_race/testBplusTree.o"
 	@echo "... engine_race/testBplusTree.i"
 	@echo "... engine_race/testBplusTree.s"
+	@echo "... engine_race/testRadixTree.o"
+	@echo "... engine_race/testRadixTree.i"
+	@echo "... engine_race/testRadixTree.s"
 	@echo "... engine_race/test_with_kill.o"
 	@echo "... engine_race/test_with_kill.i"
 	@echo "... engine_race/test_with_kill.s"

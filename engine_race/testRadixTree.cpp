@@ -38,13 +38,13 @@ int main() {
     random.seed(seed);
     std::string path("/tmp/test_dump/");
     system("rm -rf /tmp/test_dump/*");
-    int parties = 128 * 8;
+    int parties = 64;
     time_t timer;
     time(&timer);
     IndexStore indexStore[parties];
     for (int i = 0; i < parties; i++) indexStore[i].init(path, i);
     // test how many times it would consume to save 64000000 items and fetch almost 64000000 items.
-    long long total = 64000000;
+    long long total = 6400;
     char buf[8];
     for (int i = 0; i < total; ) {
         polar_race::longToStr(i, buf);
@@ -71,7 +71,7 @@ int main() {
         uint16_t fileNo = 0;
         uint16_t offset = 0;
         uint32_t ans = 0;
-        indexStore2[party].get(key, &ans);
+        indexStore2[party].get(i, &ans);
         if (ans == 0) {
             fprintf(stderr, "[RadixTreeTest] : reading error. doesn't find key : %lld\n", i);
             exit(0);

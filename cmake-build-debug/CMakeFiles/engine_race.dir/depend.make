@@ -59,12 +59,6 @@ CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../engine_race/util.h
 CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../include/engine.h
 CMakeFiles/engine_race.dir/engine_race/indexstore.cc.o: ../include/polar_string.h
 
-CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/bplustree.h
-CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/data_store.h
-CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../engine_race/testBplusTree.cpp
-CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../include/engine.h
-CMakeFiles/engine_race.dir/engine_race/testBplusTree.cpp.o: ../include/polar_string.h
-
 CMakeFiles/engine_race.dir/engine_race/util.cc.o: ../engine_race/util.cc
 CMakeFiles/engine_race.dir/engine_race/util.cc.o: ../engine_race/util.h
 
