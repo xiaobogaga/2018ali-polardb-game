@@ -10,6 +10,7 @@
 #include <mutex>
 #include <ctime>
 #include <atomic>
+#include <thread>
 
 namespace polar_race {
 
@@ -30,6 +31,7 @@ class EngineRace : public Engine  {
   		this->mutexes = new std::mutex[parties];
   		this->idx = 0;
   		this->finished = false;
+  		this->timerTask = NULL;
 		fprintf(stderr, "[EngineRace] : creating an engineRace instance at %s\n", 
 			dir.c_str());
     }
@@ -67,6 +69,7 @@ class EngineRace : public Engine  {
   Visitor* visitors[64];
   std::atomic_int idx;
   bool finished;
+  std::thread* timerTask;
 };
 
 }  // namespace polar_race

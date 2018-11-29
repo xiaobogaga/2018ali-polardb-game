@@ -12,8 +12,22 @@ namespace polar_race {
 
 static const char kLockFile[] = "LOCK";
 
+static bool timerStop = false;
+
 RetCode Engine::Open(const std::string& name, Engine** eptr) {
   return EngineRace::Open(name, eptr);
+}
+
+// sleepint for 500s.
+void startTimer() {
+  double sleepTime = 200.1;
+  time_t  timer;
+  time(&timer);
+  while (difftime(time(NULL), timer) <= sleepTime && !timerStop) {
+    sleep(1);
+  }
+  fprintf(stderr, "[Timer] : exceed time and exist\n");
+  exit(0);
 }
 
 Engine::~Engine() {
@@ -53,9 +67,14 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
     return kIOError;
   }
 
+  // start a timer task
+  timerStop = false;
+  engine_race->timerTask = new std::thread (startTimer);
+
   *eptr = engine_race;
   return kSucc;
 }
+
 
 EngineRace::~EngineRace() {
   fprintf(stderr, "[EngineRace] : closing db\n");
@@ -73,6 +92,12 @@ EngineRace::~EngineRace() {
   // delete[] this->mutexes;
   delete[] this->store_;
   delete[] this->indexStore_;
+  if (this->timerTask != NULL) {
+      timerStop = true;
+      this->timerTask->join();
+      delete this->timerTask;
+      this->timerTask = NULL;
+  }
 }
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
@@ -171,10 +196,8 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
 
   this->visitors[this->idx++] = &visitor;
 
-  while (this->idx.load() < 64) {
-    // if other threads are waiting. then wait them.
-    std::this_thread::sleep_for(std::chrono::microseconds(200));
-  }
+  // sleep 2 s
+  std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
   pthread_mutex_lock(&mu_);
 
@@ -195,7 +218,7 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
     long size = 0;
 
     for (int i = 0; i < parties; i++) {
-      size += this->indexStore_[i].rangeSearch(lower, upper, this->visitors, &this->store_[i]);
+      size += this->indexStore_[i].rangeSearch(lower, upper, this->visitors, this->idx, &this->store_[i]);
     }
 
     if (rangeCounter == 0) {

@@ -11,8 +11,10 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <thread>
 #include "engine.h"
 #include "polar_string.h"
+#include <chrono>
 
 int main2() {
 
@@ -42,7 +44,7 @@ struct It {
 
 int testRead();
 
-int main() {
+int main4() {
 
     testRead();
 
@@ -194,6 +196,31 @@ int testRead() {
         fd_ = -1;
     }
 
+}
+
+
+void startTimer() {
+    double sleepTime = 10.1;
+    time_t  timer;
+    time(&timer);
+    while (difftime(time(NULL), timer) <= sleepTime) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    fprintf(stderr, "[Timer] : exceed time and exist\n");
+    exit(0);
+}
+
+void play() {
+    while (true) {
+        fprintf(stderr , "Play\n");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+int main() {
+    std::thread task(startTimer);
+    std::thread p(play);
+    std::this_thread::sleep_for(std::chrono::seconds(100));
 }
 
 

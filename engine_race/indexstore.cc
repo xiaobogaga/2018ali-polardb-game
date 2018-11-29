@@ -139,6 +139,12 @@ void IndexStore::get(long long key, uint32_t* ans) {
     // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
     // std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
     // uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
+    // char buf[8];
+    // polar_race::longToStr(key, buf);
+    if (!this->bf->contains(key)) {
+        (*ans) = 0;
+        return ;
+    }
     struct Info* ret = (struct Info*) bsearch(&key, this->infos, this->size,
             sizeof(struct Info), bcompare);
 
@@ -166,14 +172,67 @@ void IndexStore::get(long long key, uint32_t* ans) {
 
 }
 
+void IndexStore::initMaps2() {
+    this->table = new MyHashTable();
+    fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
+    time_t t;
+    time(&t);
+    struct Item* temp = head_;
+    this->size = 0;
+    while (temp->info != 0) {
+        // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
+        // art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
+        long long k = polar_race::strToLong(temp->key);
+        this->table->add(k, temp->info);
+        this->size ++;
+//        if (this->size % 10000 == 0) {
+//            fprintf(stderr, "[IndexStore-%d] : 10000 data added. spend %f s\n", party_, difftime(time(NULL), t));
+//            time(&t);
+//        }
+        temp++;
+    }
+    if (fd_ >= 0) {
+        munmap(head_, newMapSize);
+        close(fd_);
+        fd_ = -1;
+        head_ = NULL;
+    }
+    fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+            party_, this->size, difftime(time(NULL), t));
+}
+
+void IndexStore::get2(long long key, uint32_t* ans) {
+    if (this->table == NULL) initMaps2();
+    // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
+    // std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
+    // uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
+    uint32_t ret = this->table->get(key);
+    (*ans) = ret;
+
+}
+
 void IndexStore::initMaps() {
     // here we would init a radix tree from this structure.
     //  this->tree_ = new radix_tree<std::string, long>(); // too slow
     // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
     // this->tree = (art_tree*) malloc(sizeof(art_tree));
     // art_tree_init(this->tree);
+    // this->cache = new LRUCache<long long, std::string>(32768, "");
     fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
+    // this->bf = new bf::basic_bloom_filter(0.0001, 1000000);
+
+    this->bfparameters = new bloom_parameters();
+    this->bfparameters->projected_element_count = 1000000;
+    this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
+    this->bfparameters->random_seed = 0xA5A5A5A5;
+    if (!this->bfparameters)
+    {
+        fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
+        return;
+    }
+    this->bfparameters->compute_optimal_parameters();
+    this->bf = new bloom_filter(*this->bfparameters);
     uint32_t total1 = total;
     time_t t;
     time(&t);
@@ -192,6 +251,7 @@ void IndexStore::initMaps() {
         }
         this->infos[this->size].key = polar_race::strToLong(temp->key);
         this->infos[this->size].info = temp->info;
+        bf->insert(this->infos[this->size].key);
         this->size ++;
         temp++;
     }
@@ -232,25 +292,33 @@ void IndexStore::finalize() {
 //        this->tree = NULL;
 //    }
 
-}
+//    if (this->cache != NULL) {
+//        delete this->cache;
+//        this->cache = NULL;
+//    }
 
-int visit(void *d, const unsigned char *key, uint32_t key_len, void *value) {
-    void** data = (void**) d;
-    uint32_t* size = (uint32_t*) data[0];
-    (*size) ++;
-    uint32_t v = (uint32_t) (uintptr_t) value;
-    uint16_t offset = polar_race::unwrapOffset(v);
-    uint16_t fileNo = polar_race::unwrapFileNo(v);
-    polar_race::Visitor* visitor = (polar_race::Visitor*) data[1];
-    polar_race::DataStore* store = (polar_race::DataStore*) data[2];
-    std::string str;
-    store->Read(fileNo, offset, &str);
-    visitor->Visit(polar_race::PolarString((char*) key, 8), polar_race::PolarString(str));
-    return 0;
+    if (this->infos != NULL) {
+        free(this->infos);
+        this->infos = NULL;
+    }
+
+    if (this->table != NULL) {
+        delete this->table;
+        this->table = NULL;
+    }
+
+    if (this->bf != NULL) {
+        delete this->bf;
+        this->bf = NULL;
+        delete this->bfparameters;
+        this->bfparameters = NULL;
+    }
+
+
 }
 
 int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
-                 polar_race::Visitor** visitor, polar_race::DataStore* store) {
+                 polar_race::Visitor** visitor, int vSize, polar_race::DataStore* store) {
     time_t timer;
     time(&timer);
     std::string value;
@@ -266,7 +334,7 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
         polar_race::longToStr(this->infos[i].key, buf);
         polar_race::PolarString keyP(buf, 8);
         polar_race::PolarString valueP(value);
-        for (int j = 0; j < 64; j++) visitor[j]->Visit(keyP, valueP);
+        for (int j = 0; j < vSize; j++) visitor[j]->Visit(keyP, valueP);
         ans ++;
     }
     fprintf(stderr, "[IndexStore-%d] : finished range search within %f s under %d data\n",
@@ -305,6 +373,25 @@ IndexStore::~IndexStore() {
     if (this->infos != NULL) {
         free(this->infos);
         this->infos = NULL;
+    }
+
+//    if (this->cache != NULL) {
+//        delete this->cache;
+//        this->cache = NULL;
+//    }
+
+
+    if (this->table != NULL) {
+        delete this->table;
+        this->table = NULL;
+    }
+
+
+    if (this->bf != NULL) {
+        delete this->bf;
+        this->bf = NULL;
+        delete this->bfparameters;
+        this->bfparameters = NULL;
     }
 
 }

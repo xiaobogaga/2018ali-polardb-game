@@ -27,7 +27,7 @@ OPT += -O2 -fno-omit-frame-pointer
 # don't treat warnings as errors
 
 # change assert info here.
-# OPT += -DNDEBUG
+OPT += -DNDEBUG
 DISABLE_WARNING_AS_ERROR=1
 # Skip for archs that don't support -momit-leaf-frame-pointer
 ifeq (,$(shell $(CXX) -fsyntax-only -momit-leaf-frame-pointer -xc /dev/null 2>&1))

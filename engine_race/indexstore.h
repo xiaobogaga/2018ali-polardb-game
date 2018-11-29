@@ -6,11 +6,15 @@
 #define ENGINE_RACE_INDEXSTORE_H
 
 #include <stdio.h>
+#include <unordered_map>
 #include "util.h"
 #include "../include/engine.h"
 #include "../include/polar_string.h"
 #include "data_store.h"
 #include "art.h"
+#include "LRUCache.cc"
+#include "MyHashTable.h"
+#include "bloom_filter.hpp"
 
 static std::string indexPrefix("/index/");
 
@@ -19,20 +23,15 @@ struct Item {
     char key[8];
 };
 
-struct Info {
-    long long key;
-    uint32_t info;
-};
-
 class IndexStore {
 
 public:
 
     IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL),
-        size(0), infos(NULL), total(1048576), newMapSize(0), start(0) { }
+        size(0), infos(NULL), total(1048576), newMapSize(0), start(0), table(NULL), bf(NULL), bfparameters(NULL) { }
 
     IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(1048576), newMapSize(0)
-    , start(0) {}
+    , start(0), table(NULL), bf(NULL), bfparameters(NULL) {}
 
     polar_race::RetCode init(const std::string& dir, int party);
 
@@ -45,13 +44,17 @@ public:
     void get(long long key, uint32_t* ans);
 
     int rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
-            polar_race::Visitor** visitor, polar_race::DataStore* store);
+            polar_race::Visitor** visitor, int vSize, polar_race::DataStore* store);
 
     void initMaps();
+
+    void initMaps2();
 
     void reAllocate();
 
     void finalize();
+
+    void get2(long long key, uint32_t* ans);
 
     ~IndexStore();
 
@@ -72,6 +75,10 @@ private:
     size_t newMapSize;
     size_t start;
     size_t sep;
+    MyHashTable* table;
+    // bf::basic_bloom_filter* bf;
+    bloom_filter* bf;
+    bloom_parameters* bfparameters;
 };
 
 #endif //ENGINE_RACE_INDEXSTORE_H

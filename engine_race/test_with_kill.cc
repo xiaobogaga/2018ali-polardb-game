@@ -105,7 +105,7 @@ public:
     void startKillableWriter(int threadSize, int writeTimes) {
         this->threadSize = threadSize;
         this->groups = new std::thread*[threadSize];
-        fprintf(stderr, "start writing\n");
+        // fprintf(stderr, "start writing\n");
         for (int i = 0; i < threadSize; i++) {
             groups[i] = new std::thread(writeTask, engine,
                                         &this->random, writeTimes, &this->maps,
@@ -116,7 +116,7 @@ public:
     void startPerformanceWrite(int threadSize, int writeTimes) {
         this->threadSize = threadSize;
         this->groups = new std::thread*[threadSize];
-        fprintf(stderr, "start writing\n");
+        // fprintf(stderr, "start writing\n");
         for (int i = 0; i < threadSize; i++) {
             groups[i] = new std::thread(writeTask2, engine,
                                         &this->random, writeTimes, &this->maps, &this->keys);
@@ -124,7 +124,7 @@ public:
         for (int i = 0; i < threadSize; i++) {
             groups[i]->join();
         }
-        fprintf(stderr, "end writing\n");
+        // fprintf(stderr, "end writing\n");
         for (int i = 0; i < threadSize; i++)
             delete this->groups[i];
         delete[] this->groups;
@@ -139,7 +139,7 @@ public:
             delete this->groups[i];
         delete[] this->groups;
         this->groups = NULL;
-        fprintf(stderr, "end writing \n");
+        // fprintf(stderr, "end writing \n");
     }
 
     std::map<PolarString, PolarString, PolarStringComparator>* getMaps() {
@@ -275,7 +275,7 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
 
 void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
-    fprintf(stderr, "[Reader] : start testing range query\n");
+    // fprintf(stderr, "[Reader] : start testing range query\n");
     polar_race::MyVisitor visit(maps);
     engine->Range(PolarString(std::string("")),
                   PolarString(std::string("")), visit);
@@ -298,7 +298,7 @@ public :
 
     void startReader(int threadSize, int readerTime) {
         this->groups = new std::thread*[threadSize];
-        fprintf(stderr, "start reading\n");
+        // fprintf(stderr, "start reading\n");
         for (int i = 0; i < threadSize; i++) {
             this->groups[i] = new std::thread(testReader, this->engine,
                                               this->maps, this->keys, readerTime, &this->random);
@@ -306,7 +306,7 @@ public :
         for (int i = 0; i < threadSize; i++) {
             this->groups[i]->join();
         }
-        fprintf(stderr, "end reading\n");
+        //fprintf(stderr, "end reading\n");
         for (int i = 0; i < threadSize; i++)
             delete this->groups[i];
         delete[] this->groups;
@@ -337,7 +337,7 @@ public:
 
     void startRange(int threadSize, int readerTime) {
         this->groups = new std::thread*[threadSize];
-        fprintf(stderr, "start range reading\n");
+        // fprintf(stderr, "start range reading\n");
         for (int i = 0; i < threadSize; i++) {
             this->groups[i] = new std::thread(testRange, this->engine,
                                               this->maps, this->keys, readerTime, &this->random);
@@ -345,7 +345,7 @@ public:
         for (int i = 0; i < threadSize; i++) {
             this->groups[i]->join();
         }
-        fprintf(stderr, "end range reading\n");
+        // fprintf(stderr, "end range reading\n");
         for (int i = 0; i < threadSize; i++)
             delete this->groups[i];
         delete[] this->groups;
@@ -380,15 +380,21 @@ int main(int argc, char** argv) {
  //   delete engine; // finilize.
     EngineRace::Open(path, &engine);
     WriterTask writeTask(engine);
+    fprintf(stderr , "[Tester] : start writer\n");
     writeTask.startKillableWriter(threadSize, writingTime);
     // std::this_thread::sleep_for (std::chrono::seconds(5)); // sleeping for ten seconds.
     // shutdown = true;
     writeTask.waitThreadEnd();
+    fprintf(stderr , "[Tester] : end writer\n");
     Engine::Open(path, &engine);
     ReaderPro readerPro(engine, writeTask.getMaps(), writeTask.getKeys());
+    fprintf(stderr , "[Tester] : start reader\n");
     readerPro.startReader(threadSize, writingTime);
+    fprintf(stderr , "[Tester] : end reader\n");
+    fprintf(stderr , "[Tester] : start range read\n");
     RangePro rangePro(engine, writeTask.getMaps(), writeTask.getKeys());
     rangePro.startRange(threadSize, writingTime);
+    fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.
 
     // exit(0);
@@ -401,14 +407,19 @@ int main(int argc, char** argv) {
     WriterTask performanceWriterTask(engine);
     threadSize = 64;
     writingTime = 100;
+    fprintf(stderr , "[Tester] : start writer\n");
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
+    fprintf(stderr , "[Tester] : end writer\n");
     delete engine;
     EngineRace::Open(path, &engine);
+    fprintf(stderr , "[Tester] : start read\n");
     ReaderPro performanceReaderTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceReaderTask.startReader(threadSize, writingTime);
+    fprintf(stderr , "[Tester] : end read\n");
+    fprintf(stderr , "[Tester] : start range read\n");
     RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceRangeTask.startRange(threadSize, writingTime);
-
+    fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.
     system("rm -rf /tmp/test_dump/*");
     return 0;

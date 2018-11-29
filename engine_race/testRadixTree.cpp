@@ -51,7 +51,11 @@ int main() {
         uint32_t t = i + 1;
         indexStore[party].add(PolarString(buf, 8), t);
         i ++;
-        if (i % 1000000 == 0) fprintf(stderr, "[RadixTreeTest] : have saving 1000000 data\n");
+        if (i % 1000000 == 0) {
+            fprintf(stderr, "[RadixTreeTest] : have saving 1000000 data and spend %f s\n",
+                    difftime(time(NULL), timer));
+            time(&timer);
+        }
     }
 
     fprintf(stderr, "[RadixTreeTest] : save 64000000 items and consume %f s\n",
@@ -83,7 +87,11 @@ int main() {
             exit(0);
         }
         i++;
-        if (i % 1000000 == 0) fprintf(stderr, "[RadixTreeTest] : have reading 1000000 data \n");
+        if (i % 1000000 == 0) {
+            fprintf(stderr, "[RadixTreeTest] : have reading 1000000 data and spend time %f s\n",
+                    difftime(time(NULL), timer));
+            time(&timer);
+        }
     }
     fprintf(stderr, "[RadixTreeTest] : reading 64000000 finished and consume %f s\n",
             difftime(time(NULL), timer));
