@@ -51,6 +51,7 @@ class EngineRace : public Engine  {
   void resetCounter() {
     writeCounter = 0;
 	readCounter = 0;
+	rangeCounter = 0;
   }
 
  private:
@@ -58,9 +59,9 @@ class EngineRace : public Engine  {
   FileLock* db_lock_;
   IndexStore* indexStore_;
   DataStore* store_;
-  volatile uint32_t writeCounter;
-  volatile uint32_t readCounter;
-  uint32_t rangeCounter;
+  std::atomic_int writeCounter;
+  std::atomic_int readCounter;
+  std::atomic_int rangeCounter;
   time_t write_timer;
   time_t read_timer;
   time_t range_timer;

@@ -142,15 +142,15 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 }
 
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
+  int c = readCounter.load();
+  readCounter ++;
   long long k = strToLong(key.data());
   int party = partition(k);
-  this->mutexes[party].lock();
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
   // pthread_mutex_lock(&mu_);
-  // this->mutexes[party].lock();
-
+  this->mutexes[party].lock();
   RetCode ret = kSucc;
 #ifdef USE_HASH_TABLE
   ret = plate_.Find(k, &fileNo, &offset);
@@ -160,7 +160,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   else {
     offset = unwrapOffset(ans);
     fileNo = unwrapFileNo(ans);
-    if (readCounter == 0) {
+    if (c == 0) {
       time(&read_timer);
       fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
               k, offset, fileNo, wrap(offset, fileNo));
@@ -175,12 +175,12 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
     ret = store_[party].Read(fileNo, offset, value);
   } 
   
-  if (readCounter == 0) {
+  if (c == 0) {
  	  fprintf(stderr, "[EngineRace] : reading first data finished, key : %lld, and get %lu value\n",
  		k, value->size());
   }
-  readCounter ++;
-  if (readCounter % 300000 == 0) {
+
+  if (c % 300000 == 0) {
       time_t current_time = time(NULL);
 	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
 	  read_timer = current_time;
@@ -200,7 +200,12 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   this->visitors[this->idx++] = &visitor;
 
   // sleep 2 s
-  std::this_thread::sleep_for(std::chrono::microseconds(2000));
+  while (readCounter.load() % 640000 != 0) {
+    std::this_thread::sleep_for(std::chrono::microseconds(500));
+  }
+
+  // waiting all visitors to join.
+  std::this_thread::sleep_for(std::chrono::microseconds(500));
 
   pthread_mutex_lock(&mu_);
 
@@ -211,7 +216,8 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
 #else
     long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
     long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
-    fprintf(stderr , "[EngineRace] : range search for [%lld, %lld] \n", low, high);
+    fprintf(stderr , "[EngineRace] : range search for [%lld, %lld] with %d visitors\n",
+            low, high, this->idx.load());
     if (rangeCounter == 0) {
       time(&range_timer);
     }
