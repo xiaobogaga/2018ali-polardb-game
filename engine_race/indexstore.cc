@@ -227,17 +227,18 @@ void IndexStore::initMaps() {
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
     // this->bf = new bf::basic_bloom_filter(0.0001, 3000000);
 
-    this->bfparameters = new bloom_parameters();
-    this->bfparameters->projected_element_count = 1000000;
-    this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
-    this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
-    if (!this->bfparameters)
-    {
-        fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
-        return;
-    }
-    this->bfparameters->compute_optimal_parameters();
-    this->bf = new bloom_filter(*this->bfparameters);
+//    this->bfparameters = new bloom_parameters();
+//    this->bfparameters->projected_element_count = 1000000;
+//    this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
+//    this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
+//    if (!this->bfparameters)
+//    {
+//        fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
+//        return;
+//    }
+//    this->bfparameters->compute_optimal_parameters();
+//    this->bf = new bloom_filter(*this->bfparameters);
+
     uint32_t total1 = total;
     time_t t;
     time(&t);
@@ -256,7 +257,7 @@ void IndexStore::initMaps() {
         }
         this->infos[this->size].key = polar_race::strToLong(temp->key);
         this->infos[this->size].info = temp->info;
-        bf->insert(this->infos[this->size].key);
+        // bf->insert(this->infos[this->size].key);
         this->size ++;
         temp++;
     }
