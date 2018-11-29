@@ -26,8 +26,8 @@ uint32_t StrHash(const char* s, int size) {
 }
 
 //int partition(long long key) {
-//  return key & (64 - 1);
-////  return 0;
+// // return key & (64 - 1);
+//  return 0;
 //}
 
 // 64;

@@ -37,13 +37,13 @@ int main() {
     random.seed(seed);
     std::string path("/tmp/test_dump/");
     system("rm -rf /tmp/test_dump/*");
-    int parties = 64;
+    int parties = 1;
     time_t timer;
     time(&timer);
     IndexStore indexStore[parties];
     for (int i = 0; i < parties; i++) indexStore[i].init(path, i);
     // test how many times it would consume to save 64000000 items and fetch almost 64000000 items.
-    long long total = 6400;
+    long long total = 2000000;
     char buf[8];
     for (int i = 0; i < total; ) {
         polar_race::longToStr(i, buf);

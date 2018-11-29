@@ -59,14 +59,6 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
 
 EngineRace::~EngineRace() {
   fprintf(stderr, "[EngineRace] : closing db\n");
-#ifdef USE_HASH_TABLE
-  ;
-#else
-//  for (int i = 0; i < this->parties; i++) {
-//    bplus_tree_deinit(this->tree[i]);
-//  }
-;
-#endif
   if (db_lock_) {
     UnlockFile(db_lock_);
   }
@@ -79,13 +71,15 @@ EngineRace::~EngineRace() {
       delete this->timerTask;
       this->timerTask = NULL;
   }
+  for (int i = 0; i < this->parties; i++)
+      pthread_mutex_destroy(&this->mutexes[i]);
 }
 
 RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   const std::string& v = value.ToString();
   long long k = strToLong(key.data());
   int party = partition(k);
-  this->mutexes[party].lock();
+  pthread_mutex_lock(&this->mutexes[party]);
   uint16_t offset = 0;
   uint16_t fileNo = 0;
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
@@ -111,8 +105,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 
   assert(this->writeCounter < 6400000);
 
-  this->mutexes[party].unlock();
-
+  pthread_mutex_unlock(&this->mutexes[party]);
   return ret;
 }
 
@@ -124,8 +117,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  // pthread_mutex_lock(&mu_);
-  this->mutexes[party].lock();
+  pthread_mutex_lock(&this->mutexes[party]);
   RetCode ret = kSucc;
   this->indexStore_[party].get(k, &ans);
   if (ans == 0) ret = kNotFound;
@@ -156,11 +148,10 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 //	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
 //	  read_timer = current_time;
 //  }
-    this->mutexes[party].unlock();
 //    if (readCounter.load() % 300000) {
 //        fprintf(stderr, "[EngineRace] : have read 300000 data\n");
 //    }
-    // pthread_mutex_unlock(&mu_);
+    pthread_mutex_unlock(&this->mutexes[party]);
     return ret;
 }
 

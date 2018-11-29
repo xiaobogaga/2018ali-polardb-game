@@ -26,6 +26,7 @@ class EngineRace : public Engine  {
   		this->indexStore_= new IndexStore[parties];
   		RetCode ret;
   		for (int i = 0; i < parties; i++) {
+  		    pthread_mutex_init(&this->mutexes[i], NULL);
 			this->store_[i].setDir(dir);
             this->store_[i].setParty(i);
             ret = this->store_[i].Init();
@@ -34,7 +35,6 @@ class EngineRace : public Engine  {
             }
 			this->indexStore_[i].init(dir, i);
   		}
-  		this->mutexes = new std::mutex[parties];
   		this->idx = 0;
   		this->finished = false;
   		this->timerTask = NULL;
@@ -61,7 +61,7 @@ class EngineRace : public Engine  {
   }
 
  private:
-  pthread_mutex_t mu_;
+    pthread_mutex_t mu_;
   FileLock* db_lock_;
   IndexStore* indexStore_;
   DataStore* store_;
@@ -72,7 +72,7 @@ class EngineRace : public Engine  {
   time_t read_timer;
   time_t range_timer;
   int parties;
-  std::mutex* mutexes;
+  pthread_mutex_t mutexes[64];
   Visitor* visitors[64];
   std::atomic_int idx;
   bool finished;
