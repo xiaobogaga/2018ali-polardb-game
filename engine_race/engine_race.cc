@@ -129,9 +129,10 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 //      fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
 //              k, offset, fileNo, wrap(offset, fileNo));
 //    }
-   // fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-   //           k, party, offset, fileNo, wrap(offset, fileNo));
   }
+
+  fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+          k, party, offset, fileNo, wrap(offset, fileNo));
 
   if (ret == kSucc) {
     value->clear();
