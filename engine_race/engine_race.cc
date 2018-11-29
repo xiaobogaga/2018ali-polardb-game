@@ -149,8 +149,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  // pthread_mutex_lock(&mu_);
-  this->mutexes[party].lock();
+  pthread_mutex_lock(&mu_);
+  // this->mutexes[party].lock();
   RetCode ret = kSucc;
 #ifdef USE_HASH_TABLE
   ret = plate_.Find(k, &fileNo, &offset);
@@ -160,11 +160,11 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   else {
     offset = unwrapOffset(ans);
     fileNo = unwrapFileNo(ans);
-//    if (c == 0) {
-//      time(&read_timer);
-//      fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
-//              k, offset, fileNo, wrap(offset, fileNo));
-//    }
+    if (c == 0) {
+      time(&read_timer);
+      fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
+              k, offset, fileNo, wrap(offset, fileNo));
+    }
    // fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
    //           k, party, offset, fileNo, wrap(offset, fileNo));
   }
@@ -180,16 +180,16 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 // 		k, value->size());
 //  }
 
-//  if (c % 300000 == 0) {
-//      time_t current_time = time(NULL);
-//	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
-//	  read_timer = current_time;
-//  }
-    this->mutexes[party].unlock();
+  if (c % 300000 == 0) {
+      time_t current_time = time(NULL);
+	  fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n", difftime(current_time, read_timer));
+	  read_timer = current_time;
+  }
+    // this->mutexes[party].unlock();
 //    if (readCounter.load() % 300000) {
 //        fprintf(stderr, "[EngineRace] : have read 300000 data\n");
 //    }
-    // pthread_mutex_unlock(&mu_);
+    pthread_mutex_unlock(&mu_);
     return ret;
 }
 
@@ -202,12 +202,12 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   this->visitors[this->idx++] = &visitor;
 
   // sleep 2 s
-  while (readCounter.load() % 64 != 0) {
+  while (readCounter.load() % 640000 != 0) {
     std::this_thread::sleep_for(std::chrono::microseconds(500));
   }
 
   // waiting all visitors to join.
-  std::this_thread::sleep_for(std::chrono::microseconds(500));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   pthread_mutex_lock(&mu_);
 
