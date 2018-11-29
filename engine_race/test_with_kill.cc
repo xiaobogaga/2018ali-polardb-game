@@ -406,7 +406,7 @@ int main(int argc, char** argv) {
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask(engine);
     threadSize = 64;
-    writingTime = 6400;
+    writingTime = 1000;
     fprintf(stderr , "[Tester] : start writer\n");
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end writer\n");
