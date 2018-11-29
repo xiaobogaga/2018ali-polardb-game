@@ -144,10 +144,11 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   long long k = strToLong(key.data());
   int party = partition(k);
+  this->mutexes[party].lock();
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  pthread_mutex_lock(&mu_);
+  // pthread_mutex_lock(&mu_);
   // this->mutexes[party].lock();
 
   RetCode ret = kSucc;
@@ -185,8 +186,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 	  read_timer = current_time;
   }
 
-    // this->mutexes[party].unlock();
-    pthread_mutex_unlock(&mu_);
+    this->mutexes[party].unlock();
+    // pthread_mutex_unlock(&mu_);
     return ret;
 }
 
