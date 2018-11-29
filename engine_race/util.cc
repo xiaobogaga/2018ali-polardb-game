@@ -37,9 +37,6 @@ int partition(long long key) {
   return party == 64 ? 63 : party;
 }
 
-//int partition2(long long key) {
-//  return key & (64 - 1);
-//}
 
 //long long strToLong(const char* key) {
 //      long long ans = 0;

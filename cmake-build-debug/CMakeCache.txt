@@ -220,6 +220,9 @@ Project_SOURCE_DIR:STATIC=/home/tomzhu/test/engine6/2018ali-polardb-game
 //Value Computed by CMake
 engine_race_BINARY_DIR:STATIC=/home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug
 
+//Dependencies for the target
+engine_race_LIB_DEPENDS:STATIC=general;pthread;
+
 //Value Computed by CMake
 engine_race_SOURCE_DIR:STATIC=/home/tomzhu/test/engine6/2018ali-polardb-game
 

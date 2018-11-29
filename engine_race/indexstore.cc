@@ -271,12 +271,12 @@ void IndexStore::initMaps() {
         this->size ++;
         temp++;
     }
-    if (fd_ >= 0) {
-        munmap(head_, newMapSize);
-        close(fd_);
-        fd_ = -1;
-        head_ = NULL;
-    }
+//    if (fd_ >= 0) {
+//        munmap(head_, newMapSize);
+//        close(fd_);
+//        fd_ = -1;
+//        head_ = NULL;
+//    }
     if (this->infos == NULL) this->infos = (struct Info*) malloc(sizeof(struct Info));
     qsort(infos, this->size, sizeof(struct Info), compare);
     fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",

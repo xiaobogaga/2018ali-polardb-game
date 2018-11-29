@@ -41,27 +41,6 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   EngineRace *engine_race = new EngineRace(name);
   engine_race->resetCounter();
   RetCode ret = kSucc;
-#ifdef USE_HASH_TABLE
-  ret = engine_race->plate_.Init();
-#else
-  ;
-#endif
-
-  if (ret != kSucc) {
-    delete engine_race;
-    fprintf(stderr, "[EngineRace] : init plate failed \n");
-    return ret;
-  }
-
-  for (int i = 0; i < engine_race->parties; i++) {
-    engine_race->store_[i].setParty(i);
-    ret = engine_race->store_[i].Init();
-    if (ret != kSucc) {
-      fprintf(stderr, "[EngineRace] : init store failed \n");
-      delete engine_race;
-      return ret;
-    }
-  }
 
   if (0 != LockFile(name + "/" + kLockFile, &(engine_race->db_lock_))) {
     fprintf(stderr, "[EngineRace] : lock file failed\n");

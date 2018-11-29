@@ -45,9 +45,9 @@ add_library(${PROJECT_NAME} SHARED
 
 # 链接库
 # 把刚刚生成的${PROJECT_NAME}库和所需的其它库链接起来
-#target_link_libraries(${PROJECT_NAME}
-#/usr/lib/i386-linux-gnu/libboost_system.so
-#)
+target_link_libraries(${PROJECT_NAME}
+    pthread
+        )
 
 # 编译主函数，生成可执行文件
 

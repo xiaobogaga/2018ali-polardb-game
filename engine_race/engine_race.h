@@ -24,8 +24,14 @@ class EngineRace : public Engine  {
 	readCounter(0), rangeCounter(0), parties(64) {
   		this->store_ = new DataStore[parties];
   		this->indexStore_= new IndexStore[parties];
+  		RetCode ret;
   		for (int i = 0; i < parties; i++) {
 			this->store_[i].setDir(dir);
+            this->store_[i].setParty(i);
+            ret = this->store_[i].Init();
+            if (ret != kSucc) {
+                fprintf(stderr, "[EngineRace] : init store failed \n");
+            }
 			this->indexStore_[i].init(dir, i);
   		}
   		this->mutexes = new std::mutex[parties];
