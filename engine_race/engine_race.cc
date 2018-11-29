@@ -20,7 +20,7 @@ RetCode Engine::Open(const std::string& name, Engine** eptr) {
 
 // sleepint for 500s.
 void startTimer() {
-  double sleepTime = 200.1;
+  double sleepTime = 500.1;
   time_t  timer;
   time(&timer);
   while (difftime(time(NULL), timer) <= sleepTime && !timerStop) {
