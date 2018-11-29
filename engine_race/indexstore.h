@@ -54,6 +54,8 @@ public:
 
     void finalize();
 
+    void initInfos();
+
     void get2(long long key, uint32_t* ans);
 
     ~IndexStore();

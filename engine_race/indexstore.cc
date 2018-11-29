@@ -144,7 +144,7 @@ void IndexStore::get(long long key, uint32_t* ans) {
     // polar_race::longToStr(key, buf);
 
 
-    if (!this->bf->contains(key)) {
+    if (this->bf != NULL && !this->bf->contains(key)) {
         (*ans) = 0;
         return ;
     }
@@ -215,14 +215,7 @@ void IndexStore::get2(long long key, uint32_t* ans) {
 
 }
 
-void IndexStore::initMaps() {
-    // here we would init a radix tree from this structure.
-    //  this->tree_ = new radix_tree<std::string, long>(); // too slow
-    // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
-    // this->tree = (art_tree*) malloc(sizeof(art_tree));
-    // art_tree_init(this->tree);
-    // this->cache = new LRUCache<long long, std::string>(32768, "");
-    fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
+void IndexStore::initInfos() {
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
     // this->bf = new bf::basic_bloom_filter(0.0001, 3000000);
 
@@ -237,6 +230,16 @@ void IndexStore::initMaps() {
     }
     this->bfparameters->compute_optimal_parameters();
     this->bf = new bloom_filter(*this->bfparameters);
+}
+
+void IndexStore::initMaps() {
+    // here we would init a radix tree from this structure.
+    //  this->tree_ = new radix_tree<std::string, long>(); // too slow
+    // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
+    // this->tree = (art_tree*) malloc(sizeof(art_tree));
+    // art_tree_init(this->tree);
+    // this->cache = new LRUCache<long long, std::string>(32768, "");
+    fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
 
     uint32_t total1 = total;
     time_t t;
@@ -246,6 +249,9 @@ void IndexStore::initMaps() {
     while (temp->info != 0) {
         // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
         // art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
+        if (this->infos == NULL) {
+            initInfos();
+        }
         if (this->size >= total1) {
             total1 *= 2;
             this->infos = (struct Info*) realloc(this->infos, sizeof(struct Info) * total1);
@@ -266,6 +272,7 @@ void IndexStore::initMaps() {
         fd_ = -1;
         head_ = NULL;
     }
+    if (this->infos == NULL) this->infos = (struct Info*) malloc(sizeof(struct Info*));
     qsort(infos, this->size, sizeof(struct Info), compare);
     fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
             party_, this->size, difftime(time(NULL), t));

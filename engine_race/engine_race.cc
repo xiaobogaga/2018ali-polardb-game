@@ -202,7 +202,7 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
   this->visitors[this->idx++] = &visitor;
 
   // sleep 2 s
-  while (readCounter.load() % 640000 != 0) {
+  while (readCounter.load() % 64 != 0) {
     std::this_thread::sleep_for(std::chrono::microseconds(500));
   }
 
