@@ -102,7 +102,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
 //    write_timer = current_time;
 //  }
 
-  assert(this->writeCounter < 6400000);
+  // assert(this->writeCounter < 6400000);
 
   pthread_mutex_unlock(&this->mutexes[party]);
   return ret;
