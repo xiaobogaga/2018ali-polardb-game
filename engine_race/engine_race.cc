@@ -93,7 +93,7 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     this->indexStore_[party].add(key, info);
   }
 
-  fprintf(stderr, "w:%lld,%d,%d,%d\n", k, party, offset, fileNo);
+  // fprintf(stderr, "w:%lld,%d,%d,%d\n", k, party, offset, fileNo);
 
 //  writeCounter ++;
 //  if (writeCounter % 300000 == 0) {
@@ -116,7 +116,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  pthread_mutex_lock(&this->mutexes[party]);
+  pthread_mutex_lock(&mu_);
+  // pthread_mutex_lock(&this->mutexes[party]);
   RetCode ret = kSucc;
   this->indexStore_[party].get(k, &ans);
   if (ans == 0) ret = kNotFound;
@@ -130,7 +131,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 //    }
   }
 
-  fprintf(stderr, "r:%lld,%d,%d,%d\n", k, party, offset, fileNo);
+  // fprintf(stderr, "r:%lld,%d,%d,%d\n", k, party, offset, fileNo);
 
   if (ret == kSucc) {
     value->clear();
@@ -150,7 +151,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 //    if (readCounter.load() % 300000) {
 //        fprintf(stderr, "[EngineRace] : have read 300000 data\n");
 //    }
-    pthread_mutex_unlock(&this->mutexes[party]);
+    // pthread_mutex_unlock(&this->mutexes[party]);
+    pthread_mutex_unlock(&mu_);
     return ret;
 }
 
