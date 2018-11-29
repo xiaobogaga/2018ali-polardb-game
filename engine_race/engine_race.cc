@@ -7,7 +7,6 @@
 #include <assert.h>
 #include "util.h"
 #include "engine_race.h"
-#include "bplustree.h"
 
 namespace polar_race {
 

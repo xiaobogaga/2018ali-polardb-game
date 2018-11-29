@@ -11,7 +11,6 @@
 #include "../include/engine.h"
 #include "../include/polar_string.h"
 #include "data_store.h"
-#include "art.h"
 #include "LRUCache.cc"
 #include "MyHashTable.h"
 #include "bloom_filter.hpp"

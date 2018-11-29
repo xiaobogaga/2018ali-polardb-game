@@ -374,12 +374,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/bplustree.cc">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/bplustree.h">
-			<Option target="engine_race"/>
-		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/data_store.cc">
 			<Option target="engine_race"/>
 		</Unit>
