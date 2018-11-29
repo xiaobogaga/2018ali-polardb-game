@@ -111,45 +111,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named engine_race
-
-# Build rule for target.
-engine_race: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 engine_race
-.PHONY : engine_race
-
-# fast build rule for target.
-engine_race/fast:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/build
-.PHONY : engine_race/fast
-
-#=============================================================================
-# Target rules for targets named tempTest
-
-# Build rule for target.
-tempTest: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 tempTest
-.PHONY : tempTest
-
-# fast build rule for target.
-tempTest/fast:
-	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
-.PHONY : tempTest/fast
-
-#=============================================================================
-# Target rules for targets named test2
-
-# Build rule for target.
-test2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test2
-.PHONY : test2
-
-# fast build rule for target.
-test2/fast:
-	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/build
-.PHONY : test2/fast
-
-#=============================================================================
 # Target rules for targets named testIndexStore
 
 # Build rule for target.
@@ -163,17 +124,17 @@ testIndexStore/fast:
 .PHONY : testIndexStore/fast
 
 #=============================================================================
-# Target rules for targets named test1
+# Target rules for targets named engine_race
 
 # Build rule for target.
-test1: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test1
-.PHONY : test1
+engine_race: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 engine_race
+.PHONY : engine_race
 
 # fast build rule for target.
-test1/fast:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/build
-.PHONY : test1/fast
+engine_race/fast:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/build
+.PHONY : engine_race/fast
 
 #=============================================================================
 # Target rules for targets named radixTreeTest
@@ -200,6 +161,32 @@ test3: cmake_check_build_system
 test3/fast:
 	$(MAKE) -f CMakeFiles/test3.dir/build.make CMakeFiles/test3.dir/build
 .PHONY : test3/fast
+
+#=============================================================================
+# Target rules for targets named test2
+
+# Build rule for target.
+test2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test2
+.PHONY : test2
+
+# fast build rule for target.
+test2/fast:
+	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/build
+.PHONY : test2/fast
+
+#=============================================================================
+# Target rules for targets named tempTest
+
+# Build rule for target.
+tempTest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tempTest
+.PHONY : tempTest
+
+# fast build rule for target.
+tempTest/fast:
+	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
+.PHONY : tempTest/fast
 
 engine_race/data_store.o: engine_race/data_store.cc.o
 
@@ -363,33 +350,6 @@ engine_race/test.cc.s:
 	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.s
 .PHONY : engine_race/test.cc.s
 
-engine_race/testBplusTree.o: engine_race/testBplusTree.cpp.o
-
-.PHONY : engine_race/testBplusTree.o
-
-# target to build an object file
-engine_race/testBplusTree.cpp.o:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.o
-.PHONY : engine_race/testBplusTree.cpp.o
-
-engine_race/testBplusTree.i: engine_race/testBplusTree.cpp.i
-
-.PHONY : engine_race/testBplusTree.i
-
-# target to preprocess a source file
-engine_race/testBplusTree.cpp.i:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.i
-.PHONY : engine_race/testBplusTree.cpp.i
-
-engine_race/testBplusTree.s: engine_race/testBplusTree.cpp.s
-
-.PHONY : engine_race/testBplusTree.s
-
-# target to generate assembly for a file
-engine_race/testBplusTree.cpp.s:
-	$(MAKE) -f CMakeFiles/test1.dir/build.make CMakeFiles/test1.dir/engine_race/testBplusTree.cpp.s
-.PHONY : engine_race/testBplusTree.cpp.s
-
 engine_race/testIndexStore.o: engine_race/testIndexStore.cpp.o
 
 .PHONY : engine_race/testIndexStore.o
@@ -506,13 +466,12 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... engine_race"
-	@echo "... tempTest"
-	@echo "... test2"
 	@echo "... testIndexStore"
-	@echo "... test1"
+	@echo "... engine_race"
 	@echo "... radixTreeTest"
 	@echo "... test3"
+	@echo "... test2"
+	@echo "... tempTest"
 	@echo "... engine_race/data_store.o"
 	@echo "... engine_race/data_store.i"
 	@echo "... engine_race/data_store.s"
@@ -531,9 +490,6 @@ help:
 	@echo "... engine_race/test.o"
 	@echo "... engine_race/test.i"
 	@echo "... engine_race/test.s"
-	@echo "... engine_race/testBplusTree.o"
-	@echo "... engine_race/testBplusTree.i"
-	@echo "... engine_race/testBplusTree.s"
 	@echo "... engine_race/testIndexStore.o"
 	@echo "... engine_race/testIndexStore.i"
 	@echo "... engine_race/testIndexStore.s"

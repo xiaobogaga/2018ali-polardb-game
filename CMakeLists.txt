@@ -34,7 +34,6 @@ add_library(${PROJECT_NAME} SHARED
         engine_race/data_store.cc
         engine_race/door_plate.cc
         engine_race/util.cc
-        # engine_race/testBplusTree.cpp
         engine_race/indexstore.cc
         # engine_race/testRadixTree.cpp
         # engine_race/test.cc
@@ -56,12 +55,6 @@ add_library(${PROJECT_NAME} SHARED
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 # 可执行文件生成
-add_executable(test1 engine_race/testBplusTree.cpp)
-
-# 这个可执行文件所需的库（一般就是刚刚生成的工程的库咯）
-target_link_libraries(test1 ${PROJECT_NAME})
-
-# 可执行文件生成
 add_executable(test2 engine_race/test.cc)
 
 # 这个可执行文件所需的库（一般就是刚刚生成的工程的库咯）
@@ -76,7 +69,8 @@ target_link_libraries(test3
 
 add_executable(tempTest engine_race/tempTest.cpp)
 
-target_link_libraries(tempTest ${PROJECT_NAME})
+target_link_libraries(tempTest ${PROJECT_NAME}
+        pthread)
 
 add_executable(radixTreeTest engine_race/testRadixTree.cpp)
 

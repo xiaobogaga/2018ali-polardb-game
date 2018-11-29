@@ -16,7 +16,16 @@
 #include "polar_string.h"
 #include <chrono>
 
-int main2() {
+int main2 () {
+    long long int sep = 288230376151711743;
+    long long min = INT64_MIN;
+    long long miner = min / sep;
+    long long larger = (min + sep - 2) / sep;
+    fprintf(stderr, "%lld, %lld / %lld - %lld / %lld = %lld, larger : %lld, miner : %lld\n", min,
+            min + sep - 2, sep, min, sep, larger - miner, larger, miner);
+}
+
+int main() {
 
     long long min = INT64_MIN;
     long long max = INT64_MAX;
@@ -25,14 +34,14 @@ int main2() {
     long long start = min;
     int size = 64;
     for (int i = 0; i < size; i++) {
-        fprintf(stderr, "%d : [%lld - %lld] , right / sep = %lld \n", i, start, start + sep, ((unsigned long long ) (start + sep - min) / sep));
-
+        fprintf(stderr, "%d : [%lld - %lld] , right / sep = %lld \n", i,
+                start, start + sep, ((unsigned long long ) (start + sep) / sep - min / sep) );
         start += sep;
     }
 
     fprintf(stderr, "min : %lld, max : %lld, sep : %lld\n", min, max, sep);
 
-    for (long long t = min; t < min + sep; t++)
+    for (long long t = min + sep / 2 - 4; t < min + sep / 2 + 10; t++)
         fprintf(stderr, "%d\n", polar_race::partition(t));
 
     return 0;
@@ -217,11 +226,13 @@ void play() {
     }
 }
 
-int main() {
+int main5() {
     std::thread task(startTimer);
     std::thread p(play);
     std::this_thread::sleep_for(std::chrono::seconds(100));
 }
+
+
 
 
 /*

@@ -97,6 +97,7 @@ polar_race::RetCode IndexStore::init(const std::string& dir, int party) {
     head_ = items_;
     this->start = newMapSize;
     this->sep = newMapSize / sizeof(struct Item);
+    initMaps();
     return polar_race::RetCode::kSucc;
 }
 
