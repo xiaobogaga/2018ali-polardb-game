@@ -220,7 +220,7 @@ void IndexStore::initMaps() {
     // this->cache = new LRUCache<long long, std::string>(32768, "");
     fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
-    // this->bf = new bf::basic_bloom_filter(0.0001, 1000000);
+    // this->bf = new bf::basic_bloom_filter(0.0001, 3000000);
 
     this->bfparameters = new bloom_parameters();
     this->bfparameters->projected_element_count = 1000000;
