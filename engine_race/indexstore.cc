@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "util.h"
+#include <chrono>
 
 static const int map_size = 1024 * 1024 * 12;
 
@@ -141,10 +142,14 @@ void IndexStore::get(long long key, uint32_t* ans) {
     // uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
     // char buf[8];
     // polar_race::longToStr(key, buf);
+
+    /*
     if (!this->bf->contains(key)) {
         (*ans) = 0;
         return ;
     }
+     */
+
     struct Info* ret = (struct Info*) bsearch(&key, this->infos, this->size,
             sizeof(struct Info), bcompare);
 
@@ -223,9 +228,9 @@ void IndexStore::initMaps() {
     // this->bf = new bf::basic_bloom_filter(0.0001, 3000000);
 
     this->bfparameters = new bloom_parameters();
-    this->bfparameters->projected_element_count = 3000000;
+    this->bfparameters->projected_element_count = 1000000;
     this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
-    this->bfparameters->random_seed = 0xA5A5A5A5;
+    this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
     if (!this->bfparameters)
     {
         fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
