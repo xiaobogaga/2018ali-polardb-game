@@ -85,9 +85,6 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
   uint32_t info = wrap(offset, fileNo);
   if (ret == kSucc) {
- // fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
- //          k, party, offset, fileNo, wrap(offset, fileNo));
-
     if (writeCounter == 0) {
       time(&write_timer);
         fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
@@ -95,6 +92,9 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
     }
     this->indexStore_[party].add(key, info);
   }
+
+  fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+           k, party, offset, fileNo, wrap(offset, fileNo));
 
   writeCounter ++;
   if (writeCounter % 300000 == 0) {
