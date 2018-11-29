@@ -345,7 +345,7 @@ int IndexStore::rangeSearch(const polar_race::PolarString& lower, const polar_ra
 
 
 IndexStore::~IndexStore() {
-    // fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
+    fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
     if (fd_ >= 0) {
         munmap(head_, newMapSize);
         close(fd_);
