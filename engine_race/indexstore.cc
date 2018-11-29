@@ -144,10 +144,10 @@ void IndexStore::get(long long key, uint32_t* ans) {
     // polar_race::longToStr(key, buf);
 
 
-    if (this->bf != NULL && !this->bf->contains(key)) {
-        (*ans) = 0;
-        return ;
-    }
+//    if (this->bf != NULL && !this->bf->contains(key)) {
+//        (*ans) = 0;
+//        return ;
+//    }
 
     struct Info* ret = (struct Info*) bsearch(&key, this->infos, this->size,
             sizeof(struct Info), bcompare);
@@ -275,7 +275,7 @@ void IndexStore::initMaps() {
         fd_ = -1;
         head_ = NULL;
     }
-    if (this->infos == NULL) this->infos = (struct Info*) malloc(sizeof(struct Info*));
+    if (this->infos == NULL) this->infos = (struct Info*) malloc(sizeof(struct Info));
     qsort(infos, this->size, sizeof(struct Info), compare);
     fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
             party_, this->size, difftime(time(NULL), t));
