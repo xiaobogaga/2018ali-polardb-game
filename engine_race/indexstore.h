@@ -28,9 +28,9 @@ class IndexStore {
 public:
 
     IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL),
-        size(0), infos(NULL), total(1048576), newMapSize(0), start(0), table(NULL), bf(NULL), bfparameters(NULL) { }
+        size(0), infos(NULL), total(100000), newMapSize(0), start(0), table(NULL), bf(NULL), bfparameters(NULL) { }
 
-    IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(1048576), newMapSize(0)
+    IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(100000), newMapSize(0)
     , start(0), table(NULL), bf(NULL), bfparameters(NULL) {}
 
     polar_race::RetCode init(const std::string& dir, int party);
