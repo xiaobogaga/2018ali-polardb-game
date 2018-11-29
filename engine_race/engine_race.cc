@@ -20,14 +20,16 @@ RetCode Engine::Open(const std::string& name, Engine** eptr) {
 
 // sleepint for 500s.
 void startTimer() {
-  double sleepTime = 500.1;
+  double sleepTime = 1000.1;
   time_t  timer;
   time(&timer);
   while (difftime(time(NULL), timer) <= sleepTime && !timerStop) {
     sleep(1);
   }
-  fprintf(stderr, "[Timer] : exceed time and exist\n");
-  exit(0);
+  if (!timerStop) {
+      fprintf(stderr, "[Timer] : exceed time and exist\n");
+      exit(0);
+  }
 }
 
 Engine::~Engine() {
