@@ -31,13 +31,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 # 创建共享库（把工程内的cpp文件都创建成共享库文件，方便通过头文件来调用）
 add_library(${PROJECT_NAME} SHARED
         engine_race/engine_race.cc
-        engine_race/basic.cc
         engine_race/bplustree.cc
         engine_race/data_store.cc
         engine_race/door_plate.cc
         engine_race/util.cc
-        engine_race/bitvector.cc
-        engine_race/hash.cc
         # engine_race/testBplusTree.cpp
         engine_race/indexstore.cc
         # engine_race/testRadixTree.cpp

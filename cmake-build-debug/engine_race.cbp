@@ -374,18 +374,6 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/basic.cc">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/basic.h">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/bitvector.cc">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/bitvector.h">
-			<Option target="engine_race"/>
-		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/bplustree.cc">
 			<Option target="engine_race"/>
 		</Unit>
@@ -408,12 +396,6 @@
 			<Option target="engine_race"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/engine_race.h">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/hash.cc">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/hash.h">
 			<Option target="engine_race"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/indexstore.cc">

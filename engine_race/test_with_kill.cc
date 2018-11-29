@@ -406,7 +406,7 @@ int main(int argc, char** argv) {
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask(engine);
     threadSize = 64;
-    writingTime = 100;
+    writingTime = 6400;
     fprintf(stderr , "[Tester] : start writer\n");
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end writer\n");
@@ -417,8 +417,8 @@ int main(int argc, char** argv) {
     performanceReaderTask.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end read\n");
     fprintf(stderr , "[Tester] : start range read\n");
-    RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
-    performanceRangeTask.startRange(threadSize, writingTime);
+  //  RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
+  //  performanceRangeTask.startRange(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.
     system("rm -rf /tmp/test_dump/*");

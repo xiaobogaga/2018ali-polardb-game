@@ -153,7 +153,7 @@ void IndexStore::get(long long key, uint32_t* ans) {
             sizeof(struct Info), bcompare);
 
     // make sure it is the latest.
-    while (ret != NULL && ret < this->infos + this->size && (ret + 1)->key == key) {
+    while (ret != NULL && ret < (this->infos + this->size - 1) && (ret + 1)->key == key) {
         ret ++;
     }
 //    if (ite != maps->end()) {
