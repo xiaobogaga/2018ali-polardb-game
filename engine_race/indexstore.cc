@@ -223,7 +223,7 @@ void IndexStore::initMaps() {
     // this->bf = new bf::basic_bloom_filter(0.0001, 3000000);
 
     this->bfparameters = new bloom_parameters();
-    this->bfparameters->projected_element_count = 1000000;
+    this->bfparameters->projected_element_count = 3000000;
     this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
     this->bfparameters->random_seed = 0xA5A5A5A5;
     if (!this->bfparameters)
