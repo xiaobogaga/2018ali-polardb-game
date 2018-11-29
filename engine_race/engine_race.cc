@@ -85,23 +85,22 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
   uint32_t info = wrap(offset, fileNo);
   if (ret == kSucc) {
-    if (writeCounter == 0) {
-      time(&write_timer);
-        fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-                  k, party, offset, fileNo, wrap(offset, fileNo));
-    }
+//    if (writeCounter == 0) {
+//      time(&write_timer);
+//        fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+//                  k, party, offset, fileNo, wrap(offset, fileNo));
+//    }
     this->indexStore_[party].add(key, info);
   }
 
-  fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-           k, party, offset, fileNo, wrap(offset, fileNo));
+  fprintf(stderr, "w:%lld,%d,%d,%d\n", k, party, offset, fileNo);
 
-  writeCounter ++;
-  if (writeCounter % 300000 == 0) {
-    time_t current_time = time(NULL);
-     fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
-    write_timer = current_time;
-  }
+//  writeCounter ++;
+//  if (writeCounter % 300000 == 0) {
+//    time_t current_time = time(NULL);
+//     fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
+//    write_timer = current_time;
+//  }
 
   assert(this->writeCounter < 6400000);
 
@@ -131,8 +130,7 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 //    }
   }
 
-  fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
-          k, party, offset, fileNo, wrap(offset, fileNo));
+  fprintf(stderr, "r:%lld,%d,%d,%d\n", k, party, offset, fileNo);
 
   if (ret == kSucc) {
     value->clear();
