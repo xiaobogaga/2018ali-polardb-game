@@ -218,7 +218,10 @@ void IndexStore::get2(long long key, uint32_t* ans) {
 void IndexStore::initInfos() {
     this->infos = (struct Info*) malloc(sizeof(struct Info) * total);
     // this->bf = new bf::basic_bloom_filter(0.0001, 3000000);
-
+    if (this->infos == NULL) {
+        fprintf(stderr,
+                "[IndexStore-%d] : opps try to create info array to %d failed\n", party_, total);
+    }
     this->bfparameters = new bloom_parameters();
     this->bfparameters->projected_element_count = 1000000;
     this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
@@ -257,7 +260,7 @@ void IndexStore::initMaps() {
             this->infos = (struct Info*) realloc(this->infos, sizeof(struct Info) * total1);
             if (this->infos == NULL) {
                 fprintf(stderr,
-                        "[IndexStore-%d] : opps try to larger infos array to %d failed\n", party_, total);
+                        "[IndexStore-%d] : opps try to larger infos array to %d failed\n", party_, total1);
             }
         }
         this->infos[this->size].key = polar_race::strToLong(temp->key);

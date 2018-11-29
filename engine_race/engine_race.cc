@@ -112,13 +112,6 @@ RetCode EngineRace::Write(const PolarString& key, const PolarString& value) {
   RetCode ret = store_[party].Append(v, &fileNo, &offset);
   uint32_t info = wrap(offset, fileNo);
   if (ret == kSucc) {
-
-#ifdef USE_HASH_TABLE
-    ret = plate_.AddOrUpdate(k, fileNo, offset);
-#else
-    ;
-    // bplus_tree_put(tree[party], k, );
-#endif
  // fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
  //          k, party, offset, fileNo, wrap(offset, fileNo));
 
@@ -152,9 +145,6 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   pthread_mutex_lock(&mu_);
   // this->mutexes[party].lock();
   RetCode ret = kSucc;
-#ifdef USE_HASH_TABLE
-  ret = plate_.Find(k, &fileNo, &offset);
-#else
   this->indexStore_[party].get(k, &ans);
   if (ans == 0) ret = kNotFound;
   else {
@@ -168,7 +158,6 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
    // fprintf(stderr, "[EngineRace] : reading data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
    //           k, party, offset, fileNo, wrap(offset, fileNo));
   }
-#endif
 
   if (ret == kSucc) {
     value->clear();
