@@ -146,10 +146,10 @@ void IndexStore::get(long long key, uint32_t* ans) {
     // polar_race::longToStr(key, buf);
 
 
-//    if (this->bf != NULL && !this->bf->contains(key)) {
-//        (*ans) = 0;
-//        return ;
-//    }
+    if (this->bf != NULL && !this->bf->contains(key)) {
+        (*ans) = 0;
+        return ;
+    }
 
     struct Info* ret = (struct Info*) bsearch(&key, this->infos, this->size,
             sizeof(struct Info), bcompare);
@@ -224,17 +224,17 @@ void IndexStore::initInfos() {
         fprintf(stderr,
                 "[IndexStore-%d] : opps try to create info array to %d failed\n", party_, total);
     }
-//    this->bfparameters = new bloom_parameters();
-//    this->bfparameters->projected_element_count = 1000000;
-//    this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
-//    this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
-//    if (!this->bfparameters)
-//    {
-//        fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
-//        return;
-//    }
-//    this->bfparameters->compute_optimal_parameters();
-//    this->bf = new bloom_filter(*this->bfparameters);
+    this->bfparameters = new bloom_parameters();
+    this->bfparameters->projected_element_count = 1000000;
+    this->bfparameters->false_positive_probability = 0.0001; // 1 in 10000
+    this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
+    if (!this->bfparameters)
+    {
+        fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
+        return;
+    }
+    this->bfparameters->compute_optimal_parameters();
+    this->bf = new bloom_filter(*this->bfparameters);
 }
 
 void IndexStore::initMaps() {
@@ -267,7 +267,7 @@ void IndexStore::initMaps() {
         }
         this->infos[this->size].key = polar_race::strToLong(temp->key);
         this->infos[this->size].info = temp->info;
-        // bf->insert(this->infos[this->size].key);
+        bf->insert(this->infos[this->size].key);
         this->size ++;
         temp++;
     }
