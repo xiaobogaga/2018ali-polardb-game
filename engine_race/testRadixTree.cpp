@@ -10,6 +10,7 @@
 #include <random>
 #include <chrono>
 #include <map>
+#include "config.h"
 
 
 using polar_race::PolarString;

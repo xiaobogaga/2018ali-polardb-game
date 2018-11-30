@@ -10,17 +10,14 @@
 
 namespace polar_race {
 
-static const char kLockFile[] = "LOCK";
+    static bool timerStop = false;
 
-static bool timerStop = false;
-
-RetCode Engine::Open(const std::string& name, Engine** eptr) {
+    RetCode Engine::Open(const std::string& name, Engine** eptr) {
   return EngineRace::Open(name, eptr);
 }
 
 // sleepint for 500s.
 void startTimer() {
-  double sleepTime = 300.1;
   time_t  timer;
   time(&timer);
   while (difftime(time(NULL), timer) <= sleepTime && !timerStop) {
@@ -40,7 +37,6 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   *eptr = NULL;
   EngineRace *engine_race = new EngineRace(name);
   engine_race->resetCounter();
-  RetCode ret = kSucc;
 
   if (0 != LockFile(name + "/" + kLockFile, &(engine_race->db_lock_))) {
     fprintf(stderr, "[EngineRace] : lock file failed\n");
@@ -71,7 +67,7 @@ EngineRace::~EngineRace() {
       delete this->timerTask;
       this->timerTask = NULL;
   }
-  for (int i = 0; i < this->parties; i++)
+  for (int i = 0; i < parties; i++)
       pthread_mutex_destroy(&this->mutexes[i]);
 }
 

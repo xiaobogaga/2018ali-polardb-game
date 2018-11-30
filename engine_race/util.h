@@ -15,11 +15,6 @@
 
 namespace polar_race {
 
-    static inline int partition(long long key) {
-        int party = ((unsigned long long) (key - INT64_MIN)) / 288230376151711743;
-        return party == 64 ? 64 - 1 : party;
-    }
-
     static inline long long strToLong(const char *key) {
         long long ans = 0;
         for (int i = 0; i < 64; i++) {
@@ -39,8 +34,8 @@ namespace polar_race {
     static inline uint32_t wrap(uint16_t offset, uint16_t fileNo) {
         uint32_t ans = 0;
         for (int i = 0; i < 16; i++) {
-            ans |= (((uint32_t)((offset >> i) & 1)) << i);
-            ans |= (((uint32_t)((fileNo >> i) & 1)) << (16 + i));
+            ans |= (((uint32_t) ((offset >> i) & 1)) << i);
+            ans |= (((uint32_t) ((fileNo >> i) & 1)) << (16 + i));
         }
         return ans;
     }
@@ -62,30 +57,38 @@ namespace polar_race {
     }
 
 // Env
-int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile);
-long long GetFileLength(const std::string& file);
-long long GetFileLength(char* file);
-int FileAppend(int fd, const std::string& value, uint32_t vLen);
-bool FileExists(const std::string& path);
-uint32_t getSubFileSize(const std::string& path);
+    int GetDirFiles(const std::string &dir, std::vector<std::string> *result, bool deleteFile);
+
+    long long GetFileLength(const std::string &file);
+
+    long long GetFileLength(char *file);
+
+    int FileAppend(int fd, const std::string &value, uint32_t vLen);
+
+    bool FileExists(const std::string &path);
+
+    uint32_t getSubFileSize(const std::string &path);
 
 // FileLock
-class FileLock  {
- public:
-    FileLock() {}
-    virtual ~FileLock() {}
+    class FileLock {
+    public:
+        FileLock() {}
 
-    int fd_;
-    std::string name_;
+        virtual ~FileLock() {}
 
- private:
-    // No copying allowed
-    FileLock(const FileLock&);
-    void operator=(const FileLock&);
-};
+        int fd_;
+        std::string name_;
 
-int LockFile(const std::string& f, FileLock** l);
-int UnlockFile(FileLock* l);
+    private:
+        // No copying allowed
+        FileLock(const FileLock &);
+
+        void operator=(const FileLock &);
+    };
+
+    int LockFile(const std::string &f, FileLock **l);
+
+    int UnlockFile(FileLock *l);
 
 
 }  // namespace polar_race

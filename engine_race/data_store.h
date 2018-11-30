@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <map>
 #include "../include/engine.h"
+#include "config.h"
 
 namespace polar_race {
 
@@ -62,7 +63,7 @@ class DataStore  {
   RetCode OpenCurFile();
   int party;
   // todo
-  char buf[4096]; // for concurrent read error.
+  char buf[valuesize]; // for concurrent read error.
 };
 
 }  // namespace polar_race
