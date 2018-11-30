@@ -349,7 +349,7 @@ namespace polar_race {
 
 
     IndexStore::~IndexStore() {
-        // fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
+        fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
         if (fd_ >= 0) {
             munmap(head_, newMapSize);
             close(fd_);
