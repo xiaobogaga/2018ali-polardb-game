@@ -61,13 +61,9 @@ namespace polar_race {
 
     long long GetFileLength(const std::string &file);
 
-    long long GetFileLength(char *file);
-
     int FileAppend(int fd, const std::string &value, uint32_t vLen);
 
     bool FileExists(const std::string &path);
-
-    uint32_t getSubFileSize(const std::string &path);
 
 // FileLock
     class FileLock {

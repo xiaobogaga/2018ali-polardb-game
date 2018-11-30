@@ -10,15 +10,16 @@
 
 namespace polar_race {
 
-    static const int map_size = 1024 * 1024 * 12;
     static const std::string indexPrefix("/index/");
     static const std::string dataPath("/data/");
     static const char kDataFilePrefix[] = "DATA_";
     static const int kDataFilePrefixLen = 5;
-    static const int kSingleFileSize = 1024 * 1024 * 128;
     static const int valuesize = 4096;
     static const char kLockFile[] = "LOCK";
     static const double sleepTime = 300.1;
+
+    static const int kSingleFileSize = 1024 * 1024 * 128;
+    static const int map_size = 1024 * 1024 * 12;
     static const int parties = 64;
     static const int bf_capa = 1000000;
     static const double bf_p = 0.0001;

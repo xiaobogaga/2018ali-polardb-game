@@ -8,43 +8,43 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/tomzhu/test/temp/engine/cmake-build-debug"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/tomzhu/test/temp/engine/cmake-build-debug"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/tomzhu/test/temp/engine/cmake-build-debug"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="testIndexStore">
-				<Option output="/home/tomzhu/test/temp/engine/bin/testIndexStore" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/testIndexStore" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -55,20 +55,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 testIndexStore"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 testIndexStore"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="testIndexStore/fast">
-				<Option output="/home/tomzhu/test/temp/engine/bin/testIndexStore" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/testIndexStore" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -79,20 +79,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 testIndexStore/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 testIndexStore/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="engine_race">
-				<Option output="/home/tomzhu/test/temp/engine/lib/libengine_race.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/cmake-build-debug"/>
+				<Option output="/home/tomzhu/test/engine6/engine/lib/libengine_race.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -103,20 +103,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 engine_race"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 engine_race"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="engine_race/fast">
-				<Option output="/home/tomzhu/test/temp/engine/lib/libengine_race.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/cmake-build-debug"/>
+				<Option output="/home/tomzhu/test/engine6/engine/lib/libengine_race.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -127,20 +127,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 engine_race/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 engine_race/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="radixTreeTest">
-				<Option output="/home/tomzhu/test/temp/engine/bin/radixTreeTest" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/radixTreeTest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -151,20 +151,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 radixTreeTest"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 radixTreeTest"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="radixTreeTest/fast">
-				<Option output="/home/tomzhu/test/temp/engine/bin/radixTreeTest" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/radixTreeTest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -175,20 +175,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 radixTreeTest/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 radixTreeTest/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="test3">
-				<Option output="/home/tomzhu/test/temp/engine/bin/test3" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/test3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -199,20 +199,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test3"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test3"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="test3/fast">
-				<Option output="/home/tomzhu/test/temp/engine/bin/test3" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/test3" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -223,20 +223,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test3/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test3/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="test2">
-				<Option output="/home/tomzhu/test/temp/engine/bin/test2" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/test2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -247,20 +247,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test2"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test2"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="test2/fast">
-				<Option output="/home/tomzhu/test/temp/engine/bin/test2" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/test2" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -271,20 +271,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test2/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 test2/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="tempTest">
-				<Option output="/home/tomzhu/test/temp/engine/bin/tempTest" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/tempTest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -295,20 +295,20 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 tempTest"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 tempTest"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="tempTest/fast">
-				<Option output="/home/tomzhu/test/temp/engine/bin/tempTest" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/tomzhu/test/temp/engine/bin"/>
+				<Option output="/home/tomzhu/test/engine6/engine/bin/tempTest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/tomzhu/test/engine6/engine/bin"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add directory="/home/tomzhu/test/temp/engine/include"/>
+					<Add directory="/home/tomzhu/test/engine6/engine/include"/>
 					<Add directory="/usr/include/c++/5"/>
 					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
 					<Add directory="/usr/include/c++/5/backward"/>
@@ -319,56 +319,56 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 tempTest/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/temp/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 tempTest/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/tomzhu/test/engine6/engine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/config.h">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/config.h">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/data_store.cc">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/data_store.cc">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/data_store.h">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/data_store.h">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/engine_race.cc">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/engine_race.cc">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/engine_race.h">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/engine_race.h">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/indexstore.cc">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/indexstore.cc">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/indexstore.h">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/indexstore.h">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/tempTest.cpp">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/tempTest.cpp">
 			<Option target="tempTest"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/test.cc">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/test.cc">
 			<Option target="test2"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/testIndexStore.cpp">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/testIndexStore.cpp">
 			<Option target="testIndexStore"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/testRadixTree.cpp">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/testRadixTree.cpp">
 			<Option target="radixTreeTest"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/test_with_kill.cc">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/test_with_kill.cc">
 			<Option target="test3"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/util.cc">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/util.cc">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/engine_race/util.h">
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/util.h">
 			<Option target="engine_race"/>
 		</Unit>
-		<Unit filename="/home/tomzhu/test/temp/engine/CMakeLists.txt">
+		<Unit filename="/home/tomzhu/test/engine6/engine/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

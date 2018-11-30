@@ -15,6 +15,7 @@
 #include "engine.h"
 #include "polar_string.h"
 #include <chrono>
+#include "config.h"
 
 int main2 () {
     long long int sep = 288230376151711743;

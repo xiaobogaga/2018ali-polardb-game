@@ -26,34 +26,9 @@ namespace polar_race {
         return deleteFile ? 0 : res;
     }
 
-    uint32_t getSubFileSize(const std::string &path) {
-        if (!FileExists(path)) mkdir(path.c_str(), 0755);
-        DIR *d = opendir(path.c_str());
-        if (d == NULL) {
-            fprintf(stderr, "[Util] : Open dir failed\n");
-            return -1;
-        }
-        uint32_t size = 0;
-        struct dirent *entry;
-        while ((entry = readdir(d)) != NULL) {
-            if (strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0) {
-                continue;
-            }
-            size++;
-        }
-        closedir(d);
-        return size;
-    }
-
     long long GetFileLength(const std::string &file) {
         struct stat stat_buf;
         long long rc = stat(file.c_str(), &stat_buf);
-        return rc == 0 ? stat_buf.st_size : -1;
-    }
-
-    long long GetFileLength(char *file) {
-        struct stat stat_buf;
-        long long rc = stat(file, &stat_buf);
         return rc == 0 ? stat_buf.st_size : -1;
     }
 
