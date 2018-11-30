@@ -63,21 +63,20 @@ private:
     std::string dir_;
     std::string indexPath_;
     std::string fileName_;
- //   radix_tree<std::string, long>* tree_;
-    int party_;
+    int party_;//    if (this->cache != NULL) {
+//        delete this->cache;
+//        this->cache = NULL;
+//    }
     int fd_;
     struct Item* items_;
     struct Item* head_;
     uint32_t size;
     struct Info* infos;
- //   std::map<std::string, uint32_t >* maps;
-    // art_tree* tree;
     uint32_t total;
     size_t newMapSize;
     size_t start;
     size_t sep;
     MyHashTable* table;
-    // bf::basic_bloom_filter* bf;
     bloom_filter* bf;
     bloom_parameters* bfparameters;
 };

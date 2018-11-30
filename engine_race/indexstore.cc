@@ -139,12 +139,6 @@ void IndexStore::add(const polar_race::PolarString& key, uint32_t info) {
 
 void IndexStore::get(long long key, uint32_t* ans) {
     if (this->infos == NULL) initMaps();
-    // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
-    // std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
-    // uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
-    // char buf[8];
-    // polar_race::longToStr(key, buf);
-
 
     if (this->bf != NULL && !this->bf->contains(key)) {
         (*ans) = 0;
@@ -158,21 +152,11 @@ void IndexStore::get(long long key, uint32_t* ans) {
     while (ret != NULL && ret < (this->infos + this->size - 1) && (ret + 1)->key == key) {
         ret ++;
     }
-//    if (ite != maps->end()) {
-//        (*ans) = ite->second;
-//    } else {
-//        (*ans) = 0;
-//        return;
-//    }
-
-
 
     if (ret == NULL) {
-     //   fprintf(stderr, "[IndexStore] : doesn't find key %lld\n", key);
         (*ans) = 0;
         return;
     } else {
-     //   fprintf(stderr, "[IndexStore] : finding key %lld with info %ld\n", key, ret->info);
         (*ans) = ret->info;
     }
 
@@ -186,15 +170,9 @@ void IndexStore::initMaps2() {
     struct Item* temp = head_;
     this->size = 0;
     while (temp->info != 0) {
-        // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
-        // art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
         long long k = polar_race::strToLong(temp->key);
         this->table->add(k, temp->info);
         this->size ++;
-//        if (this->size % 10000 == 0) {
-//            fprintf(stderr, "[IndexStore-%d] : 10000 data added. spend %f s\n", party_, difftime(time(NULL), t));
-//            time(&t);
-//        }
         temp++;
     }
     if (fd_ >= 0) {
@@ -209,9 +187,6 @@ void IndexStore::initMaps2() {
 
 void IndexStore::get2(long long key, uint32_t* ans) {
     if (this->table == NULL) initMaps2();
-    // radix_tree<std::string, long>::iterator ite = (*this->tree_).longest_match(key.ToString());
-    // std::map<std::string, uint32_t >::iterator ite = maps->find(std::string(key.data(), 8));
-    // uintptr_t  ret = (uintptr_t) art_search(this->tree, (unsigned char*) key.data(), 8);
     uint32_t ret = this->table->get(key);
     (*ans) = ret;
 
@@ -239,11 +214,6 @@ void IndexStore::initInfos() {
 
 void IndexStore::initMaps() {
     // here we would init a radix tree from this structure.
-    //  this->tree_ = new radix_tree<std::string, long>(); // too slow
-    // this->maps = new std::map<std::string, uint32_t>(); // consume too much memory
-    // this->tree = (art_tree*) malloc(sizeof(art_tree));
-    // art_tree_init(this->tree);
-    // this->cache = new LRUCache<long long, std::string>(32768, "");
     fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
 
     uint32_t total1 = total;
@@ -252,8 +222,6 @@ void IndexStore::initMaps() {
     struct Item* temp = head_;
     this->size = 0;
     while (temp->info != 0) {
-        // (*this->tree_)[std::string(temp->key, 8)] = temp->info;
-        // art_insert(this->tree, (unsigned char *) temp->key, 8, (void*) temp->info);
         if (this->infos == NULL) {
             initInfos();
         }
@@ -271,12 +239,6 @@ void IndexStore::initMaps() {
         this->size ++;
         temp++;
     }
-//    if (fd_ >= 0) {
-//        munmap(head_, newMapSize);
-//        close(fd_);
-//        fd_ = -1;
-//        head_ = NULL;
-//    }
     if (this->infos == NULL) this->infos = (struct Info*) malloc(sizeof(struct Info));
     qsort(infos, this->size, sizeof(struct Info), compare);
     fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
@@ -293,26 +255,6 @@ void IndexStore::finalize() {
         close(fd_);
         fd_ = -1;
     }
-    /*
-    if (this->tree_ != NULL) {
-        delete this->tree_;
-        this->tree_ = NULL;
-    }
-    */
-//    if (this->maps != NULL) {
-//        delete this->maps;
-//        this->maps = NULL;
-//    }
-
-//    if (this->tree != NULL) {
-//        free(this->tree);
-//        this->tree = NULL;
-//    }
-
-//    if (this->cache != NULL) {
-//        delete this->cache;
-//        this->cache = NULL;
-//    }
 
     if (this->infos != NULL) {
         free(this->infos);
@@ -370,39 +312,17 @@ IndexStore::~IndexStore() {
         items_ = NULL;
         head_ = NULL;
     }
-    /*
-    if (this->tree_ != NULL) {
-        delete this->tree_;
-        this->tree_ = NULL;
-    }
-     */
-
-    //    if (this->maps != NULL) {
-//        delete this->maps;
-//        this->maps = NULL;
-//    }
-
-//    if (this->tree != NULL) {
-//        free(this->tree);
-//        this->tree = NULL;
-//    }
 
     if (this->infos != NULL) {
         free(this->infos);
         this->infos = NULL;
     }
 
-//    if (this->cache != NULL) {
-//        delete this->cache;
-//        this->cache = NULL;
-//    }
-
 
     if (this->table != NULL) {
         delete this->table;
         this->table = NULL;
     }
-
 
     if (this->bf != NULL) {
         delete this->bf;

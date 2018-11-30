@@ -2,24 +2,64 @@
 #ifndef ENGINE_RACE_UTIL_H_
 #define ENGINE_RACE_UTIL_H_
 
+#include <dirent.h>
+#include <unistd.h>
+#include <string.h>
+#include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/file.h>
 #include <stdint.h>
 #include <pthread.h>
-#include <string>
 #include <vector>
 
 namespace polar_race {
 
-// Hash
-uint32_t StrHash(const char* s, int size);
+    static inline int partition(long long key) {
+        int party = ((unsigned long long) (key - INT64_MIN)) / 288230376151711743;
+        return party == 64 ? 64 - 1 : party;
+    }
 
-int partition(long long key);
+    long long strToLong(const char *key) {
+        long long ans = 0;
+        for (int i = 0; i < 64; i++) {
+            ans |= (((long long) ((key[i / 8]) >> (7 - i % 8)) & 1) << (63 - i));
+        }
+        return ans;
+    }
 
-long long strToLong(const char* key);
-uint32_t wrap(uint16_t offset, uint16_t fileNo);
-uint16_t unwrapOffset(uint32_t wrapper);
-uint16_t unwrapFileNo(uint32_t wrapper);
-void longToStr(long long key, char* ans);
-void printlonglong(long long value);
+    void longToStr(long long key, char *ans) {
+        memset(ans, 0, sizeof(char) * 8);
+        for (int i = 0; i < 64; i++) {
+            char c = (char) (((key >> i) & 1) << (i % 8));
+            ans[7 - i / 8] |= c;
+        }
+    }
+
+    static inline uint32_t wrap(uint16_t offset, uint16_t fileNo) {
+        uint32_t ans = 0;
+        for (int i = 0; i < 16; i++) {
+            ans |= (((uint32_t)((offset >> i) & 1)) << i);
+            ans |= (((uint32_t)((fileNo >> i) & 1)) << (16 + i));
+        }
+        return ans;
+    }
+
+    static inline uint16_t unwrapOffset(uint32_t wrapper) {
+        uint16_t ans = 0;
+        for (int i = 0; i < 16; i++) {
+            ans |= (((wrapper >> i) & 1) << i);
+        }
+        return ans;
+    }
+
+    static inline uint16_t unwrapFileNo(uint32_t wrapper) {
+        uint16_t ans = 0;
+        for (int i = 0; i < 16; i++) {
+            ans |= (((wrapper >> (i + 16)) & 1) << i);
+        }
+        return ans;
+    }
 
 // Env
 int GetDirFiles(const std::string& dir, std::vector<std::string>* result, bool deleteFile);

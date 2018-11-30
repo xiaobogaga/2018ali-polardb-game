@@ -20,7 +20,6 @@ static std::string FileName(const std::string &dir, uint32_t fileno) {
 }
 
 RetCode DataStore::Init() {
-    // fprintf(stderr, "[DataStore-%d] : init data_store\n", party);
   if (!FileExists(dir_)
       && 0 != mkdir(dir_.c_str(), 0755)) {
     fprintf(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
@@ -53,7 +52,6 @@ RetCode DataStore::initFD() {
 
   cur_offset = 0;
 
-  // Get the last data file no
   std::string sindex;
   std::vector<std::string>::iterator it;
   for (it = files.begin(); it != files.end(); ++it) {
@@ -61,23 +59,16 @@ RetCode DataStore::initFD() {
       continue;
     }
     sindex = (*it).substr(kDataFilePrefixLen);
-    // fprintf(stderr, "[DataStore] : file : %s and index: %d for index %s \n", 
-    //  (*it).c_str(), std::stoi(sindex), sindex.c_str());
     if (std::stoul(sindex) > cur_fileNo) {
       cur_fileNo = (uint16_t) std::stoi(sindex);
     }
   }
 
   cur_fileNo = (cur_fileNo == 0) ? 1 : cur_fileNo;
-  // Get last data file offset
   int len = (int) GetFileLength(FileName(this->dataFilePath, cur_fileNo));
-//  fprintf(stderr, "[DataStore] : open current file %s and length : %d\n",
-//	FileName(dataPath, cur_fileNo).c_str(), len);
   if (len > 0) {
     cur_offset = (uint16_t) len / (valuesize);
   }
-
-  // Open file
   return OpenCurFile();
 }
 
@@ -121,8 +112,6 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
 	readFiles->insert(std::pair<uint16_t , int> (fileNo, fd));
   } else fd = readFiles->find(fileNo)->second;
  
-  // if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
-  
   lseek(fd, ((uint32_t) offset) * valuesize, SEEK_SET);
   char* pos = buf;
   uint32_t value_len = valuesize;
@@ -141,14 +130,12 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
   }
   // todo
   value->assign(buf, valuesize); // this make concurrent write failed.
-  // here must be a universal buffer
   return kSucc;
 }
 
 RetCode DataStore::OpenCurFile() {
   std::string file_name = FileName(this->dataFilePath, cur_fileNo);
   int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
-  // fprintf(stderr, "[DataStore] : open a new file %s and cur_fileNo : %d\n",file_name.c_str(), cur_fileNo);
   if (fd < 0) {
     fprintf(stderr, "[DataStore] : create file failed\n");
     return kIOError;
