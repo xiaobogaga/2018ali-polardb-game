@@ -96,7 +96,6 @@ namespace polar_race {
         head_ = items_;
         this->start = newMapSize;
         this->sep = newMapSize / sizeof(struct Item);
-        initMaps();
         return RetCode::kSucc;
     }
 
