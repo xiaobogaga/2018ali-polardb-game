@@ -12,6 +12,7 @@
 #include <chrono>
 
 namespace polar_race {
+
     int compare(const void *a, const void *b) {
         struct Info *infoA = (struct Info *) a;
         struct Info *infoB = (struct Info *) b;
