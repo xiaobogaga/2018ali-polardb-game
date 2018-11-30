@@ -326,16 +326,16 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/GlobalQueue.cpp">
+			<Option target="engine_race"/>
+		</Unit>
+		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/GlobalQueue.h">
+			<Option target="engine_race"/>
+		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/data_store.cc">
 			<Option target="engine_race"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/data_store.h">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/door_plate.cc">
-			<Option target="engine_race"/>
-		</Unit>
-		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/door_plate.h">
 			<Option target="engine_race"/>
 		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/2018ali-polardb-game/engine_race/engine_race.cc">

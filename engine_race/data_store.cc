@@ -6,14 +6,9 @@
 #include <vector>
 #include "util.h"
 #include "data_store.h"
+#include "config.h"
 
 namespace polar_race {
-
-static const std::string dataPath("/data/");
-static const char kDataFilePrefix[] = "DATA_";
-static const int kDataFilePrefixLen = 5;
-static const int kSingleFileSize = 1024 * 1024 * 128;
-static const int valuesize = 4096;
 
 static std::string FileName(const std::string &dir, uint32_t fileno) {
   return dir + "/" + kDataFilePrefix + std::to_string(fileno);
@@ -113,7 +108,7 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
   if (readFiles->count(fileNo) <= 0) {
     // open with o_direct to avoid system pagecache.
     // todo.
-	fd = open(FileName(this->dataFilePath, fileNo).c_str(),  O_RDONLY, 0644);
+	fd = open(FileName(this->dataFilePath, fileNo).c_str(),  O_DIRECT | O_RDONLY, 0644);
 	if (fd < 0) {
 		fprintf(stderr, "[DataStore] : open file for read failed\n");
 		return kIOError;
@@ -121,8 +116,6 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
 	readFiles->insert(std::pair<uint16_t , int> (fileNo, fd));
   } else fd = readFiles->find(fileNo)->second;
  
-  // if (fd < 0) fprintf(stderr, "[DataStore] : error read file\n");
-  
   lseek(fd, ((uint32_t) offset) * valuesize, SEEK_SET);
   char* pos = buf;
   uint32_t value_len = valuesize;
@@ -133,7 +126,8 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
         continue;  // Retry
       }
       close(fd);
-	  fprintf(stderr, "[DataStore] : read file failed\n");
+	  fprintf(stderr, "[DataStore] : read file failed. errno : %d\n", errno);
+	  // exit(1);
       return kIOError;
     }
     pos += r;

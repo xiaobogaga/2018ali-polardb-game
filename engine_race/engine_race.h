@@ -11,6 +11,7 @@
 #include <ctime>
 #include <atomic>
 #include <thread>
+#include "config.h"
 
 namespace polar_race {
 
@@ -21,7 +22,7 @@ class EngineRace : public Engine  {
   explicit EngineRace(const std::string& dir)
     : mu_(PTHREAD_MUTEX_INITIALIZER),
     db_lock_(NULL), writeCounter(0),
-	readCounter(0), rangeCounter(0), parties(64) {
+	readCounter(0), rangeCounter(0) {
   		this->store_ = new DataStore[parties];
   		this->indexStore_= new IndexStore[parties];
   		RetCode ret;
@@ -68,12 +69,10 @@ class EngineRace : public Engine  {
   std::atomic_int writeCounter;
   std::atomic_int readCounter;
   std::atomic_int rangeCounter;
-  time_t write_timer;
   time_t read_timer;
   time_t range_timer;
-  int parties;
-  pthread_mutex_t mutexes[64];
-  Visitor* visitors[64];
+  pthread_mutex_t mutexes[parties];
+  Visitor* visitors[parties];
   std::atomic_int idx;
   bool finished;
   std::thread* timerTask;

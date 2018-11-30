@@ -188,6 +188,33 @@ tempTest/fast:
 	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
 .PHONY : tempTest/fast
 
+engine_race/GlobalQueue.o: engine_race/GlobalQueue.cpp.o
+
+.PHONY : engine_race/GlobalQueue.o
+
+# target to build an object file
+engine_race/GlobalQueue.cpp.o:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/GlobalQueue.cpp.o
+.PHONY : engine_race/GlobalQueue.cpp.o
+
+engine_race/GlobalQueue.i: engine_race/GlobalQueue.cpp.i
+
+.PHONY : engine_race/GlobalQueue.i
+
+# target to preprocess a source file
+engine_race/GlobalQueue.cpp.i:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/GlobalQueue.cpp.i
+.PHONY : engine_race/GlobalQueue.cpp.i
+
+engine_race/GlobalQueue.s: engine_race/GlobalQueue.cpp.s
+
+.PHONY : engine_race/GlobalQueue.s
+
+# target to generate assembly for a file
+engine_race/GlobalQueue.cpp.s:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/GlobalQueue.cpp.s
+.PHONY : engine_race/GlobalQueue.cpp.s
+
 engine_race/data_store.o: engine_race/data_store.cc.o
 
 .PHONY : engine_race/data_store.o
@@ -214,33 +241,6 @@ engine_race/data_store.s: engine_race/data_store.cc.s
 engine_race/data_store.cc.s:
 	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/data_store.cc.s
 .PHONY : engine_race/data_store.cc.s
-
-engine_race/door_plate.o: engine_race/door_plate.cc.o
-
-.PHONY : engine_race/door_plate.o
-
-# target to build an object file
-engine_race/door_plate.cc.o:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/door_plate.cc.o
-.PHONY : engine_race/door_plate.cc.o
-
-engine_race/door_plate.i: engine_race/door_plate.cc.i
-
-.PHONY : engine_race/door_plate.i
-
-# target to preprocess a source file
-engine_race/door_plate.cc.i:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/door_plate.cc.i
-.PHONY : engine_race/door_plate.cc.i
-
-engine_race/door_plate.s: engine_race/door_plate.cc.s
-
-.PHONY : engine_race/door_plate.s
-
-# target to generate assembly for a file
-engine_race/door_plate.cc.s:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/door_plate.cc.s
-.PHONY : engine_race/door_plate.cc.s
 
 engine_race/engine_race.o: engine_race/engine_race.cc.o
 
@@ -472,12 +472,12 @@ help:
 	@echo "... test3"
 	@echo "... test2"
 	@echo "... tempTest"
+	@echo "... engine_race/GlobalQueue.o"
+	@echo "... engine_race/GlobalQueue.i"
+	@echo "... engine_race/GlobalQueue.s"
 	@echo "... engine_race/data_store.o"
 	@echo "... engine_race/data_store.i"
 	@echo "... engine_race/data_store.s"
-	@echo "... engine_race/door_plate.o"
-	@echo "... engine_race/door_plate.i"
-	@echo "... engine_race/door_plate.s"
 	@echo "... engine_race/engine_race.o"
 	@echo "... engine_race/engine_race.i"
 	@echo "... engine_race/engine_race.s"

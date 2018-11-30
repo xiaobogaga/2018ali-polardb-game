@@ -94,7 +94,7 @@ CXXFLAGS += $(WARNING_FLAGS) $(INCLUDE_PATH) $(PLATFORM_CXXFLAGS) $(OPT)
 LDFLAGS += $(PLATFORM_LDFLAGS)
 
 LIBOBJECTS = $(LIB_SOURCES:.cc=.o)
-# if user didn't config LIBNAME, set the default
+# if user didn't config.cc LIBNAME, set the default
 ifeq ($(LIBNAME),)
 # we should only run benchmark in production with DEBUG_LEVEL 0
 LIBNAME=libengine$(DEBUG_SUFFIX)

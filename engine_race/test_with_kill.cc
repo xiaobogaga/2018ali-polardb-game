@@ -367,7 +367,7 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 64;
-    int writingTime = 100;
+    int writingTime = 1;
     if (argc <= 1) {
         ;
     } else {

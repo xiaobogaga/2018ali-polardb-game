@@ -32,9 +32,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 add_library(${PROJECT_NAME} SHARED
         engine_race/engine_race.cc
         engine_race/data_store.cc
-        engine_race/door_plate.cc
         engine_race/util.cc
         engine_race/indexstore.cc
+        engine_race/GlobalQueue.cpp
         # engine_race/testRadixTree.cpp
         # engine_race/test.cc
         # engine_race/test_with_kill.cc

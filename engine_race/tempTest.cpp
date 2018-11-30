@@ -14,6 +14,7 @@
 #include <thread>
 #include "engine.h"
 #include "polar_string.h"
+#include "config.h"
 #include <chrono>
 
 int main2 () {
