@@ -116,8 +116,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
   uint16_t fileNo = -1;
   uint16_t offset = -1;
   uint32_t ans = 0;
-  pthread_mutex_lock(&mu_);
-  // pthread_mutex_lock(&this->mutexes[party]);
+  // pthread_mutex_lock(&mu_);
+  pthread_mutex_lock(&this->mutexes[party]);
   RetCode ret = kSucc;
   this->indexStore_[party].get(k, &ans);
   if (ans == 0) ret = kNotFound;
@@ -151,8 +151,8 @@ RetCode EngineRace::Read(const PolarString& key, std::string* value) {
 //    if (readCounter.load() % 300000) {
 //        fprintf(stderr, "[EngineRace] : have read 300000 data\n");
 //    }
-    // pthread_mutex_unlock(&this->mutexes[party]);
-    pthread_mutex_unlock(&mu_);
+    pthread_mutex_unlock(&this->mutexes[party]);
+    // pthread_mutex_unlock(&mu_);
     return ret;
 }
 

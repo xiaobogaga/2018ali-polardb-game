@@ -61,6 +61,8 @@ class DataStore  {
   std::map<uint16_t , int>* readFiles;
   RetCode OpenCurFile();
   int party;
+  // todo
+  char buf[4096]; // for concurrent read error.
 };
 
 }  // namespace polar_race

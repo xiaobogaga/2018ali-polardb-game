@@ -14,7 +14,6 @@ static const char kDataFilePrefix[] = "DATA_";
 static const int kDataFilePrefixLen = 5;
 static const int kSingleFileSize = 1024 * 1024 * 128;
 static const int valuesize = 4096;
-static char buf[valuesize];
 
 static std::string FileName(const std::string &dir, uint32_t fileno) {
   return dir + "/" + kDataFilePrefix + std::to_string(fileno);
@@ -112,7 +111,9 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
   int fd = -1;
   if (readFiles == NULL) readFiles = new std::map<uint16_t , int>();
   if (readFiles->count(fileNo) <= 0) {
-	fd = open(FileName(this->dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
+    // open with o_direct to avoid system pagecache.
+    // todo.
+	fd = open(FileName(this->dataFilePath, fileNo).c_str(),  O_RDONLY, 0644);
 	if (fd < 0) {
 		fprintf(stderr, "[DataStore] : open file for read failed\n");
 		return kIOError;
@@ -139,7 +140,8 @@ RetCode DataStore::Read(uint16_t fileNo, uint16_t offset, std::string* value) {
     value_len -= r;
   }
   // todo
-  value->assign(buf, valuesize);
+  value->assign(buf, valuesize); // this make concurrent write failed.
+  // here must be a universal buffer
   return kSucc;
 }
 

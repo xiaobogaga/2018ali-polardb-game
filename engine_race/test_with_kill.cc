@@ -392,8 +392,10 @@ int main(int argc, char** argv) {
     readerPro.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end reader\n");
     fprintf(stderr , "[Tester] : start range read\n");
+
     RangePro rangePro(engine, writeTask.getMaps(), writeTask.getKeys());
     rangePro.startRange(threadSize, writingTime);
+
     fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.
 
@@ -417,8 +419,8 @@ int main(int argc, char** argv) {
     performanceReaderTask.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end read\n");
     fprintf(stderr , "[Tester] : start range read\n");
-  //  RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
-  //  performanceRangeTask.startRange(threadSize, writingTime);
+    RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
+    performanceRangeTask.startRange(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.
     system("rm -rf /tmp/test_dump/*");
