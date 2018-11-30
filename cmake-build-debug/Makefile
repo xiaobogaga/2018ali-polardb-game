@@ -48,10 +48,10 @@ RM = /home/tomzhu/software/clion-2018.2.6/bin/cmake/linux/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/tomzhu/test/engine6/2018ali-polardb-game
+CMAKE_SOURCE_DIR = /home/tomzhu/test/temp/engine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug
+CMAKE_BINARY_DIR = /home/tomzhu/test/temp/engine/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/CMakeFiles /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tomzhu/test/temp/engine/cmake-build-debug/CMakeFiles /home/tomzhu/test/temp/engine/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tomzhu/test/engine6/2018ali-polardb-game/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tomzhu/test/temp/engine/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -187,33 +187,6 @@ tempTest: cmake_check_build_system
 tempTest/fast:
 	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
 .PHONY : tempTest/fast
-
-engine_race/GlobalQueue.o: engine_race/GlobalQueue.cpp.o
-
-.PHONY : engine_race/GlobalQueue.o
-
-# target to build an object file
-engine_race/GlobalQueue.cpp.o:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/GlobalQueue.cpp.o
-.PHONY : engine_race/GlobalQueue.cpp.o
-
-engine_race/GlobalQueue.i: engine_race/GlobalQueue.cpp.i
-
-.PHONY : engine_race/GlobalQueue.i
-
-# target to preprocess a source file
-engine_race/GlobalQueue.cpp.i:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/GlobalQueue.cpp.i
-.PHONY : engine_race/GlobalQueue.cpp.i
-
-engine_race/GlobalQueue.s: engine_race/GlobalQueue.cpp.s
-
-.PHONY : engine_race/GlobalQueue.s
-
-# target to generate assembly for a file
-engine_race/GlobalQueue.cpp.s:
-	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/GlobalQueue.cpp.s
-.PHONY : engine_race/GlobalQueue.cpp.s
 
 engine_race/data_store.o: engine_race/data_store.cc.o
 
@@ -472,9 +445,6 @@ help:
 	@echo "... test3"
 	@echo "... test2"
 	@echo "... tempTest"
-	@echo "... engine_race/GlobalQueue.o"
-	@echo "... engine_race/GlobalQueue.i"
-	@echo "... engine_race/GlobalQueue.s"
 	@echo "... engine_race/data_store.o"
 	@echo "... engine_race/data_store.i"
 	@echo "... engine_race/data_store.s"

@@ -20,7 +20,7 @@ namespace polar_race {
         return party == 64 ? 64 - 1 : party;
     }
 
-    long long strToLong(const char *key) {
+    static inline long long strToLong(const char *key) {
         long long ans = 0;
         for (int i = 0; i < 64; i++) {
             ans |= (((long long) ((key[i / 8]) >> (7 - i % 8)) & 1) << (63 - i));
@@ -28,7 +28,7 @@ namespace polar_race {
         return ans;
     }
 
-    void longToStr(long long key, char *ans) {
+    static inline void longToStr(long long key, char *ans) {
         memset(ans, 0, sizeof(char) * 8);
         for (int i = 0; i < 64; i++) {
             char c = (char) (((key >> i) & 1) << (i % 8));
