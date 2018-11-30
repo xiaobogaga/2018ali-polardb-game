@@ -13,7 +13,7 @@ namespace polar_race {
     static const int kDataFilePrefixLen = 5;
     static const int valuesize = 4096;
     static const char kLockFile[] = "LOCK";
-    static const double sleepTime = 200.1;
+    static const double sleepTime = 300.1;
     static bool timerStop = false;
     static const std::string indexPrefix = "/index/";
     // related to parties.
