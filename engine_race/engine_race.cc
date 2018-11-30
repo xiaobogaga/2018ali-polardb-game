@@ -10,12 +10,17 @@
 
 namespace polar_race {
 
+static const char kLockFile[] = "LOCK";
+
+static bool timerStop = false;
+
 RetCode Engine::Open(const std::string& name, Engine** eptr) {
   return EngineRace::Open(name, eptr);
 }
 
 // sleepint for 500s.
 void startTimer() {
+  double sleepTime = 300.1;
   time_t  timer;
   time(&timer);
   while (difftime(time(NULL), timer) <= sleepTime && !timerStop) {
@@ -28,13 +33,6 @@ void startTimer() {
 }
 
 Engine::~Engine() {
-}
-
-// mainly used to print some information about the settings of disk or
-// IO related.
-void printWhatYouWant() {
-    // print page size.
-    fprintf(stderr, "[EngineRace] : page size : %d, %ld\n", getpagesize(), sysconf(_SC_PAGE_SIZE));
 }
 
 RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
@@ -55,7 +53,6 @@ RetCode EngineRace::Open(const std::string& name, Engine** eptr) {
   engine_race->timerTask = new std::thread (startTimer);
 
   *eptr = engine_race;
-  printWhatYouWant();
   return kSucc;
 }
 
@@ -74,7 +71,7 @@ EngineRace::~EngineRace() {
       delete this->timerTask;
       this->timerTask = NULL;
   }
-  for (int i = 0; i < parties; i++)
+  for (int i = 0; i < this->parties; i++)
       pthread_mutex_destroy(&this->mutexes[i]);
 }
 
@@ -167,6 +164,14 @@ RetCode EngineRace::Range(const PolarString& lower, const PolarString& upper,
 
   this->visitors[this->idx++] = &visitor;
 
+  assert(this->readCounter.load() < 6400000);
+
+//  // sleep 2 s
+//  while (readCounter.load() % 64 != 0) {
+//    std::this_thread::sleep_for(std::chrono::microseconds(500));
+//  }
+
+  // waiting all visitors to join.
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   pthread_mutex_lock(&mu_);

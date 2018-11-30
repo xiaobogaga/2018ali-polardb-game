@@ -14,70 +14,72 @@
 #include "LRUCache.cc"
 #include "MyHashTable.h"
 #include "bloom_filter.hpp"
-#include "config.h"
-namespace polar_race {
 
-    class IndexStore {
+static std::string indexPrefix("/index/");
 
-    public:
+struct Item {
+    uint32_t info;
+    char key[8];
+};
 
-        IndexStore(std::string &dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL),
-                                       size(0), infos(NULL), total(singleInfosSize), newMapSize(0), start(0),
-                                       table(NULL),
-                                       bf(NULL), bfparameters(NULL) {}
+class IndexStore {
 
-        IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL),
-                       total(singleInfosSize), newMapSize(0), start(0), table(NULL), bf(NULL),
-                       bfparameters(NULL) {}
+public:
 
-        RetCode init(const std::string &dir, int party);
+    IndexStore(std::string& dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL),
+        size(0), infos(NULL), total(100000), newMapSize(0), start(0), table(NULL), bf(NULL), bfparameters(NULL) { }
 
-        void setParty(int party) {
-            this->party_ = party;
-        }
+    IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(100000), newMapSize(0)
+    , start(0), table(NULL), bf(NULL), bfparameters(NULL) {}
 
-        void add(const PolarString &key, uint32_t info);
+    polar_race::RetCode init(const std::string& dir, int party);
 
-        void get(long long key, uint32_t *ans);
+    void setParty(int party) {
+        this->party_ = party;
+    }
 
-        int rangeSearch(const PolarString &lower, const PolarString &upper,
-                        Visitor **visitor, int vSize, DataStore *store);
+    void add(const polar_race::PolarString& key, uint32_t info);
 
-        void initMaps3();
+    void get(long long key, uint32_t* ans);
 
-        void initMaps();
+    int rangeSearch(const polar_race::PolarString& lower, const polar_race::PolarString& upper,
+            polar_race::Visitor** visitor, int vSize, polar_race::DataStore* store);
 
-        void initMaps2();
+    void initMaps();
 
-        void reAllocate();
+    void initMaps2();
 
-        void finalize();
+    void reAllocate();
 
-        void initInfos();
+    void finalize();
 
-        void get2(long long key, uint32_t *ans);
+    void initInfos();
 
-        ~IndexStore();
+    void get2(long long key, uint32_t* ans);
 
-    private:
-        std::string dir_;
-        std::string indexPath_;
-        std::string fileName_;
-        int party_;
-        int fd_;
-        struct Item *items_;
-        struct Item *head_;
-        uint32_t size;
-        struct Info *infos;
-        uint32_t total;
-        size_t newMapSize;
-        size_t start;
-        size_t sep;
-        MyHashTable *table;
-        bloom_filter *bf;
-        bloom_parameters *bfparameters;
-    };
+    ~IndexStore();
 
-}
+private:
+    std::string dir_;
+    std::string indexPath_;
+    std::string fileName_;
+ //   radix_tree<std::string, long>* tree_;
+    int party_;
+    int fd_;
+    struct Item* items_;
+    struct Item* head_;
+    uint32_t size;
+    struct Info* infos;
+ //   std::map<std::string, uint32_t >* maps;
+    // art_tree* tree;
+    uint32_t total;
+    size_t newMapSize;
+    size_t start;
+    size_t sep;
+    MyHashTable* table;
+    // bf::basic_bloom_filter* bf;
+    bloom_filter* bf;
+    bloom_parameters* bfparameters;
+};
 
 #endif //ENGINE_RACE_INDEXSTORE_H

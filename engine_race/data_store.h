@@ -18,10 +18,6 @@ class DataStore  {
         cur_fileNo = 0;
         cur_offset = 0;
         readFiles = NULL;
-        posix_memalign((void **)&buf, getpagesize(), getpagesize());
-        if (buf == NULL) {
-            fprintf(stderr, "[DataStore] : memalign failed\n");
-        }
     }
 
     DataStore() {
@@ -29,10 +25,6 @@ class DataStore  {
         cur_fileNo = 0;
         cur_offset = 0;
         readFiles = NULL;
-        posix_memalign((void **)&buf, getpagesize(), getpagesize());
-        if (buf == NULL) {
-            fprintf(stderr, "[DataStore] : memalign failed\n");
-        }
   }
 
   void setDir(const std::string dir) {
@@ -48,10 +40,6 @@ class DataStore  {
 		  for (std::map<uint16_t ,int>::iterator it = readFiles->begin(); it != readFiles->end(); ++it)
 			close(it->second);
 		delete readFiles;
-	}
-	if (buf != NULL) {
-	    free(buf);
-	    buf = NULL;
 	}
   }
 
@@ -74,7 +62,7 @@ class DataStore  {
   RetCode OpenCurFile();
   int party;
   // todo
-  char* buf; // for concurrent read error.
+  char buf[4096]; // for concurrent read error.
 };
 
 }  // namespace polar_race
