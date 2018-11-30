@@ -96,7 +96,7 @@ namespace polar_race {
         head_ = items_;
         this->start = newMapSize;
         this->sep = newMapSize / sizeof(struct Item);
-        initMaps(); // here must do that.
+        // initMaps(); // here must do that.
         return RetCode::kSucc;
     }
 
@@ -236,6 +236,16 @@ namespace polar_race {
             this->size++;
             temp++;
         }
+
+        if (fd_ >= 0) {
+            // items_ = NULL;
+            munmap(head_, newMapSize);
+            items_ = NULL;
+            head_ = NULL;
+            close(fd_);
+            fd_ = -1;
+        }
+
         if (this->infos == NULL) this->infos = (struct Info *) malloc(sizeof(struct Info));
         qsort(infos, this->size, sizeof(struct Info), compare);
         fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
