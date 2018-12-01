@@ -139,10 +139,10 @@ namespace polar_race {
     void IndexStore::get(long long key, uint32_t *ans) {
         if (this->infos == NULL) initMaps();
 
-        if (this->bf != NULL && !this->bf->contains(key)) {
-            (*ans) = 0;
-            return;
-        }
+       // if (this->bf != NULL && !this->bf->contains(key)) {
+       //        (*ans) = 0;
+       //        return;
+    //    }
 
         struct Info *ret = (struct Info *) bsearch(&key, this->infos, this->size,
                                                    sizeof(struct Info), bcompare);
