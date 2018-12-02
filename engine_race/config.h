@@ -17,7 +17,7 @@ namespace polar_race {
     static const int valuesize = 4096;
     static const int keysize = 8;
     static const char kLockFile[] = "LOCK";
-    static const double sleepTime = 600.1;
+    static const double sleepTime = 1000.1;
     static const int threadSize = 64;
 
     // following variable needs to be changed for different parties.
