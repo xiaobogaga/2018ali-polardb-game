@@ -143,10 +143,10 @@ namespace polar_race {
             ret = store_[party].Read(fileNo, offset, value);
         }
 
-        if (c == 0) {
-            printInfo(stderr, "[EngineRace] : reading first data finished, key : %lld, and get %lu value\n",
-                    k, value->size());
-        }
+//        if (c == 0) {
+//            printInfo(stderr, "[EngineRace] : reading first data finished, key : %lld, and get %lu value\n",
+//                    k, value->size());
+//        }
 
         if (c % 300000 == 0) {
             time_t current_time = time(NULL);

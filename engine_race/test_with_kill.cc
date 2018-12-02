@@ -369,7 +369,7 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 64;
-    int writingTime = 1600;
+    int writingTime = 160;
     if (argc <= 1) {
         ;
     } else {
@@ -411,7 +411,7 @@ int main(int argc, char** argv) {
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask((EngineRace*) engine);
     threadSize = 64;
-    writingTime = 1000;
+    writingTime = 100;
     fprintf(stderr , "[Tester] : start writer\n");
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end writer\n");

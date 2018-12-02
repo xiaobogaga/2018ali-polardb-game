@@ -41,7 +41,7 @@ namespace polar_race {
 
 
     static inline int partition(long long key) {
-        int party = ((unsigned long long) (key - INT64_MIN)) / 36028797018963967;
+        int party = ((unsigned long long) (key - INT64_MIN)) / 9223372036854775807;
         return party == parties ? parties - 1 : party;
     }
 
