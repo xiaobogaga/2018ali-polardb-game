@@ -341,6 +341,12 @@
 		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/engine_race.h">
 			<Option target="engine_race"/>
 		</Unit>
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/globalQueue.cc">
+			<Option target="engine_race"/>
+		</Unit>
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/globalQueue.h">
+			<Option target="engine_race"/>
+		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/indexstore.cc">
 			<Option target="engine_race"/>
 		</Unit>

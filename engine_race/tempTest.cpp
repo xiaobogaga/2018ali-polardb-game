@@ -30,10 +30,11 @@ int main() {
 
     long long min = INT64_MIN;
     long long max = INT64_MAX;
-    long long sep = max / 64 - (min / 64);
+    int parties = 2;
+    long long sep = ((unsigned long long) (max - min)) / parties;
 
     long long start = min;
-    int size = 64;
+    int size = 2;
     for (int i = 0; i < size; i++) {
         fprintf(stderr, "%d : [%lld - %lld] , right / sep = %lld \n", i,
                 start, start + sep, ((unsigned long long ) (start + sep) / sep - min / sep) );

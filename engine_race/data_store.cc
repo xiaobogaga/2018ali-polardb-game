@@ -9,14 +9,10 @@
 
 namespace polar_race {
 
-    static std::string FileName(const std::string &dir, uint32_t fileno) {
-        return dir + "/" + kDataFilePrefix + std::to_string(fileno);
-    }
-
     RetCode DataStore::Init() {
         if (!FileExists(dir_)
             && 0 != mkdir(dir_.c_str(), 0755)) {
-            fprintf(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
+            printInfo(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
             return kIOError;
         }
 
@@ -24,7 +20,7 @@ namespace polar_race {
 
         if (!FileExists(this->dataFilePath) &&
             0 != mkdir(this->dataFilePath.c_str(), 0755)) {
-            fprintf(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
+            printInfo(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
             return kIOError;
         }
 
@@ -32,20 +28,21 @@ namespace polar_race {
 
         if (!FileExists(this->dataFilePath) &&
             0 != mkdir(this->dataFilePath.c_str(), 0755)) {
-            fprintf(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
+            printInfo(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
             return kIOError;
         }
 
         return kSucc;
     }
 
-    RetCode DataStore::initFD() {
-        // fprintf(stderr, "[DataStore] : initFD\n");
+    int DataStore::initFD() {
+        // printInfo(stderr, "[DataStore] : initFD\n");
         std::vector<std::string> files;
         GetDirFiles(this->dataFilePath, &files, false);
 
         cur_offset = 0;
 
+        int fileSize = 0;
         std::string sindex;
         std::vector<std::string>::iterator it;
         for (it = files.begin(); it != files.end(); ++it) {
@@ -57,13 +54,14 @@ namespace polar_race {
                 cur_fileNo = (uint16_t) std::stoi(sindex);
             }
         }
-
+        if (cur_fileNo != 0) fileSize = cur_fileNo;
         cur_fileNo = (cur_fileNo == 0) ? 1 : cur_fileNo;
         int len = (int) GetFileLength(FileName(this->dataFilePath, cur_fileNo));
         if (len > 0) {
             cur_offset = (uint16_t) len / (valuesize);
         }
-        return OpenCurFile();
+        OpenCurFile();
+        return fileSize;
     }
 
 
@@ -82,7 +80,7 @@ namespace polar_race {
 
         // Append write
         if (0 != FileAppend(fd_, value, valuesize)) {
-            fprintf(stderr, "[DataStore] : append to file failed\n");
+            printInfo(stderr, "[DataStore] : append to file failed\n");
             return kIOError;
         }
         (*fileNo) = cur_fileNo;
@@ -99,7 +97,7 @@ namespace polar_race {
             // todo.
             fd = open(FileName(this->dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
             if (fd < 0) {
-                fprintf(stderr, "[DataStore] : open file for read failed\n");
+                printInfo(stderr, "[DataStore] : open file for read failed\n");
                 return kIOError;
             }
             readFiles->insert(std::pair<uint16_t, int>(fileNo, fd));
@@ -115,7 +113,7 @@ namespace polar_race {
                     continue;  // Retry
                 }
                 close(fd);
-                fprintf(stderr, "[DataStore] : read file failed\n");
+                printInfo(stderr, "[DataStore] : read file failed\n");
                 return kIOError;
             }
             pos += r;
@@ -130,7 +128,7 @@ namespace polar_race {
         std::string file_name = FileName(this->dataFilePath, cur_fileNo);
         int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
         if (fd < 0) {
-            fprintf(stderr, "[DataStore] : create file failed\n");
+            printInfo(stderr, "[DataStore] : create file failed\n");
             return kIOError;
         }
         fd_ = fd;

@@ -35,6 +35,7 @@ add_library(${PROJECT_NAME} SHARED
         engine_race/util.cc
         engine_race/indexstore.cc
         engine_race/config.h
+        engine_race/globalQueue.cc
         # engine_race/GlobalQueue.cpp
         # engine_race/testRadixTree.cpp
         # engine_race/test.cc

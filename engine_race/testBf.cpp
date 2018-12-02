@@ -19,7 +19,7 @@ int main() {
     bloom_parameters parameters;
 
     // How many elements roughly do we expect to insert?
-    parameters.projected_element_count = 1000000;
+    parameters.projected_element_count = 1024 * 128;
 
     // Maximum tolerable false positive probability? (0,1)
     parameters.false_positive_probability = 0.0001; // 1 in 10000

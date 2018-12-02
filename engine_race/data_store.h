@@ -1,4 +1,5 @@
 // Copyright [2018] Alibaba Cloud All rights reserved
+
 #ifndef ENGINE_RACE_DATA_STORE_H_
 #define ENGINE_RACE_DATA_STORE_H_
 
@@ -34,7 +35,7 @@ namespace polar_race {
         }
 
         ~DataStore() {
-            // fprintf(stderr, "[DataStore] : finalized\n");
+            // printInfo(stderr, "[DataStore-%d] : finilized\n", party);
             if (fd_ >= 0) {
                 close(fd_);
             }
@@ -55,7 +56,11 @@ namespace polar_race {
 
         RetCode Append(const std::string &value, uint16_t *fileNo, uint16_t *offset);
 
-        RetCode initFD();
+        std::string getDataFilePath() {
+            return this->dataFilePath;
+        }
+
+        int initFD();
 
     private:
         int fd_;

@@ -39,19 +39,20 @@ namespace polar_race {
     }
 
     RetCode IndexStore::init(const std::string &dir, int party) {
+        // printInfo(stderr, "[IndexStore-%d] : init index\n", party);
         this->dir_ = dir;
         this->party_ = party;
 
         if (!FileExists(dir_)
             && 0 != mkdir(dir_.c_str(), 0755)) {
-            fprintf(stderr, "[IndexStore-%d] : %s mkdir failed\n", party, dir_.c_str());
+            printInfo(stderr, "[IndexStore-%d] : %s mkdir failed\n", party, dir_.c_str());
             return kIOError;
         }
 
         this->indexPath_ = dir + indexPrefix;
         if (!FileExists(this->indexPath_) &&
             0 != mkdir(this->indexPath_.c_str(), 0755)) {
-            fprintf(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, this->indexPath_.c_str());
+            printInfo(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, this->indexPath_.c_str());
             return kIOError;
         }
         bool new_create = false;
@@ -65,7 +66,7 @@ namespace polar_race {
             if (fd >= 0) {
                 new_create = true;
                 if (posix_fallocate(fd, 0, newMapSize) != 0) {
-                    fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party);
+                    printInfo(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party);
                     close(fd);
                     return kIOError;
                 }
@@ -73,7 +74,7 @@ namespace polar_race {
         }
 
         if (fd < 0) {
-            fprintf(stderr, "[IndexStore-%d] : file %s open failed\n", party, this->fileName_.c_str());
+            printInfo(stderr, "[IndexStore-%d] : file %s open failed\n", party, this->fileName_.c_str());
             return kIOError;
         } else {
             fileLength = GetFileLength(this->fileName_);
@@ -84,28 +85,28 @@ namespace polar_race {
         void *ptr = mmap(NULL, newMapSize, PROT_READ | PROT_WRITE,
                          MAP_SHARED, this->fd_, 0);
         if (ptr == MAP_FAILED) {
-            fprintf(stderr, "[IndexStore-%d] : MAP_FAILED\n", party);
+            printInfo(stderr, "[IndexStore-%d] : MAP_FAILED\n", party);
             close(fd);
             return kIOError;
         }
         if (new_create) {
-            //   fprintf(stderr, "[IndexStore] : create a new mmap \n");
+            //   printInfo(stderr, "[IndexStore] : create a new mmap \n");
             memset(ptr, 0, newMapSize);
         }
         items_ = reinterpret_cast<Item *>(ptr);
         head_ = items_;
         this->start = newMapSize;
         this->sep = newMapSize / sizeof(struct Item);
-        // initMaps(); // here must do that.
+        // if (!new_create) initMaps(); // here must do that.
         return RetCode::kSucc;
     }
 
     void IndexStore::reAllocate() {
         // needs reallocate.
-        fprintf(stderr, "[IndexStore-%d] : reallocating\n", party_);
-        if (munmap(head_, newMapSize) == -1) fprintf(stderr, "[IndexStore-%d] : unmap  failed\n", party_);
+        printInfo(stderr, "[IndexStore-%d] : reallocating\n", party_);
+        if (munmap(head_, newMapSize) == -1) printInfo(stderr, "[IndexStore-%d] : unmap  failed\n", party_);
         if (posix_fallocate(this->fd_, start, map_size) != 0) {
-            fprintf(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party_);
+            printInfo(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party_);
             close(this->fd_);
             return;
         }
@@ -116,7 +117,7 @@ namespace polar_race {
         this->newMapSize = map_size;
         this->sep = newMapSize / sizeof(struct Item);
         if (ptr == MAP_FAILED) {
-            fprintf(stderr, "[IndexStore -%d] : MAP_FAILED\n", party_);
+            printInfo(stderr, "[IndexStore -%d] : MAP_FAILED\n", party_);
             close(this->fd_);
             return;
         }
@@ -125,7 +126,7 @@ namespace polar_race {
     }
 
     void IndexStore::add(const PolarString &key, uint32_t info) {
-        // fprintf(stderr, "[IndexStore] : adding key %lld with info %ld\n",
+        // printInfo(stderr, "[IndexStore] : adding key %lld with info %ld\n",
         //         strToLong(key.data()), info)
 
         while ((items_ - head_ < this->sep) && items_->info != 0) items_++;
@@ -139,10 +140,10 @@ namespace polar_race {
     void IndexStore::get(long long key, uint32_t *ans) {
         if (this->infos == NULL) initMaps();
 
-       // if (this->bf != NULL && !this->bf->contains(key)) {
-       //        (*ans) = 0;
-       //        return;
-    //    }
+//        if (this->bf != NULL && !this->bf->contains(key)) {
+//            (*ans) = 0;
+//            return;
+//        }
 
         struct Info *ret = (struct Info *) bsearch(&key, this->infos, this->size,
                                                    sizeof(struct Info), bcompare);
@@ -163,7 +164,7 @@ namespace polar_race {
 
     void IndexStore::initMaps2() {
         this->table = new MyHashTable();
-        fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
+        printInfo(stderr, "[IndexStore-%d] : try to init map\n", party_);
         time_t t;
         time(&t);
         struct Item *temp = head_;
@@ -180,7 +181,7 @@ namespace polar_race {
             fd_ = -1;
             head_ = NULL;
         }
-        fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+        printInfo(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
                 party_, this->size, difftime(time(NULL), t));
     }
 
@@ -191,27 +192,37 @@ namespace polar_race {
 
     }
 
+    int IndexStore::getInfoAt(int i, long long* k, uint32_t * info) {
+        long long key = this->infos[i].key;
+        (*k) = key;
+        while (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) i++;
+        (*info) = this->infos[i].info;
+        return i;
+    }
+
     void IndexStore::initInfos() {
         this->infos = (struct Info *) malloc(sizeof(struct Info) * total);
         if (this->infos == NULL) {
-            fprintf(stderr,
+            printInfo(stderr,
                     "[IndexStore-%d] : opps try to create info array to %d failed\n", party_, total);
         }
-        // this->bfparameters = new bloom_parameters();
-        // this->bfparameters->projected_element_count = bf_capa;
-        // this->bfparameters->false_positive_probability = bf_p; // 1 in 10000
-        // this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
-        // if (!this->bfparameters) {
-            // fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
-            // return;
-        // }
-        // this->bfparameters->compute_optimal_parameters();
-        // this->bf = new bloom_filter(*this->bfparameters);
+
+        // bloom filter make this error.
+//        this->bfparameters = new bloom_parameters();
+//        this->bfparameters->projected_element_count = bf_capa;
+//        this->bfparameters->false_positive_probability = bf_p; // 1 in 10000
+//        this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
+//        if (!this->bfparameters) {
+//            printInfo(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");
+//            return;
+//        }
+//        this->bfparameters->compute_optimal_parameters();
+//        this->bf = new bloom_filter(*this->bfparameters);
     }
 
     void IndexStore::initMaps() {
         // here we would init a radix tree from this structure.
-        fprintf(stderr, "[IndexStore-%d] : try to init map\n", party_);
+        // printInfo(stderr, "[IndexStore-%d] : try to init map\n", party_);
 
         uint32_t total1 = total;
         time_t t;
@@ -226,17 +237,20 @@ namespace polar_race {
                 total1 *= 2;
                 this->infos = (struct Info *) realloc(this->infos, sizeof(struct Info) * total1);
                 if (this->infos == NULL) {
-                    fprintf(stderr,
+                    printInfo(stderr,
                             "[IndexStore-%d] : opps try to larger infos array to %d failed\n", party_, total1);
                 }
             }
             this->infos[this->size].key = strToLong(temp->key);
             this->infos[this->size].info = temp->info;
-            //bf->insert(this->infos[this->size].key);
+            // bf->insert(this->infos[this->size].key);
             this->size++;
             temp++;
         }
 
+        /**
+         * tonice here.
+         */
         if (fd_ >= 0) {
             // items_ = NULL;
             munmap(head_, newMapSize);
@@ -245,15 +259,18 @@ namespace polar_race {
             close(fd_);
             fd_ = -1;
         }
-
         if (this->infos == NULL) this->infos = (struct Info *) malloc(sizeof(struct Info));
         qsort(infos, this->size, sizeof(struct Info), compare);
-        fprintf(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+//        for (int i = 0; i < this->size; i++) {
+//            printInfo(stderr, "[IndexStore-%d] : %lld, %d, %d\n", party_, this->infos[i].key,
+//                    unwrapOffset(this->infos[i].info), unwrapFileNo(this->infos[i].info));
+//        }
+        printInfo(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
                 party_, this->size, difftime(time(NULL), t));
     }
 
     void IndexStore::finalize() {
-        fprintf(stderr, "[IndexStore] : finalize index store with size %d\n", this->size);
+        printInfo(stderr, "[IndexStore-%d] : finalize index store with size %d\n", party_,this->size);
         if (fd_ >= 0) {
             // items_ = NULL;
             munmap(head_, newMapSize);
@@ -283,35 +300,35 @@ namespace polar_race {
 
     }
 
-    int IndexStore::rangeSearch(const PolarString &lower, const PolarString &upper,
-                                Visitor **visitor, int vSize, DataStore *store) {
-        time_t timer;
-        time(&timer);
-        std::string value;
-        int ans = 0;
-        if (this->infos == NULL) initMaps();
-        char buf[8];
-        for (uint32_t i = 0; i < this->size; i++) {
-            if (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) continue;
-            uint32_t k = this->infos[i].info;
-            uint16_t offset = unwrapOffset(k);
-            uint16_t fileNo = unwrapFileNo(k);
-            store->Read(fileNo, offset, &value);
-            longToStr(this->infos[i].key, buf);
-            PolarString keyP(buf, 8);
-            PolarString valueP(value);
-            for (int j = 0; j < vSize; j++) visitor[j]->Visit(keyP, valueP);
-            ans++;
-        }
-        fprintf(stderr, "[IndexStore-%d] : finished range search within %f s under %d data\n",
-                party_, difftime(time(NULL), timer), ans);
-        return ans;
-
-    }
+//    int IndexStore::rangeSearch(const PolarString &lower, const PolarString &upper,
+//                                Visitor **visitor, int vSize, DataStore *store) {
+//        time_t timer;
+//        time(&timer);
+//        std::string value;
+//        int ans = 0;
+//        if (this->infos == NULL) initMaps();
+//        char buf[8];
+//        for (uint32_t i = 0; i < this->size; i++) {
+//            if (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) continue;
+//            uint32_t k = this->infos[i].info;
+//            uint16_t offset = unwrapOffset(k);
+//            uint16_t fileNo = unwrapFileNo(k);
+//            store->Read(fileNo, offset, &value);
+//            longToStr(this->infos[i].key, buf);
+//            PolarString keyP(buf, 8);
+//            PolarString valueP(value);
+//            for (int j = 0; j < vSize; j++) visitor[j]->Visit(keyP, valueP);
+//            ans++;
+//        }
+//        printInfo(stderr, "[IndexStore-%d] : finished range search within %f s under %d data\n",
+//                party_, difftime(time(NULL), timer), ans);
+//        return ans;
+//
+//    }
 
 
     IndexStore::~IndexStore() {
-        fprintf(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
+        // printInfo(stderr, "[IndexStore-%d] : finalize index store. have saving data : %ld\n", party_, this->size);
         if (fd_ >= 0) {
             munmap(head_, newMapSize);
             close(fd_);

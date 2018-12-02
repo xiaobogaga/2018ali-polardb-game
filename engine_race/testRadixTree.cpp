@@ -14,6 +14,7 @@
 
 
 using polar_race::PolarString;
+using polar_race::IndexStore;
 
 PolarString generateAKey(std::default_random_engine* random) {
     char* buf = new char[8];

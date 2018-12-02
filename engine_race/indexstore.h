@@ -2,16 +2,13 @@
 // Created by tomzhu on 18-11-24.
 //
 
-#ifndef ENGINE_RACE_INDEXSTORE_H
-#define ENGINE_RACE_INDEXSTORE_H
+#ifndef MY_INDEX_STORE_
+#define MY_INDEX_STORE_
 
 #include <stdio.h>
-#include <unordered_map>
 #include "util.h"
 #include "../include/engine.h"
 #include "../include/polar_string.h"
-#include "data_store.h"
-#include "LRUCache.cc"
 #include "MyHashTable.h"
 #include "bloom_filter.hpp"
 #include "config.h"
@@ -39,8 +36,7 @@ namespace polar_race {
 
         void get(long long key, uint32_t *ans);
 
-        int rangeSearch(const PolarString &lower, const PolarString &upper,
-                        Visitor **visitor, int vSize, DataStore *store);
+        int getInfoAt(int i, long long* k, uint32_t* info);
 
         void initMaps();
 
@@ -53,6 +49,14 @@ namespace polar_race {
         void initInfos();
 
         void get2(long long key, uint32_t *ans);
+
+        struct Info* getInfo() {
+            return this->infos;
+        }
+
+        uint32_t getSize() {
+            return this->size;
+        }
 
         ~IndexStore();
 
@@ -77,4 +81,4 @@ namespace polar_race {
 
 }
 
-#endif //ENGINE_RACE_INDEXSTORE_H
+#endif

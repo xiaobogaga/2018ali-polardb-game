@@ -7,24 +7,23 @@
 #include <assert.h>
 #include "util.h"
 #include "engine_race.h"
+#include "config.h"
 
 namespace polar_race {
-
-    static bool timerStop = false;
 
     RetCode Engine::Open(const std::string &name, Engine **eptr) {
         return EngineRace::Open(name, eptr);
     }
 
 // sleepint for 500s.
-    void startTimer() {
+    void startTimer(bool* timerStop) {
         time_t timer;
         time(&timer);
-        while (difftime(time(NULL), timer) <= sleepTime && !timerStop) {
+        while (difftime(time(NULL), timer) <= sleepTime && ! (*timerStop) ) {
             sleep(1);
         }
-        if (!timerStop) {
-            fprintf(stderr, "[Timer] : exceed time and exist\n");
+        if (! (*timerStop) ) {
+            printInfo(stderr, "[Timer] : exceed time and exist\n");
             exit(0);
         }
     }
@@ -33,20 +32,20 @@ namespace polar_race {
     }
 
     RetCode EngineRace::Open(const std::string &name, Engine **eptr) {
-        fprintf(stderr, "[EngineRace] : open db\n");
+        printInfo(stderr, "[EngineRace] : open db\n");
         *eptr = NULL;
         EngineRace *engine_race = new EngineRace(name);
         engine_race->resetCounter();
 
         if (0 != LockFile(name + "/" + kLockFile, &(engine_race->db_lock_))) {
-            fprintf(stderr, "[EngineRace] : lock file failed\n");
+            printInfo(stderr, "[EngineRace] : lock file failed\n");
             delete engine_race;
             return kIOError;
         }
 
         // start a timer task
-        timerStop = false;
-        engine_race->timerTask = new std::thread(startTimer);
+        engine_race->timerStop = false;
+        engine_race->timerTask = new std::thread(startTimer, &engine_race->timerStop);
 
         *eptr = engine_race;
         return kSucc;
@@ -54,7 +53,7 @@ namespace polar_race {
 
 
     EngineRace::~EngineRace() {
-        fprintf(stderr, "[EngineRace] : closing db\n");
+        printInfo(stderr, "[EngineRace] : closing db\n");
         if (db_lock_) {
             UnlockFile(db_lock_);
         }
@@ -67,15 +66,22 @@ namespace polar_race {
             delete this->timerTask;
             this->timerTask = NULL;
         }
-        for (int i = 0; i < parties; i++)
-            pthread_mutex_destroy(&this->mutexes[i]);
+        if (this->mutexes != NULL) {
+            delete[] this->mutexes;
+            this->mutexes = NULL;
+        }
+        if (this->queue != NULL) {
+            delete this->queue;
+            this->queue = NULL;
+        }
     }
 
     RetCode EngineRace::Write(const PolarString &key, const PolarString &value) {
         const std::string &v = value.ToString();
         long long k = strToLong(key.data());
         int party = partition(k);
-        pthread_mutex_lock(&this->mutexes[party]);
+        this->mutexes[party].lock();
+        // pthread_mutex_lock(&this->mutexes[party]);
         uint16_t offset = 0;
         uint16_t fileNo = 0;
         RetCode ret = store_[party].Append(v, &fileNo, &offset);
@@ -83,24 +89,25 @@ namespace polar_race {
         if (ret == kSucc) {
 //    if (writeCounter == 0) {
 //      time(&write_timer);
-//        fprintf(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
+//        printInfo(stderr, "[EngineRace] : writing data. key : %lld, party : %d, offset : %d, fileNo : %d, info : %ld\n",
 //                  k, party, offset, fileNo, wrap(offset, fileNo));
 //    }
             this->indexStore_[party].add(key, info);
         }
 
-        // fprintf(stderr, "w:%lld,%d,%d,%d\n", k, party, offset, fileNo);
+        // printInfo(stderr, "w:%lld,%d,%d,%d\n", k, party, offset, fileNo);
 
 //  writeCounter ++;
 //  if (writeCounter % 300000 == 0) {
 //    time_t current_time = time(NULL);
-//     fprintf(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
+//     printInfo(stderr, "[EngineRace] : have writing 300000 data, and spend %f s\n", difftime(current_time, write_timer));
 //    write_timer = current_time;
 //  }
 
         // assert(this->writeCounter < 6400000);
 
-        pthread_mutex_unlock(&this->mutexes[party]);
+        // pthread_mutex_unlock(&this->mutexes[party]);
+        this->mutexes[party].unlock();
         return ret;
     }
 
@@ -112,8 +119,10 @@ namespace polar_race {
         uint16_t fileNo = -1;
         uint16_t offset = -1;
         uint32_t ans = 0;
-        // pthread_mutex_lock(&mu_);
-        pthread_mutex_lock(&this->mutexes[party]);
+
+        this->mutexes[party].lock();
+        // pthread_mutex_lock(&this->mutexes[party]);
+
         RetCode ret = kSucc;
         this->indexStore_[party].get(k, &ans);
         if (ans == 0) ret = kNotFound;
@@ -122,12 +131,12 @@ namespace polar_race {
             fileNo = unwrapFileNo(ans);
             if (c == 0) {
                 time(&read_timer);
-                //  fprintf(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
+                //  printInfo(stderr, "[EngineRace] : reading first key : %lld... offset : %d, fileNo : %d, info : %ld\n",
                 //          k, offset, fileNo, wrap(offset, fileNo));
             }
         }
 
-        // fprintf(stderr, "r:%lld,%d,%d,%d\n", k, party, offset, fileNo);
+        // printInfo(stderr, "r:%lld,%d,%d,%d\n", k, party, offset, fileNo);
 
         if (ret == kSucc) {
             value->clear();
@@ -135,75 +144,101 @@ namespace polar_race {
         }
 
         if (c == 0) {
-            fprintf(stderr, "[EngineRace] : reading first data finished, key : %lld, and get %lu value\n",
+            printInfo(stderr, "[EngineRace] : reading first data finished, key : %lld, and get %lu value\n",
                     k, value->size());
         }
 
         if (c % 300000 == 0) {
             time_t current_time = time(NULL);
-            fprintf(stderr, "[EngineRace] : have read 300000 data and spend %f s\n",
+            printInfo(stderr, "[EngineRace] : have read 300000 data and spend %f s\n",
                     difftime(current_time, read_timer));
             read_timer = current_time;
         }
-//    if (readCounter.load() % 300000) {
-//        fprintf(stderr, "[EngineRace] : have read 300000 data\n");
-//    }
-        pthread_mutex_unlock(&this->mutexes[party]);
-        // pthread_mutex_unlock(&mu_);
+
+        // pthread_mutex_unlock(&this->mutexes[party]);
+        this->mutexes[party].unlock();
         return ret;
     }
 
     RetCode EngineRace::Range(const PolarString &lower, const PolarString &upper,
                               Visitor &visitor) {
 
-        // pthread_mutex_lock(&mu_);
-        // 这里我们等所有线程都到达了以后，一次IO读取所有.
+        pthread_mutex_lock(&mu_);
+        if (this->queue == NULL) {
+            this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
+        }
+        pthread_mutex_unlock(&mu_);
+        printInfo(stderr, "[EngineRace] : start range read\n");
+        time_t range_timer;
+        long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
+        long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
+        time(&range_timer);
+        // do range query.
+        long size = 0;
+        int partSize = 0, j = -1;
+        long long keyPointer = -1;
+        char buf[8];
+        char* ans = NULL;
+        for (int i = 0; i < parties; i++) {
+            j = -1;
+            printInfo(stderr, "[EngineRace] : range read part %d\n", i);
+            ans = this->queue->get(i, &j, &partSize, &keyPointer);
+            for (j++; j <= partSize; j++) {
+                if (ans == NULL) break;
+                else {
+                    longToStr(keyPointer, buf);
+                    PolarString key(buf, keysize);
+                    PolarString value(ans, valuesize);
+                    visitor.Visit(key, value);
+                    size ++;
+                }
+                ans = this->queue->get(i, &j, &partSize, &keyPointer);
+            }
+        }
+        printInfo(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
+                    low, high, size, difftime(time(NULL), range_timer));
+        return kSucc;
 
-        this->visitors[this->idx++] = &visitor;
+    }
 
-        assert(this->readCounter.load() < 6400000);
-
-//  // sleep 2 s
-//  while (readCounter.load() % 64 != 0) {
-//    std::this_thread::sleep_for(std::chrono::microseconds(500));
-//  }
-
-        // waiting all visitors to join.
-        std::this_thread::sleep_for(std::chrono::microseconds(1000));
+    RetCode EngineRace::MyRange(int part, const PolarString &lower, const PolarString &upper,
+                              Visitor &visitor) {
 
         pthread_mutex_lock(&mu_);
-
-        if (!this->finished) {
-
-#ifdef USE_HASH_TABLE
-            ;
-#else
-            long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
-            long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
-            fprintf(stderr, "[EngineRace] : range search for [%lld, %lld] with %d visitors\n",
-                    low, high, this->idx.load());
-            if (rangeCounter == 0) {
-                time(&range_timer);
-            }
-            // long size = bplus_tree_get_range(tree[0], low, high, visitor, store_[0]);
-
-            // do range query.
-            long size = 0;
-
-            for (int i = 0; i < parties; i++) {
-                size += this->indexStore_[i].rangeSearch(lower, upper, this->visitors, this->idx, &this->store_[i]);
-            }
-
-            if (rangeCounter == 0) {
-                fprintf(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
-                        low, high, size, difftime(time(NULL), range_timer));
-            }
-            rangeCounter++;
-#endif
+        if (this->queue == NULL) {
+            this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
-
-        this->finished = true;
         pthread_mutex_unlock(&mu_);
+
+        // printInfo(stderr, "[EngineRace] : part-%d : start range read\n", part);
+        time_t range_timer;
+        long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
+        long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
+        time(&range_timer);
+        // do range query.
+        long size = 0;
+        int partSize = 0, j = -1;
+        long long keyPointer = -1;
+        char buf[8];
+        char* ans = NULL;
+        for (int i = 0; i < parties; i++) {
+            j = -1;
+            // printInfo(stderr, "[EngineRace] : part-%d : range read part %d\n", part, i);
+            ans = this->queue->get(i, &j, &partSize, &keyPointer);
+            for (j++; j <= partSize; j++) {
+                if (ans == NULL) break;
+                else {
+                    longToStr(keyPointer, buf);
+                    PolarString key(buf, keysize);
+                    PolarString value(ans, valuesize);
+                    visitor.Visit(key, value);
+                    size ++;
+                }
+                ans = this->queue->get(i, &j, &partSize, &keyPointer);
+            }
+        }
+        printInfo(stderr, "[EngineRace] : part-%d : range read. [%lld, %lld) with %ld data. spend %f s\n",
+                part, low, high, size, difftime(time(NULL), range_timer));
         return kSucc;
 
     }

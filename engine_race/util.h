@@ -12,8 +12,20 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <vector>
+#include <cstdarg>
 
 namespace polar_race {
+
+#define MY_PRINT_INFO 1
+
+    static inline void printInfo(FILE *stream,
+                                 const char* format, ...) {
+#ifdef MY_PRINT_INFO
+        va_list ap;
+        va_start(ap, format);
+        vfprintf(stream, format, ap);
+#endif
+    }
 
     static inline long long strToLong(const char *key) {
         long long ans = 0;

@@ -15,20 +15,40 @@ namespace polar_race {
     static const char kDataFilePrefix[] = "DATA_";
     static const int kDataFilePrefixLen = 5;
     static const int valuesize = 4096;
+    static const int keysize = 8;
     static const char kLockFile[] = "LOCK";
-    static const double sleepTime = 300.1;
+    static const double sleepTime = 600.1;
+    static const int threadSize = 64;
 
+    // following variable needs to be changed for different parties.
+//    static const int parties = 512;
+//    static const int kSingleFileSize = 1024 * 1024 * 128;
+//    static const int map_size = 1024 * 512 * 3;
+//    static const int bf_capa = 1024 * 128;
+//    static const double bf_p = 0.0001;
+//    static const int infoArraySize = 1024 * 128;
+//    static const int queueCapacity = 1024 * 128;
+//    static const int queueSize = 2;
+
+    static const int parties = 512;
     static const int kSingleFileSize = 1024 * 1024 * 128;
-    static const int map_size = 1024 * 1024 * 12;
-    static const int parties = 64;
-    static const int bf_capa = 1000000;
+    static const int map_size = 1024 * 512 * 3;
+    static const int bf_capa = 1024 * 128;
     static const double bf_p = 0.0001;
-    static const int infoArraySize = 1024 * 1024;
+    static const int infoArraySize = 1024 * 128;
+    static const int queueCapacity = 1024 * 128;
+    static const int queueSize = 2;
+
 
     static inline int partition(long long key) {
-        int party = ((unsigned long long) (key - INT64_MIN)) / 288230376151711743;
-        return party == 64 ? 64 - 1 : party;
+        int party = ((unsigned long long) (key - INT64_MIN)) / 36028797018963967;
+        return party == parties ? parties - 1 : party;
     }
+
+//    static inline int partition(long long key) {
+//        int party = ((unsigned long long) (key - INT64_MIN)) / 9223372036854775807;
+//        return party == parties ? parties - 1 : party;
+//    }
 
     struct Item {
         uint32_t info;
@@ -39,6 +59,14 @@ namespace polar_race {
         long long key;
         uint32_t info;
     };
+
+    struct QueueItem {
+        char data[valuesize];
+    };
+
+    static std::string FileName(const std::string &dir, uint32_t fileno) {
+        return dir + "/" + kDataFilePrefix + std::to_string(fileno);
+    }
 
 }
 

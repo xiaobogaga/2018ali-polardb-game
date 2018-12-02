@@ -8,7 +8,7 @@ namespace polar_race {
         result->clear();
         DIR *d = opendir(dir.c_str());
         if (d == NULL) {
-            fprintf(stderr, "[Util] : open dir %s failed\n", dir.c_str());
+            printInfo(stderr, "[Util] : open dir %s failed\n", dir.c_str());
             return errno;
         }
         struct dirent *entry;
@@ -44,7 +44,7 @@ namespace polar_race {
                 if (errno == EINTR) {
                     continue;  // Retry
                 }
-                fprintf(stderr, "[Util] : write data failed, fileappend\n");
+                printInfo(stderr, "[Util] : write data failed, fileappend\n");
                 return -1;
             }
             pos += r;

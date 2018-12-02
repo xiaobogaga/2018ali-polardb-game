@@ -13,6 +13,7 @@
 #include <atomic>
 #include <thread>
 #include "config.h"
+#include "globalQueue.h"
 
 namespace polar_race {
 
@@ -23,24 +24,22 @@ namespace polar_race {
         explicit EngineRace(const std::string &dir)
                 : mu_(PTHREAD_MUTEX_INITIALIZER),
                   db_lock_(NULL), writeCounter(0),
-                  readCounter(0), rangeCounter(0) {
+                  readCounter(0), queue(NULL), timerStop(false) {
             this->store_ = new DataStore[parties];
             this->indexStore_ = new IndexStore[parties];
+            this->mutexes = new std::mutex[parties];
             RetCode ret;
             for (int i = 0; i < parties; i++) {
-                pthread_mutex_init(&this->mutexes[i], NULL);
                 this->store_[i].setDir(dir);
                 this->store_[i].setParty(i);
                 ret = this->store_[i].Init();
                 if (ret != kSucc) {
-                    fprintf(stderr, "[EngineRace] : init store failed \n");
+                    printInfo(stderr, "[EngineRace] : init store failed \n");
                 }
                 this->indexStore_[i].init(dir, i);
             }
-            this->idx = 0;
-            this->finished = false;
             this->timerTask = NULL;
-            fprintf(stderr, "[EngineRace] : creating an engineRace instance at %s\n",
+            printInfo(stderr, "[EngineRace] : creating an engineRace instance at %s\n",
                     dir.c_str());
         }
 
@@ -56,10 +55,12 @@ namespace polar_race {
                       const PolarString &upper,
                       Visitor &visitor) override;
 
+        RetCode MyRange(int part, const PolarString &lower, const PolarString &upper,
+                                    Visitor &visitor);
+
         void resetCounter() {
             writeCounter = 0;
             readCounter = 0;
-            rangeCounter = 0;
         }
 
     private:
@@ -69,14 +70,11 @@ namespace polar_race {
         DataStore *store_;
         std::atomic_int writeCounter;
         std::atomic_int readCounter;
-        std::atomic_int rangeCounter;
         time_t read_timer;
-        time_t range_timer;
-        pthread_mutex_t mutexes[parties];
-        Visitor *visitors[parties];
-        std::atomic_int idx;
-        bool finished;
+        std::mutex* mutexes;
         std::thread *timerTask;
+        MessageQueue* queue;
+        bool timerStop;
     };
 
 }  // namespace polar_race

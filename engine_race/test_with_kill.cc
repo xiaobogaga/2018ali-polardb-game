@@ -32,31 +32,33 @@ namespace polar_race {
             long long k = polar_race::strToLong(key.data());
         //    fprintf(stderr, "[Visitor] : visiting %lld key \n", k);
             if (tempMaps.count(k) > 0) {
-                fprintf(stderr, "[Visitor] : iterator duplicate keys %lld\n", k);
+                fprintf(stderr, "[Visitor-%d] : iterator duplicate keys %lld\n", party, k);
                 exit(1);
             }
             tempMaps.insert( std::pair<long long, int> (k, 1) );
             std::map<PolarString, PolarString>::iterator ite = maps->find(key);
             if (ite != maps->end()) {
                 if (ite->second.compare(PolarString(value)) != 0) {
-                    fprintf(stderr, "[Visitor] : find an unmatching key. %lld\n", k);
+                    fprintf(stderr, "[Visitor-%d] : find an unmatching key. %lld\n", party, k);
                 }
             } else {
-                fprintf(stderr, "[Visitor] : visit an unexist key %lld\n", k);
+                fprintf(stderr, "[Visitor-%d] : visit an unexist key %lld\n", party, k);
             }
         }
 
-        MyVisitor(std::map<PolarString, PolarString, PolarStringComparator>* maps) {
+        MyVisitor(int party, std::map<PolarString, PolarString, PolarStringComparator>* maps) {
+            this->party = party;
             this->maps = maps;
         }
 
         void checkSizeEqual() {
             if (maps->size() != tempMaps.size())
-                fprintf(stderr, "[Visitor] : elements size error. ite %d elements but real %d elements\n",
-                        tempMaps.size(), maps->size());
+                fprintf(stderr, "[Visitor-%d] : elements size error. ite %d elements but real %d elements\n",
+                        party, tempMaps.size(), maps->size());
         }
 
     private:
+        int party;
         std::map<long long, int> tempMaps;
         std::map<PolarString, PolarString, PolarStringComparator>* maps;
     };
@@ -69,7 +71,7 @@ static std::mutex mutex;
 static volatile bool shutdown = false;
 
 
-void writeAValue(Engine* engine, PolarString& key,
+void writeAValue(EngineRace* engine, PolarString& key,
                  PolarString& value, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                  std::vector<PolarString>* keys);
 
@@ -77,25 +79,25 @@ PolarString generateAKey(std::default_random_engine* random);
 
 PolarString generateValue(std::default_random_engine* random);
 
-void writeTask(Engine* engine, std::default_random_engine* random,
+void writeTask(EngineRace* engine, std::default_random_engine* random,
                int writeTimes, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                std::vector<PolarString>* keys);
 
-void writeTask2(Engine* engine, std::default_random_engine* random,
+void writeTask2(EngineRace* engine, std::default_random_engine* random,
                 int writeTimes, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys);
 
-void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+void testReader(EngineRace* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys, int readerTime,
                 std::default_random_engine* random);
 
-void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+void testRange(int party, EngineRace* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random);
 
 class WriterTask {
 
 public:
-    WriterTask(Engine* engine) {
+    WriterTask(EngineRace* engine) {
         this->engine = engine;
         this->groups = NULL;
         unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -159,12 +161,12 @@ public:
 private:
     int threadSize;
     std::thread** groups;
-    Engine* engine;
+    EngineRace* engine;
     std::default_random_engine random;
 };
 
 
-void writeAValue(Engine* engine, PolarString& key,
+void writeAValue(EngineRace* engine, PolarString& key,
                  PolarString& value, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                  std::vector<PolarString>* keys) {
 
@@ -192,7 +194,7 @@ PolarString generateValue(std::default_random_engine* random) {
     return PolarString(buf, size);
 }
 
-void writeTask(Engine* engine, std::default_random_engine* random,
+void writeTask(EngineRace* engine, std::default_random_engine* random,
                int writeTimes, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                std::vector<PolarString>* keys) {
     for (int i = 0; i < writeTimes && !shutdown; i++) {
@@ -212,7 +214,7 @@ void writeTask(Engine* engine, std::default_random_engine* random,
     }
 }
 
-void writeTask2(Engine* engine, std::default_random_engine* random,
+void writeTask2(EngineRace* engine, std::default_random_engine* random,
                 int writeTimes, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys) {
     for (int i = 0; i < writeTimes; i++) {
@@ -234,7 +236,7 @@ void writeTask2(Engine* engine, std::default_random_engine* random,
 
 
 
-void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+void testReader(EngineRace* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
     mutex.lock();
     for (int i = 0; i < readerTime; i++) {
@@ -273,11 +275,11 @@ void testReader(Engine* engine, std::map<PolarString, PolarString, PolarStringCo
     mutex.unlock();
 }
 
-void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+void testRange(int party, EngineRace* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                 std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
     // fprintf(stderr, "[Reader] : start testing range query\n");
-    polar_race::MyVisitor visit(maps);
-    engine->Range(PolarString(std::string("")),
+    polar_race::MyVisitor visit(party, maps);
+    engine->MyRange(party, PolarString(std::string("")),
                   PolarString(std::string("")), visit);
     visit.checkSizeEqual();
 }
@@ -285,7 +287,7 @@ void testRange(Engine* engine, std::map<PolarString, PolarString, PolarStringCom
 class ReaderPro {
 
 public :
-    ReaderPro (Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+    ReaderPro (EngineRace* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
                std::vector<PolarString>* keys) {
         this->engine = engine;
         this->maps = maps;
@@ -315,7 +317,7 @@ public :
 
 
 private:
-    Engine* engine;
+    EngineRace* engine;
     std::map<PolarString, PolarString, PolarStringComparator>* maps;
     std::thread** groups;
     std::default_random_engine random;
@@ -324,7 +326,7 @@ private:
 
 class RangePro {
 public:
-    RangePro (Engine* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
+    RangePro (EngineRace* engine, std::map<PolarString, PolarString, PolarStringComparator>* maps,
             std::vector<PolarString>* keys) {
         this->engine = engine;
         this->maps = maps;
@@ -339,7 +341,7 @@ public:
         this->groups = new std::thread*[threadSize];
         // fprintf(stderr, "start range reading\n");
         for (int i = 0; i < threadSize; i++) {
-            this->groups[i] = new std::thread(testRange, this->engine,
+            this->groups[i] = new std::thread(testRange, i, this->engine,
                                               this->maps, this->keys, readerTime, &this->random);
         }
         for (int i = 0; i < threadSize; i++) {
@@ -354,7 +356,7 @@ public:
 
 
 private:
-    Engine* engine;
+    EngineRace* engine;
     std::map<PolarString, PolarString, PolarStringComparator>* maps;
     std::thread** groups;
     std::default_random_engine random;
@@ -367,7 +369,7 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 64;
-    int writingTime = 100;
+    int writingTime = 1600;
     if (argc <= 1) {
         ;
     } else {
@@ -379,7 +381,7 @@ int main(int argc, char** argv) {
  //   Engine::Open(path, &engine);
  //   delete engine; // finilize.
     EngineRace::Open(path, &engine);
-    WriterTask writeTask(engine);
+    WriterTask writeTask((EngineRace*) engine);
     fprintf(stderr , "[Tester] : start writer\n");
     writeTask.startKillableWriter(threadSize, writingTime);
     // std::this_thread::sleep_for (std::chrono::seconds(5)); // sleeping for ten seconds.
@@ -387,13 +389,14 @@ int main(int argc, char** argv) {
     writeTask.waitThreadEnd();
     fprintf(stderr , "[Tester] : end writer\n");
     Engine::Open(path, &engine);
-    ReaderPro readerPro(engine, writeTask.getMaps(), writeTask.getKeys());
+    ReaderPro readerPro((EngineRace*) engine, writeTask.getMaps(), writeTask.getKeys());
     fprintf(stderr , "[Tester] : start reader\n");
     readerPro.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end reader\n");
     fprintf(stderr , "[Tester] : start range read\n");
 
-    RangePro rangePro(engine, writeTask.getMaps(), writeTask.getKeys());
+    Engine::Open(path, &engine);
+    RangePro rangePro((EngineRace*) engine, writeTask.getMaps(), writeTask.getKeys());
     rangePro.startRange(threadSize, writingTime);
 
     fprintf(stderr , "[Tester] : end range read\n");
@@ -406,7 +409,7 @@ int main(int argc, char** argv) {
     // first clear dirs.
     system("rm -rf /tmp/test_dump/*");
     EngineRace::Open(path, &engine);
-    WriterTask performanceWriterTask(engine);
+    WriterTask performanceWriterTask((EngineRace*) engine);
     threadSize = 64;
     writingTime = 1000;
     fprintf(stderr , "[Tester] : start writer\n");
@@ -415,11 +418,13 @@ int main(int argc, char** argv) {
     delete engine;
     EngineRace::Open(path, &engine);
     fprintf(stderr , "[Tester] : start read\n");
-    ReaderPro performanceReaderTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
+    ReaderPro performanceReaderTask((EngineRace*) engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceReaderTask.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end read\n");
     fprintf(stderr , "[Tester] : start range read\n");
-    RangePro performanceRangeTask(engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
+    delete engine;
+    Engine::Open(path, &engine);
+    RangePro performanceRangeTask((EngineRace*) engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceRangeTask.startRange(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.

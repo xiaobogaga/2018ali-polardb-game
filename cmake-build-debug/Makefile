@@ -242,6 +242,33 @@ engine_race/engine_race.cc.s:
 	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/engine_race.cc.s
 .PHONY : engine_race/engine_race.cc.s
 
+engine_race/globalQueue.o: engine_race/globalQueue.cc.o
+
+.PHONY : engine_race/globalQueue.o
+
+# target to build an object file
+engine_race/globalQueue.cc.o:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/globalQueue.cc.o
+.PHONY : engine_race/globalQueue.cc.o
+
+engine_race/globalQueue.i: engine_race/globalQueue.cc.i
+
+.PHONY : engine_race/globalQueue.i
+
+# target to preprocess a source file
+engine_race/globalQueue.cc.i:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/globalQueue.cc.i
+.PHONY : engine_race/globalQueue.cc.i
+
+engine_race/globalQueue.s: engine_race/globalQueue.cc.s
+
+.PHONY : engine_race/globalQueue.s
+
+# target to generate assembly for a file
+engine_race/globalQueue.cc.s:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/globalQueue.cc.s
+.PHONY : engine_race/globalQueue.cc.s
+
 engine_race/indexstore.o: engine_race/indexstore.cc.o
 
 .PHONY : engine_race/indexstore.o
@@ -451,6 +478,9 @@ help:
 	@echo "... engine_race/engine_race.o"
 	@echo "... engine_race/engine_race.i"
 	@echo "... engine_race/engine_race.s"
+	@echo "... engine_race/globalQueue.o"
+	@echo "... engine_race/globalQueue.i"
+	@echo "... engine_race/globalQueue.s"
 	@echo "... engine_race/indexstore.o"
 	@echo "... engine_race/indexstore.i"
 	@echo "... engine_race/indexstore.s"
