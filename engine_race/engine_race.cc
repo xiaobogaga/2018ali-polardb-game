@@ -44,8 +44,8 @@ namespace polar_race {
         }
 
         // start a timer task
-        engine_race->timerStop = false;
-        engine_race->timerTask = new std::thread(startTimer, &engine_race->timerStop);
+//        engine_race->timerStop = false;
+//        engine_race->timerTask = new std::thread(startTimer, &engine_race->timerStop);
 
         *eptr = engine_race;
         return kSucc;
@@ -60,12 +60,14 @@ namespace polar_race {
         // delete[] this->mutexes;
         delete[] this->store_;
         delete[] this->indexStore_;
+
         if (this->timerTask != NULL) {
             timerStop = true;
             this->timerTask->join();
             delete this->timerTask;
             this->timerTask = NULL;
         }
+
         if (this->mutexes != NULL) {
             delete[] this->mutexes;
             this->mutexes = NULL;
@@ -168,7 +170,7 @@ namespace polar_race {
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
         pthread_mutex_unlock(&mu_);
-        printInfo(stderr, "[EngineRace] : start range read\n");
+        // printInfo(stderr, "[EngineRace] : start range read\n");
         time_t range_timer;
         long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
         long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
@@ -181,7 +183,7 @@ namespace polar_race {
         char* ans = NULL;
         for (int i = 0; i < parties; i++) {
             j = -1;
-            printInfo(stderr, "[EngineRace] : range read part %d\n", i);
+            // printInfo(stderr, "[EngineRace] : range read part %d\n", i);
             ans = this->queue->get(i, &j, &partSize, &keyPointer);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
