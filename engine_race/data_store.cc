@@ -9,6 +9,10 @@
 
 namespace polar_race {
 
+    static std::string FileName(const std::string &dir, uint32_t fileno) {
+        return dir + "/" + My_kDataFilePrefix_ + std::to_string(fileno);
+    }
+
     RetCode DataStore::Init() {
         if (!FileExists(dir_)
             && 0 != mkdir(dir_.c_str(), 0755)) {
@@ -16,7 +20,7 @@ namespace polar_race {
             return kIOError;
         }
 
-        this->dataFilePath = dir_ + dataPath;
+        this->dataFilePath = dir_ + My_dataPath_;
 
         if (!FileExists(this->dataFilePath) &&
             0 != mkdir(this->dataFilePath.c_str(), 0755)) {
@@ -46,10 +50,10 @@ namespace polar_race {
         std::string sindex;
         std::vector<std::string>::iterator it;
         for (it = files.begin(); it != files.end(); ++it) {
-            if ((*it).compare(0, kDataFilePrefixLen, kDataFilePrefix) != 0) {
+            if ((*it).compare(0, My_kDataFilePrefixLen_, My_kDataFilePrefix_) != 0) {
                 continue;
             }
-            sindex = (*it).substr(kDataFilePrefixLen);
+            sindex = (*it).substr(My_kDataFilePrefixLen_);
             if (std::stoul(sindex) > cur_fileNo) {
                 cur_fileNo = (uint16_t) std::stoi(sindex);
             }
@@ -58,7 +62,7 @@ namespace polar_race {
         cur_fileNo = (cur_fileNo == 0) ? 1 : cur_fileNo;
         int len = (int) GetFileLength(FileName(this->dataFilePath, cur_fileNo));
         if (len > 0) {
-            cur_offset = (uint16_t) len / (valuesize);
+            cur_offset = (uint16_t) len / (My_valuesize_);
         }
         OpenCurFile();
         return fileSize;
@@ -70,7 +74,7 @@ namespace polar_race {
             initFD();
         }
 
-        if (cur_offset * valuesize + valuesize > kSingleFileSize) {
+        if (cur_offset * My_valuesize_ + My_valuesize_ > My_kSingleFileSize_) {
             // Swtich to new file
             close(fd_);
             cur_fileNo += 1;
@@ -79,7 +83,7 @@ namespace polar_race {
         }
 
         // Append write
-        if (0 != FileAppend(fd_, value, valuesize)) {
+        if (0 != FileAppend(fd_, value, My_valuesize_)) {
             printInfo(stderr, "[DataStore] : append to file failed\n");
             return kIOError;
         }
@@ -103,9 +107,9 @@ namespace polar_race {
             readFiles->insert(std::pair<uint16_t, int>(fileNo, fd));
         } else fd = readFiles->find(fileNo)->second;
 
-        lseek(fd, ((uint32_t) offset) * valuesize, SEEK_SET);
+        lseek(fd, ((uint32_t) offset) * My_valuesize_, SEEK_SET);
         char *pos = buf;
-        uint32_t value_len = valuesize;
+        uint32_t value_len = My_valuesize_;
         while (value_len > 0) {
             ssize_t r = read(fd, pos, value_len);
             if (r < 0) {
@@ -120,7 +124,7 @@ namespace polar_race {
             value_len -= r;
         }
         // todo
-        value->assign(buf, valuesize); // this make concurrent write failed.
+        value->assign(buf, My_valuesize_); // this make concurrent write failed.
         return kSucc;
     }
 

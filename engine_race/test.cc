@@ -47,7 +47,7 @@ PolarString generateValue(std::default_random_engine &random, char buf[]) {
 }
 
 int main() {
-    system("rm -rf /tmp/test_dump/*");
+    int ret1 = system("rm -rf /tmp/test_dump/*");
     Engine *engine = NULL;
     std::string path(kDumpPath);
     RetCode ret = Engine::Open(path, &engine);
@@ -169,5 +169,5 @@ int main() {
         fprintf(stderr, "[Test-4] : find an unmatching key\n");
     }
 
-    return 0;
+    return ret1;
 }

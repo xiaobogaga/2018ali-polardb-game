@@ -18,7 +18,7 @@ namespace polar_race {
 
 #define MY_PRINT_INFO 1
 
-    static inline void printInfo(FILE *stream,
+    inline void printInfo(FILE *stream,
                                  const char* format, ...) {
 #ifdef MY_PRINT_INFO
         va_list ap;
@@ -27,7 +27,7 @@ namespace polar_race {
 #endif
     }
 
-    static inline long long strToLong(const char *key) {
+    inline long long strToLong(const char *key) {
         long long ans = 0;
         for (int i = 0; i < 64; i++) {
             ans |= (((long long) ((key[i / 8]) >> (7 - i % 8)) & 1) << (63 - i));
@@ -35,7 +35,7 @@ namespace polar_race {
         return ans;
     }
 
-    static inline void longToStr(long long key, char *ans) {
+    inline void longToStr(long long key, char *ans) {
         memset(ans, 0, sizeof(char) * 8);
         for (int i = 0; i < 64; i++) {
             char c = (char) (((key >> i) & 1) << (i % 8));
@@ -43,7 +43,7 @@ namespace polar_race {
         }
     }
 
-    static inline uint32_t wrap(uint16_t offset, uint16_t fileNo) {
+    inline uint32_t wrap(uint16_t offset, uint16_t fileNo) {
         uint32_t ans = 0;
         for (int i = 0; i < 16; i++) {
             ans |= (((uint32_t) ((offset >> i) & 1)) << i);
@@ -52,7 +52,7 @@ namespace polar_race {
         return ans;
     }
 
-    static inline uint16_t unwrapOffset(uint32_t wrapper) {
+    inline uint16_t unwrapOffset(uint32_t wrapper) {
         uint16_t ans = 0;
         for (int i = 0; i < 16; i++) {
             ans |= (((wrapper >> i) & 1) << i);
@@ -60,7 +60,7 @@ namespace polar_race {
         return ans;
     }
 
-    static inline uint16_t unwrapFileNo(uint32_t wrapper) {
+    inline uint16_t unwrapFileNo(uint32_t wrapper) {
         uint16_t ans = 0;
         for (int i = 0; i < 16; i++) {
             ans |= (((wrapper >> (i + 16)) & 1) << i);

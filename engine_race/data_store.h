@@ -74,7 +74,7 @@ namespace polar_race {
 
         int party;
         // todo
-        char buf[valuesize]; // for concurrent read error.
+        char buf[My_valuesize_]; // for concurrent read error.
     };
 
 }  // namespace polar_race

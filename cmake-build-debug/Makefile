@@ -188,6 +188,33 @@ tempTest/fast:
 	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
 .PHONY : tempTest/fast
 
+engine_race/config.o: engine_race/config.cc.o
+
+.PHONY : engine_race/config.o
+
+# target to build an object file
+engine_race/config.cc.o:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/config.cc.o
+.PHONY : engine_race/config.cc.o
+
+engine_race/config.i: engine_race/config.cc.i
+
+.PHONY : engine_race/config.i
+
+# target to preprocess a source file
+engine_race/config.cc.i:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/config.cc.i
+.PHONY : engine_race/config.cc.i
+
+engine_race/config.s: engine_race/config.cc.s
+
+.PHONY : engine_race/config.s
+
+# target to generate assembly for a file
+engine_race/config.cc.s:
+	$(MAKE) -f CMakeFiles/engine_race.dir/build.make CMakeFiles/engine_race.dir/engine_race/config.cc.s
+.PHONY : engine_race/config.cc.s
+
 engine_race/data_store.o: engine_race/data_store.cc.o
 
 .PHONY : engine_race/data_store.o
@@ -472,6 +499,9 @@ help:
 	@echo "... test3"
 	@echo "... test2"
 	@echo "... tempTest"
+	@echo "... engine_race/config.o"
+	@echo "... engine_race/config.i"
+	@echo "... engine_race/config.s"
 	@echo "... engine_race/data_store.o"
 	@echo "... engine_race/data_store.i"
 	@echo "... engine_race/data_store.s"

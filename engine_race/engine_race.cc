@@ -20,11 +20,11 @@ namespace polar_race {
         printInfo(stderr, "[Timer] : start timer\n");
         time_t timer;
         time(&timer);
-        while (difftime(time(NULL), timer) <= sleepTime && !directStop ) {
+        while (difftime(time(NULL), timer) <= My_sleepTime_ && !My_directStop_ ) {
             sleep(1);
         }
-        if (! directStop ) {
-            exceedTime = true;
+        if (! My_directStop_ ) {
+            My_exceedTime_ = true;
             printInfo(stderr, "[Timer] : exceed time and exist\n");
             sleep(1); // sleep for 1 second.
             exit(0);
@@ -40,15 +40,15 @@ namespace polar_race {
         EngineRace *engine_race = new EngineRace(name);
         engine_race->resetCounter();
 
-        if (0 != LockFile(name + "/" + kLockFile, &(engine_race->db_lock_))) {
+        if (0 != LockFile(name + "/" + My_kLockFile_, &(engine_race->db_lock_))) {
             printInfo(stderr, "[EngineRace] : lock file failed\n");
             delete engine_race;
             return kIOError;
         }
 
         // start a timer task
-        directStop = false;
-        exceedTime = false;
+        My_directStop_ = false;
+        My_exceedTime_ = false;
         engine_race->timerTask = new std::thread(startTimer);
 
         *eptr = engine_race;
@@ -66,7 +66,7 @@ namespace polar_race {
         delete[] this->indexStore_;
 
         if (this->timerTask != NULL) {
-            directStop = true;
+            My_directStop_ = true;
             this->timerTask->join();
             delete this->timerTask;
             this->timerTask = NULL;
@@ -172,6 +172,7 @@ namespace polar_race {
         int part = 0;
         this->mu_.lock();
         part = this->rangeCounter ++;
+        fprintf(stderr, "[EngineRace] : part %d coming\n", part);
         // pthread_mutex_unlock(&mu_);
 
 //        int temp = this->rangeCounter;
@@ -186,12 +187,13 @@ namespace polar_race {
         // threadSize = this->rangeCounter;
         if (this->queue == NULL) {
             delete[] this->mutexes;
-            this->mutexes = new std::mutex[parties];
+            this->mutexes = new std::mutex[My_parties_];
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
         this->mu_.unlock();
 
-        printInfo(stderr, "[EngineRace-%d] : start range reader, current threadSize\n", part, this->rangeCounter);
+        printInfo(stderr, "[EngineRace-%d] : start range reader, current threadSize : %d\n",
+                part, this->rangeCounter);
         time_t range_timer;
         long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
         long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
@@ -202,7 +204,7 @@ namespace polar_race {
         long long keyPointer = -1;
         char buf[8];
         char* ans = NULL;
-        for (int i = 0; i < parties; i++) {
+        for (int i = 0; i < My_parties_; i++) {
             j = -1;
             printInfo(stderr, "[EngineRace-%d] : range read part %d\n", part, i);
             ans = this->queue->get(i, &j, &partSize, &keyPointer);
@@ -210,8 +212,8 @@ namespace polar_race {
                 if (ans == NULL) break;
                 else {
                     longToStr(keyPointer, buf);
-                    PolarString key(buf, keysize);
-                    PolarString value(ans, valuesize);
+                    PolarString key(buf, My_keysize_);
+                    PolarString value(ans, My_valuesize_);
                     visitor.Visit(key, value);
                     size ++;
                 }
@@ -231,12 +233,13 @@ namespace polar_race {
         part = this->rangeCounter ++;
         if (this->queue == NULL) {
             delete[] this->mutexes;
-            this->mutexes = new std::mutex[parties];
+            this->mutexes = new std::mutex[My_parties_];
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
         this->mu_.unlock();
 
-        printInfo(stderr, "[EngineRace] : part-%d : start range read with rangeCounter : %d\n", part, this->rangeCounter);
+        printInfo(stderr, "[EngineRace] : part-%d : start range read with rangeCounter : %d\n", part,
+                this->rangeCounter);
         time_t range_timer;
         long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
         long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
@@ -247,7 +250,7 @@ namespace polar_race {
         long long keyPointer = -1;
         char buf[8];
         char* ans = NULL;
-        for (int i = 0; i < parties; i++) {
+        for (int i = 0; i < My_parties_; i++) {
             j = -1;
             // printInfo(stderr, "[EngineRace] : part-%d : range read part %d\n", part, i);
             ans = this->queue->get(i, &j, &partSize, &keyPointer);
@@ -255,8 +258,8 @@ namespace polar_race {
                 if (ans == NULL) break;
                 else {
                     longToStr(keyPointer, buf);
-                    PolarString key(buf, keysize);
-                    PolarString value(ans, valuesize);
+                    PolarString key(buf, My_keysize_);
+                    PolarString value(ans, My_valuesize_);
                     visitor.Visit(key, value);
                     size ++;
                 }

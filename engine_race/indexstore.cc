@@ -49,7 +49,7 @@ namespace polar_race {
             return kIOError;
         }
 
-        this->indexPath_ = dir + indexPrefix;
+        this->indexPath_ = dir + My_indexPrefix_;
         if (!FileExists(this->indexPath_) &&
             0 != mkdir(this->indexPath_.c_str(), 0755)) {
             printInfo(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, this->indexPath_.c_str());
@@ -59,7 +59,7 @@ namespace polar_race {
         this->fileName_ = this->indexPath_ + std::to_string(party);
         int fd = open(this->fileName_.c_str(), O_RDWR, 0644);
         size_t fileLength;
-        newMapSize = map_size;
+        newMapSize = My_map_size_;
         if (fd < 0 && errno == ENOENT) {
             // not exist, then create
             fd = open(this->fileName_.c_str(), O_RDWR | O_CREAT, 0644);
@@ -105,16 +105,16 @@ namespace polar_race {
         // needs reallocate.
         printInfo(stderr, "[IndexStore-%d] : reallocating\n", party_);
         if (munmap(head_, newMapSize) == -1) printInfo(stderr, "[IndexStore-%d] : unmap  failed\n", party_);
-        if (posix_fallocate(this->fd_, start, map_size) != 0) {
+        if (posix_fallocate(this->fd_, start, My_map_size_) != 0) {
             printInfo(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party_);
             close(this->fd_);
             return;
         }
-        void *ptr = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
+        void *ptr = mmap(NULL, My_map_size_, PROT_READ | PROT_WRITE,
                          MAP_SHARED, this->fd_, this->start);
-        memset(ptr, 0, map_size);
-        this->start += map_size;
-        this->newMapSize = map_size;
+        memset(ptr, 0, My_map_size_);
+        this->start += My_map_size_;
+        this->newMapSize = My_map_size_;
         this->sep = newMapSize / sizeof(struct Item);
         if (ptr == MAP_FAILED) {
             printInfo(stderr, "[IndexStore -%d] : MAP_FAILED\n", party_);
@@ -192,7 +192,7 @@ namespace polar_race {
 
     }
 
-    int IndexStore::getInfoAt(int i, long long* k, uint32_t * info) {
+    int IndexStore::getInfoAt(uint32_t i, long long* k, uint32_t * info) {
         long long key = this->infos[i].key;
         (*k) = key;
         while (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) i++;

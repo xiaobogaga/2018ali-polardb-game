@@ -326,6 +326,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/config.cc">
+			<Option target="engine_race"/>
+		</Unit>
 		<Unit filename="/home/tomzhu/test/engine6/engine/engine_race/config.h">
 			<Option target="engine_race"/>
 		</Unit>

@@ -12,8 +12,8 @@
 #include <ctime>
 #include <atomic>
 #include <thread>
-#include "config.h"
 #include "globalQueue.h"
+#include "config.h"
 
 namespace polar_race {
 
@@ -24,11 +24,11 @@ namespace polar_race {
         explicit EngineRace(const std::string &dir)
                 : db_lock_(NULL), writeCounter(0),
                   readCounter(0), rangeCounter(0), startRange(false), queue(NULL) {
-            this->store_ = new DataStore[parties];
-            this->indexStore_ = new IndexStore[parties];
-            this->mutexes = new std::mutex[parties];
+            this->store_ = new DataStore[My_parties_];
+            this->indexStore_ = new IndexStore[My_parties_];
+            this->mutexes = new std::mutex[My_parties_];
             RetCode ret;
-            for (int i = 0; i < parties; i++) {
+            for (int i = 0; i < My_parties_; i++) {
                 this->store_[i].setDir(dir);
                 this->store_[i].setParty(i);
                 ret = this->store_[i].Init();

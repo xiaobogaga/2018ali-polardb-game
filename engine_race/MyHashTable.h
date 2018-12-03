@@ -42,8 +42,8 @@ namespace polar_race {
         void add(long long key, uint32_t info) {
             if (bf == NULL) {
                 this->bfparameters = new bloom_parameters();
-                this->bfparameters->projected_element_count = bf_capa;
-                this->bfparameters->false_positive_probability = bf_p; // 1 in 10000
+                this->bfparameters->projected_element_count = My_bf_capa_;
+                this->bfparameters->false_positive_probability = My_bf_p_; // 1 in 10000
                 this->bfparameters->random_seed = std::chrono::system_clock::now().time_since_epoch().count();
                 if (!this->bfparameters) {
                     fprintf(stderr, "[MyHashTable] : Invalid set of bloom filter parameters!\n");

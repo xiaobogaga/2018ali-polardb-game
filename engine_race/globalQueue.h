@@ -6,17 +6,17 @@
 #define ENGINE_RACE_GLOBALQUEUE_H
 
 #include <stdint.h>
-#include "config.h"
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include "data_store.h"
 #include "indexstore.h"
+#include "config.h"
 
 namespace polar_race {
 
     static std::mutex* mutexLocks;
-    static int realItemSizes[queueSize];
+    static int realItemSizes[My_queueSize_];
     static int loaded = 0;
     static int readedPart = -1;
     static std::condition_variable* loadCon;
@@ -33,7 +33,7 @@ namespace polar_race {
 
         ~MessageQueue() {
             printInfo(stderr, "[MessageQueue] : finilizing\n");
-            for (int i = 0; i < queueSize; i++) free(this->items[i]);
+            for (int i = 0; i < My_queueSize_; i++) free(this->items[i]);
             free(this->items);
             this->loader->join();
             delete this->loader;
@@ -47,7 +47,7 @@ namespace polar_race {
         DataStore *stores;
         IndexStore *indexStores;
         std::thread *loader;
-        int readCounter[parties];
+        int readCounter[My_parties_];
         std::mutex anotherLock;
         std::condition_variable* loadCon_;
     };

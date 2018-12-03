@@ -53,7 +53,7 @@ namespace polar_race {
 
         void checkSizeEqual() {
             if (maps->size() != tempMaps.size())
-                fprintf(stderr, "[Visitor-%d] : elements size error. ite %d elements but real %d elements\n",
+                fprintf(stderr, "[Visitor-%d] : elements size error. ite %ld elements but real %ld elements\n",
                         party, tempMaps.size(), maps->size());
         }
 
@@ -366,7 +366,7 @@ private:
 
 int main(int argc, char** argv) {
     // test_with_kill threadSize writing_time
-    system("rm -rf /tmp/test_dump/*");
+    int ret = system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 64;
     int writingTime = 1000;
@@ -406,7 +406,7 @@ int main(int argc, char** argv) {
     // after do finilize, then we can do performance test.
     fprintf(stderr, "Performance Test\n");
     // first clear dirs.
-    system("rm -rf /tmp/test_dump/*");
+    ret = system("rm -rf /tmp/test_dump/*");
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask((EngineRace*) engine);
     threadSize = 64;
@@ -427,6 +427,6 @@ int main(int argc, char** argv) {
     performanceRangeTask.startRange(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end range read\n");
     delete engine; // finilize.
-    system("rm -rf /tmp/test_dump/*");
-    return 0;
+    ret = system("rm -rf /tmp/test_dump/*");
+    return ret;
 }
