@@ -19,7 +19,7 @@ namespace polar_race {
 
     public:
 
-        MessageQueue(DataStore *stores_, IndexStore *indexStores_, std::mutex* mutexes);
+        MessageQueue(DataStore *stores_, IndexStore *indexStores_, std::mutex* mutexes, int threadSize);
 
         // reading the data of i within this part, and partSize is the total size
         // of this part. for client, must iterator till partSize.

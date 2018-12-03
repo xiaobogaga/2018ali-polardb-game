@@ -11,6 +11,10 @@
 
 namespace polar_race {
 
+    static const double My_sleepTime_ = 100.1;
+    static const char My_kLockFile_[] = "LOCK";
+    static const int My_keysize_ = 8;
+
     RetCode Engine::Open(const std::string &name, Engine **eptr) {
         return EngineRace::Open(name, eptr);
     }
@@ -173,22 +177,22 @@ namespace polar_race {
         this->mu_.lock();
         part = this->rangeCounter ++;
         fprintf(stderr, "[EngineRace] : part %d coming\n", part);
-        // pthread_mutex_unlock(&mu_);
+        this->mu_.unlock();
 
-//        int temp = this->rangeCounter;
-//        int sameTime = 0;
-//        while (sameTime < 10) {
-//            std::this_thread::sleep_for(std::chrono::microseconds(100));
-//            if (temp == this->rangeCounter) { sameTime ++;}
-//            else temp = this->rangeCounter;
-//        }
+        int temp = this->rangeCounter;
+        int sameTime = 0;
+        while (sameTime < 10) {
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            if (temp == this->rangeCounter) { sameTime ++;}
+            else temp = this->rangeCounter;
+        }
 
-        // pthread_mutex_lock(&mu_);
-        // threadSize = this->rangeCounter;
+        this->mu_.lock();
         if (this->queue == NULL) {
             delete[] this->mutexes;
             this->mutexes = new std::mutex[My_parties_];
-            this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
+            this->queue = new MessageQueue(this->store_, this->indexStore_,
+                    this->mutexes, this->rangeCounter);
         }
         this->mu_.unlock();
 
@@ -234,7 +238,8 @@ namespace polar_race {
         if (this->queue == NULL) {
             delete[] this->mutexes;
             this->mutexes = new std::mutex[My_parties_];
-            this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
+            this->queue = new MessageQueue(this->store_,
+                        this->indexStore_, this->mutexes, 64);
         }
         this->mu_.unlock();
 

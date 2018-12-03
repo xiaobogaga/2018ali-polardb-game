@@ -8,10 +8,11 @@ namespace polar_race {
 
     std::condition_variable notFullCV;
     std::mutex* mutexLocks;
-    int realItemSizes[My_queueSize_];
+    int realItemSizes[My_parties_];
     int loaded = 0;
     int readedPart = -1;
     std::condition_variable* loadCon;
+    static const char My_kDataFilePrefix_[] = "DATA_";
 
     std::string FileName(const std::string &dir, uint32_t fileno) {
         return dir + "/" + My_kDataFilePrefix_ + std::to_string(fileno);
@@ -28,7 +29,7 @@ namespace polar_race {
     void initParams() {
         loaded = 0;
         readedPart = -1;
-        for (int i = 0; i < My_queueSize_; i++) realItemSizes[i] = 0;
+        memset(realItemSizes, 0, sizeof(int) * My_parties_);
     }
 
     /**
@@ -106,7 +107,10 @@ namespace polar_race {
             // printInfo(stderr, "[GlobalQueue] : try loader one\n");
             struct QueueItem *data = items[i % My_queueSize_];
             // loading all data to queue.
-            realItemSizes[i % My_queueSize_] = load(i, data, &stores[i], &indexStore[i]);
+            realItemSizes[i] = load(i, data, &stores[i], &indexStore[i]);
+            if (realItemSizes[i] <= 0) {
+                // readedPart += 1;
+            }
             loaded += 1;
             loadCon[i].notify_all(); // is notify one here ? or notify all ?
         }
@@ -114,9 +118,10 @@ namespace polar_race {
     }
 
 
-    MessageQueue::MessageQueue(DataStore *stores_, IndexStore *indexStores_, std::mutex* mutexes) {
+    MessageQueue::MessageQueue(DataStore *stores_, IndexStore *indexStores_,
+            std::mutex* mutexes, int threadSize) {
         printInfo(stderr, "[MessageQueue] : try to creating a message queue instance. with threadSize : %d\n"
-                , My_threadSize_);
+                , threadSize);
         mutexLocks = mutexes;
         this->stores = stores_;
         this->indexStores = indexStores_;
@@ -132,7 +137,7 @@ namespace polar_race {
         this->loader = new std::thread(loaderMethod, this->stores,
                                        this->indexStores, this->items);
         for (int i = 0; i < My_parties_; i++) {
-            readCounter[i] = My_threadSize_;
+            readCounter[i] = threadSize;
         }
     }
 
@@ -154,7 +159,7 @@ namespace polar_race {
                 // when data is coming.
                 if (idx == -1) {
                     (*i) = 0;
-                    (*partSize) = realItemSizes[part % My_queueSize_];
+                    (*partSize) = realItemSizes[part];
                 }
                 idx = (*i);
                 if (idx == (*partSize)) {

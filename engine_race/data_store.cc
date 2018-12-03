@@ -9,6 +9,10 @@
 
 namespace polar_race {
 
+    static const std::string My_dataPath_("/data/");
+    static const char My_kDataFilePrefix_[] = "DATA_";
+    static const int My_kDataFilePrefixLen_ = 5;
+
     static std::string FileName(const std::string &dir, uint32_t fileno) {
         return dir + "/" + My_kDataFilePrefix_ + std::to_string(fileno);
     }

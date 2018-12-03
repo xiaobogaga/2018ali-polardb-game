@@ -13,6 +13,8 @@
 
 namespace polar_race {
 
+    static const std::string My_indexPrefix_("/index/");
+
     int compare(const void *a, const void *b) {
         struct Info *infoA = (struct Info *) a;
         struct Info *infoB = (struct Info *) b;

@@ -15,6 +15,9 @@
 
 namespace polar_race {
 
+    static const int My_bf_capa_ = 1024 * 128;
+    static const double My_bf_p_ = 0.0001;
+
     class MyHashTable {
     public:
 

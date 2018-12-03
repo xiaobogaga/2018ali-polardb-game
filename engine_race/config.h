@@ -9,16 +9,7 @@
 #include <string>
 
 namespace polar_race {
-
-    static const std::string My_indexPrefix_("/index/");
-    static const std::string My_dataPath_("/data/");
-    static const char My_kDataFilePrefix_[] = "DATA_";
-    static const int My_kDataFilePrefixLen_ = 5;
     static const int My_valuesize_ = 4096;
-    static const int My_keysize_ = 8;
-    static const char My_kLockFile_[] = "LOCK";
-    static const double My_sleepTime_ = 100.1;
-    static const int My_threadSize_ = 64;
 
 // following variable needs to be changed for different parties.
 //     const int parties = 512;
@@ -33,8 +24,6 @@ namespace polar_race {
     static const int My_parties_ = 512;
     static const int My_kSingleFileSize_ = 1024 * 1024 * 128;
     static const int My_map_size_ = 1024 * 512 * 3;
-    static const int My_bf_capa_ = 1024 * 128;
-    static const double My_bf_p_ = 0.0001;
     static const int My_infoArraySize_ = 1024 * 128;
     static const int My_queueCapacity_ = 1024 * 128;
     static const int My_queueSize_ = 2;
