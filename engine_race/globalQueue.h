@@ -15,12 +15,6 @@
 
 namespace polar_race {
 
-    static std::mutex* mutexLocks;
-    static int realItemSizes[My_queueSize_];
-    static int loaded = 0;
-    static int readedPart = -1;
-    static std::condition_variable* loadCon;
-
     class MessageQueue {
 
     public:
@@ -40,7 +34,6 @@ namespace polar_race {
             delete [] this->loadCon_;
             printInfo(stderr, "[MessageQueue] : finilized\n");
         }
-        std::condition_variable notFullCV;
 
     private:
         struct QueueItem** items;

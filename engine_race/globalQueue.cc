@@ -6,6 +6,13 @@
 
 namespace polar_race {
 
+    std::condition_variable notFullCV;
+    std::mutex* mutexLocks;
+    int realItemSizes[My_queueSize_];
+    int loaded = 0;
+    int readedPart = -1;
+    std::condition_variable* loadCon;
+
     std::string FileName(const std::string &dir, uint32_t fileno) {
         return dir + "/" + My_kDataFilePrefix_ + std::to_string(fileno);
     }
@@ -87,12 +94,12 @@ namespace polar_race {
     /**
      * loader data.
      */
-    void loaderMethod(MessageQueue* messageQueue, DataStore *stores, IndexStore *indexStore, struct QueueItem** items) {
+    void loaderMethod(DataStore *stores, IndexStore *indexStore, struct QueueItem** items) {
         for (int i = 0; i < My_parties_; i++) {
             std::unique_lock<std::mutex> lck(mutexLocks[i]);
             while (!isPartCanLoad(i)) {
                 if (My_exceedTime_) return;
-                messageQueue->notFullCV.wait(lck);
+                notFullCV.wait(lck);
             }
             // now we can load the data.
             // start loader data;
@@ -122,7 +129,7 @@ namespace polar_race {
         loadCon = this->loadCon_;
         initParams(); // call initParams here.
 
-        this->loader = new std::thread(loaderMethod, this, this->stores,
+        this->loader = new std::thread(loaderMethod, this->stores,
                                        this->indexStores, this->items);
         for (int i = 0; i < My_parties_; i++) {
             readCounter[i] = My_threadSize_;
