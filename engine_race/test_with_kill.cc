@@ -32,17 +32,17 @@ namespace polar_race {
             long long k = polar_race::strToLong(key.data());
         //    fprintf(stderr, "[Visitor] : visiting %lld key \n", k);
             if (tempMaps.count(k) > 0) {
-                fprintf(stderr, "[Visitor-%d] : iterator duplicate keys %lld\n", party, k);
+                fprintf(stderr, "[Visitor-%d] : error! iterator duplicate keys %lld\n", party, k);
                 exit(1);
             }
             tempMaps.insert( std::pair<long long, int> (k, 1) );
             std::map<PolarString, PolarString>::iterator ite = maps->find(key);
             if (ite != maps->end()) {
                 if (ite->second.compare(PolarString(value)) != 0) {
-                    fprintf(stderr, "[Visitor-%d] : find an unmatching key. %lld\n", party, k);
+                    fprintf(stderr, "[Visitor-%d] : error! find an unmatching key. %lld\n", party, k);
                 }
             } else {
-                fprintf(stderr, "[Visitor-%d] : visit an unexist key %lld\n", party, k);
+                fprintf(stderr, "[Visitor-%d] : error! visit an unexist key %lld\n", party, k);
             }
         }
 
@@ -257,16 +257,16 @@ void testReader(EngineRace* engine, std::map<PolarString, PolarString, PolarStri
             std::map<PolarString, PolarString>::iterator ite = maps->find(key);
             if (ite != maps->end()) {
                 if (ite->second.compare(PolarString(value)) != 0) {
-                    fprintf(stderr, "[Reader] : find an unmatching key. %lld\n", polar_race::strToLong(key.data()));
+                    fprintf(stderr, "[Reader] : error! find an unmatching key. %lld\n", polar_race::strToLong(key.data()));
                     break;
                 }
             } else {
-                fprintf(stderr, "[Reader] : find a doesn't exist key. %lld\n", polar_race::strToLong(key.data()));
+                fprintf(stderr, "[Reader] : error! find a doesn't exist key. %lld\n", polar_race::strToLong(key.data()));
                 break;
             }
         } else {
             if (maps->count(key) > 0) {
-                fprintf(stderr, "[Reader] : error couldn't find key. %lld\n", polar_race::strToLong(key.data()));
+                fprintf(stderr, "[Reader] : error! error couldn't find key. %lld\n", polar_race::strToLong(key.data()));
                 break;
             }
         }

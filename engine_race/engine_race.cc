@@ -16,14 +16,16 @@ namespace polar_race {
     }
 
 // sleepint for 500s.
-    void startTimer(bool* timerStop) {
+    void startTimer() {
         time_t timer;
         time(&timer);
-        while (difftime(time(NULL), timer) <= sleepTime && ! (*timerStop) ) {
+        while (difftime(time(NULL), timer) <= sleepTime && !directStop ) {
             sleep(1);
         }
-        if (! (*timerStop) ) {
+        if (! directStop ) {
+            exceedTime = true;
             printInfo(stderr, "[Timer] : exceed time and exist\n");
+            sleep(1); // sleep for 1 second.
             exit(0);
         }
     }
@@ -44,8 +46,9 @@ namespace polar_race {
         }
 
         // start a timer task
-//        engine_race->timerStop = false;
-//        engine_race->timerTask = new std::thread(startTimer, &engine_race->timerStop);
+        directStop = false;
+        exceedTime = false;
+        engine_race->timerTask = new std::thread(startTimer);
 
         *eptr = engine_race;
         return kSucc;
@@ -62,7 +65,7 @@ namespace polar_race {
         delete[] this->indexStore_;
 
         if (this->timerTask != NULL) {
-            timerStop = true;
+            directStop = true;
             this->timerTask->join();
             delete this->timerTask;
             this->timerTask = NULL;

@@ -86,8 +86,10 @@ namespace polar_race {
     void loaderMethod(MessageQueue* messageQueue, DataStore *stores, IndexStore *indexStore, struct QueueItem** items) {
         for (int i = 0; i < parties; i++) {
             std::unique_lock<std::mutex> lck(mutexLocks[i]);
-            while (!isPartCanLoad(i))
+            while (!isPartCanLoad(i)) {
+                if (exceedTime) return;
                 messageQueue->notFullCV.wait(lck);
+            }
             // now we can load the data.
             // start loader data;
             // printInfo(stderr, "[GlobalQueue] : try loader one\n");
@@ -127,35 +129,43 @@ namespace polar_race {
     char *MessageQueue::get(int part, int *i, int *partSize, long long *k) {
         int idx = (*i);
         // only may block here.
-        if (idx == -1 || (idx == (*partSize) ) ) { // read the first data of part.
-            std::unique_lock<std::mutex> lck(mutexLocks[part]);
-            while (!isPartReady(loaded, part)) loadCon[part].wait(lck);
-            // when data is coming.
-            if (idx == -1) {
-                (*i) = 0;
-                (*partSize) = realItemSizes[part % queueSize];
-            }
-            idx = (*i);
-            if (idx == (*partSize)) {
-                // here must block, since lck lock might not used because idx != -1.
-                readCounter[part]--;
-                anotherLock.lock();
-                if (readCounter[readedPart + 1] == 0) {
-                    printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
-                    indexStores[readedPart + 1].finalize();
-                    readedPart += 1;
-                    // clear previous data.
-                    notFullCV.notify_one();
+        if (!exceedTime) {
+            if (idx == -1 || (idx == (*partSize))) { // read the first data of part.
+                std::unique_lock<std::mutex> lck(mutexLocks[part]);
+                while (!isPartReady(loaded, part)) {
+                    if (exceedTime) {
+                        (*partSize) = 0;
+                        return 0;
+                    }
+                    loadCon[part].wait(lck);
                 }
-                anotherLock.unlock();
-                // here must block.
-                return NULL;
+                // when data is coming.
+                if (idx == -1) {
+                    (*i) = 0;
+                    (*partSize) = realItemSizes[part % queueSize];
+                }
+                idx = (*i);
+                if (idx == (*partSize)) {
+                    // here must block, since lck lock might not used because idx != -1.
+                    readCounter[part]--;
+                    anotherLock.lock();
+                    if (readCounter[readedPart + 1] == 0) {
+                        printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
+                        indexStores[readedPart + 1].finalize();
+                        readedPart += 1;
+                        // clear previous data.
+                        notFullCV.notify_one();
+                    }
+                    anotherLock.unlock();
+                    // here must block.
+                    return NULL;
+                }
             }
-        }
-        uint32_t info = 0;
-        (*i) = indexStores[part].getInfoAt(idx, k, &info);
-        return items[part % queueSize][ (unwrapFileNo(info) - 1) *
-            kSingleFileSize / valuesize + unwrapOffset(info) ].data;
+            uint32_t info = 0;
+            (*i) = indexStores[part].getInfoAt(idx, k, &info);
+            return items[part % queueSize][(unwrapFileNo(info) - 1) *
+                                           kSingleFileSize / valuesize + unwrapOffset(info)].data;
+        } else return NULL;
     }
 
 }
