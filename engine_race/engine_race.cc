@@ -11,7 +11,7 @@
 
 namespace polar_race {
 
-    static const double My_sleepTime_ = 500.1;
+    static const double My_sleepTime_ = 1000.1;
     static const char My_kLockFile_[] = "LOCK";
     static const int My_keysize_ = 8;
 
