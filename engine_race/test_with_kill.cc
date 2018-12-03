@@ -279,7 +279,7 @@ void testRange(int party, EngineRace* engine, std::map<PolarString, PolarString,
                 std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
     // fprintf(stderr, "[Reader] : start testing range query\n");
     polar_race::MyVisitor visit(party, maps);
-    engine->MyRange(PolarString(std::string("")),
+    engine->Range(PolarString(std::string("")),
                   PolarString(std::string("")), visit);
     visit.checkSizeEqual();
 }

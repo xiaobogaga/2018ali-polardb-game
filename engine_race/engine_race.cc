@@ -170,28 +170,28 @@ namespace polar_race {
                               Visitor &visitor) {
 
         int part = 0;
-        pthread_mutex_lock(&mu_);
+        this->mu_.lock();
         part = this->rangeCounter ++;
-        pthread_mutex_unlock(&mu_);
+        // pthread_mutex_unlock(&mu_);
 
-        int temp = this->rangeCounter;
-        int sameTime = 0;
-        while (sameTime < 10) {
-            std::this_thread::sleep_for(std::chrono::microseconds(100));
-            if (temp == this->rangeCounter) { sameTime ++;}
-            else temp = this->rangeCounter;
-        }
+//        int temp = this->rangeCounter;
+//        int sameTime = 0;
+//        while (sameTime < 10) {
+//            std::this_thread::sleep_for(std::chrono::microseconds(100));
+//            if (temp == this->rangeCounter) { sameTime ++;}
+//            else temp = this->rangeCounter;
+//        }
 
-        pthread_mutex_lock(&mu_);
-        threadSize = this->rangeCounter;
+        // pthread_mutex_lock(&mu_);
+        // threadSize = this->rangeCounter;
         if (this->queue == NULL) {
             delete[] this->mutexes;
             this->mutexes = new std::mutex[parties];
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
-        pthread_mutex_unlock(&mu_);
+        this->mu_.unlock();
 
-        printInfo(stderr, "[EngineRace-%d] : start range reader\n", part);
+        printInfo(stderr, "[EngineRace-%d] : start range reader, current threadSize\n", part, this->rangeCounter);
         time_t range_timer;
         long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
         long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
@@ -227,16 +227,16 @@ namespace polar_race {
     RetCode EngineRace::MyRange(const PolarString &lower, const PolarString &upper,
                               Visitor &visitor) {
         int part = 0;
-        pthread_mutex_lock(&mu_);
+        this->mu_.lock();
         part = this->rangeCounter ++;
         if (this->queue == NULL) {
             delete[] this->mutexes;
             this->mutexes = new std::mutex[parties];
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
-        pthread_mutex_unlock(&mu_);
+        this->mu_.unlock();
 
-        // printInfo(stderr, "[EngineRace] : part-%d : start range read\n", part);
+        printInfo(stderr, "[EngineRace] : part-%d : start range read with rangeCounter : %d\n", part, this->rangeCounter);
         time_t range_timer;
         long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
         long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());

@@ -22,8 +22,7 @@ namespace polar_race {
         static RetCode Open(const std::string &name, Engine **eptr);
 
         explicit EngineRace(const std::string &dir)
-                : mu_(PTHREAD_MUTEX_INITIALIZER),
-                  db_lock_(NULL), writeCounter(0),
+                : db_lock_(NULL), writeCounter(0),
                   readCounter(0), rangeCounter(0), startRange(false), queue(NULL) {
             this->store_ = new DataStore[parties];
             this->indexStore_ = new IndexStore[parties];
@@ -64,7 +63,7 @@ namespace polar_race {
         }
 
     private:
-        pthread_mutex_t mu_;
+        std::mutex mu_;
         FileLock *db_lock_;
         IndexStore *indexStore_;
         DataStore *store_;
