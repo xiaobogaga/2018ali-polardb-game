@@ -17,6 +17,7 @@ namespace polar_race {
 
 // sleepint for 500s.
     void startTimer() {
+        printInfo(stderr, "[Timer] : start timer\n");
         time_t timer;
         time(&timer);
         while (difftime(time(NULL), timer) <= sleepTime && !directStop ) {
@@ -168,12 +169,27 @@ namespace polar_race {
     RetCode EngineRace::Range(const PolarString &lower, const PolarString &upper,
                               Visitor &visitor) {
 
+        int part = 0;
         pthread_mutex_lock(&mu_);
+        part = this->rangeCounter ++;
+        pthread_mutex_unlock(&mu_);
+
+        int temp = this->rangeCounter;
+        int sameTime = 0;
+        while (sameTime < 10) {
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            if (temp == this->rangeCounter) { sameTime ++;}
+            else temp = this->rangeCounter;
+        }
+
+        pthread_mutex_lock(&mu_);
+        threadSize = this->rangeCounter;
         if (this->queue == NULL) {
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
         pthread_mutex_unlock(&mu_);
-        // printInfo(stderr, "[EngineRace] : start range read\n");
+
+        printInfo(stderr, "[EngineRace-%d] : start range reader\n", part);
         time_t range_timer;
         long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
         long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
@@ -186,7 +202,7 @@ namespace polar_race {
         char* ans = NULL;
         for (int i = 0; i < parties; i++) {
             j = -1;
-            // printInfo(stderr, "[EngineRace] : range read part %d\n", i);
+            printInfo(stderr, "[EngineRace] : range read part %d\n", i);
             ans = this->queue->get(i, &j, &partSize, &keyPointer);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
@@ -200,8 +216,8 @@ namespace polar_race {
                 ans = this->queue->get(i, &j, &partSize, &keyPointer);
             }
         }
-        printInfo(stderr, "[EngineRace] : range read. [%lld, %lld) with %ld data. spend %f s\n",
-                    low, high, size, difftime(time(NULL), range_timer));
+        printInfo(stderr, "[EngineRace-%d] : range read. [%lld, %lld) with %ld data. spend %f s\n",
+                    part, low, high, size, difftime(time(NULL), range_timer));
         return kSucc;
 
     }

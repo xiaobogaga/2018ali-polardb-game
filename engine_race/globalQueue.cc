@@ -104,7 +104,8 @@ namespace polar_race {
 
 
     MessageQueue::MessageQueue(DataStore *stores_, IndexStore *indexStores_, std::mutex* mutexes) {
-        printInfo(stderr, "[MessageQueue] : try to creating a message queue instance\n");
+        printInfo(stderr, "[MessageQueue] : try to creating a message queue instance. with threadSize : %d\n"
+                , threadSize);
         mutexLocks = mutexes;
         this->stores = stores_;
         this->indexStores = indexStores_;

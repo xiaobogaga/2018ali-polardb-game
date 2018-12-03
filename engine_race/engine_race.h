@@ -24,7 +24,7 @@ namespace polar_race {
         explicit EngineRace(const std::string &dir)
                 : mu_(PTHREAD_MUTEX_INITIALIZER),
                   db_lock_(NULL), writeCounter(0),
-                  readCounter(0), queue(NULL) {
+                  readCounter(0), rangeCounter(0), startRange(false), queue(NULL) {
             this->store_ = new DataStore[parties];
             this->indexStore_ = new IndexStore[parties];
             this->mutexes = new std::mutex[parties];
@@ -70,6 +70,8 @@ namespace polar_race {
         DataStore *store_;
         std::atomic_int writeCounter;
         std::atomic_int readCounter;
+        volatile int rangeCounter;
+        volatile bool startRange;
         time_t read_timer;
         std::mutex* mutexes;
         std::thread *timerTask;
