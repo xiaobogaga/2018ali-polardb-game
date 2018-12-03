@@ -69,9 +69,7 @@ namespace polar_race {
         uint16_t cur_fileNo;
         uint16_t cur_offset;
         std::map<uint16_t, int> *readFiles;
-
         RetCode OpenCurFile();
-
         int party;
         // todo
         char buf[My_valuesize_]; // for concurrent read error.

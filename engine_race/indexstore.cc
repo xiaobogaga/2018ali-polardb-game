@@ -99,7 +99,7 @@ namespace polar_race {
         head_ = items_;
         this->start = newMapSize;
         this->sep = newMapSize / sizeof(struct Item);
-        // if (!new_create) initMaps(); // here must do that.
+        if (!new_create) initMaps(); // here must do that.
         return RetCode::kSucc;
     }
 
@@ -253,14 +253,14 @@ namespace polar_race {
         /**
          * tonice here.
          */
-        if (fd_ >= 0) {
-            // items_ = NULL;
-            munmap(head_, newMapSize);
-            items_ = NULL;
-            head_ = NULL;
-            close(fd_);
-            fd_ = -1;
-        }
+//        if (fd_ >= 0) {
+//            // items_ = NULL;
+//            munmap(head_, newMapSize);
+//            items_ = NULL;
+//            head_ = NULL;
+//            close(fd_);
+//            fd_ = -1;
+//        }
         if (this->infos == NULL) this->infos = (struct Info *) malloc(sizeof(struct Info));
         qsort(infos, this->size, sizeof(struct Info), compare);
 //        for (int i = 0; i < this->size; i++) {
