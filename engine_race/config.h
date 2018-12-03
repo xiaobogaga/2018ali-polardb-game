@@ -53,6 +53,11 @@ namespace polar_race {
 //        return party == parties ? parties - 1 : party;
 //    }
 
+//    static inline int partition(long long key) {
+//        int party = ((unsigned long long) (key - INT64_MIN)) / 36028797018963967;
+//        return 50;
+//    }
+
     struct Item {
         uint32_t info;
         char key[8];

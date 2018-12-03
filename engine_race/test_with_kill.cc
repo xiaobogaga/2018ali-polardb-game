@@ -279,7 +279,7 @@ void testRange(int party, EngineRace* engine, std::map<PolarString, PolarString,
                 std::vector<PolarString>* keys, int readerTime, std::default_random_engine* random) {
     // fprintf(stderr, "[Reader] : start testing range query\n");
     polar_race::MyVisitor visit(party, maps);
-    engine->Range(PolarString(std::string("")),
+    engine->MyRange(PolarString(std::string("")),
                   PolarString(std::string("")), visit);
     visit.checkSizeEqual();
 }
@@ -369,7 +369,7 @@ int main(int argc, char** argv) {
     system("rm -rf /tmp/test_dump/*");
     fprintf(stderr, "Correctness Test\n");
     int threadSize = 64;
-    int writingTime = 1600;
+    int writingTime = 1000;
     if (argc <= 1) {
         ;
     } else {
@@ -388,14 +388,13 @@ int main(int argc, char** argv) {
     // shutdown = true;
     writeTask.waitThreadEnd();
     fprintf(stderr , "[Tester] : end writer\n");
-    Engine::Open(path, &engine);
+    // Engine::Open(path, &engine);
     ReaderPro readerPro((EngineRace*) engine, writeTask.getMaps(), writeTask.getKeys());
     fprintf(stderr , "[Tester] : start reader\n");
     readerPro.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end reader\n");
     fprintf(stderr , "[Tester] : start range read\n");
 
-    Engine::Open(path, &engine);
     RangePro rangePro((EngineRace*) engine, writeTask.getMaps(), writeTask.getKeys());
     rangePro.startRange(threadSize, writingTime);
 
@@ -411,7 +410,7 @@ int main(int argc, char** argv) {
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask((EngineRace*) engine);
     threadSize = 64;
-    writingTime = 2400;
+    writingTime = 1000;
     fprintf(stderr , "[Tester] : start writer\n");
     performanceWriterTask.startPerformanceWrite(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end writer\n");

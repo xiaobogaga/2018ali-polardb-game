@@ -185,6 +185,8 @@ namespace polar_race {
         pthread_mutex_lock(&mu_);
         threadSize = this->rangeCounter;
         if (this->queue == NULL) {
+            delete[] this->mutexes;
+            this->mutexes = new std::mutex[parties];
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
         pthread_mutex_unlock(&mu_);
@@ -222,11 +224,14 @@ namespace polar_race {
 
     }
 
-    RetCode EngineRace::MyRange(int part, const PolarString &lower, const PolarString &upper,
+    RetCode EngineRace::MyRange(const PolarString &lower, const PolarString &upper,
                               Visitor &visitor) {
-
+        int part = 0;
         pthread_mutex_lock(&mu_);
+        part = this->rangeCounter ++;
         if (this->queue == NULL) {
+            delete[] this->mutexes;
+            this->mutexes = new std::mutex[parties];
             this->queue = new MessageQueue(this->store_, this->indexStore_, this->mutexes);
         }
         pthread_mutex_unlock(&mu_);

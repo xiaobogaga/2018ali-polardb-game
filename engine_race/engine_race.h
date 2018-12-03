@@ -55,7 +55,7 @@ namespace polar_race {
                       const PolarString &upper,
                       Visitor &visitor) override;
 
-        RetCode MyRange(int part, const PolarString &lower, const PolarString &upper,
+        RetCode MyRange(const PolarString &lower, const PolarString &upper,
                                     Visitor &visitor);
 
         void resetCounter() {
