@@ -204,7 +204,7 @@ namespace polar_race {
         char* ans = NULL;
         for (int i = 0; i < parties; i++) {
             j = -1;
-            printInfo(stderr, "[EngineRace] : range read part %d\n", i);
+            printInfo(stderr, "[EngineRace-%d] : range read part %d\n", i, part);
             ans = this->queue->get(i, &j, &partSize, &keyPointer);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
