@@ -217,10 +217,10 @@ namespace polar_race {
             // it turns out there would be an error when i reach to 256. it is a little wired.
             // lets print some detail when at 256.
 
-            if (i == 256) {
-                // we must read some information now.
-                printInfo(stderr, "[EngineRace-%d] : start read 256 part\n", part);
-            }
+//            if (i == 256) {
+//                // we must read some information now.
+//                printInfo(stderr, "[EngineRace-%d] : start read 256 part\n", part);
+//            }
 
             ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
             for (j++; j <= partSize; j++) {

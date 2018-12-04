@@ -48,6 +48,11 @@ namespace polar_race {
 
         void initInfos();
 
+        void printMinMax() {
+            printInfo(stderr, "[IndexStore] : min : %lld, max : %lld\n", this->infos[0].key,
+                    this->infos[this->size - 1].key);
+        }
+
         void get2(long long key, uint32_t *ans);
 
         struct Info* getInfo() {

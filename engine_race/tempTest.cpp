@@ -32,16 +32,24 @@ int main11() {
 
     long long min = INT64_MIN;
     long long max = INT64_MAX;
-    int parties = 2;
+    int parties = 512;
     long long sep = ((unsigned long long) (max - min)) / parties;
 
     long long start = min;
-    int size = 2;
+    int size = parties;
     for (int i = 0; i < size; i++) {
-        fprintf(stderr, "%d : [%lld - %lld] , right / sep = %lld \n", i,
-                start, start + sep, ((unsigned long long ) (start + sep) / sep - min / sep) );
+        fprintf(stderr, "i : %d : [%lld - %lld]\n", i,
+                start, start + sep );
         start += sep;
     }
+
+    /*
+     *
+     * i : 255 : [-36028797018964223 - -256]
+i : 256 : [-256 - 36028797018963711]
+i : 257 : [36028797018963711 - 72057594037927678]
+     *
+     */
 
     fprintf(stderr, "min : %lld, max : %lld, sep : %lld\n", min, max, sep);
 
@@ -57,16 +65,38 @@ struct PolarStringComparator {
     }
 };
 
+// 75416375852,
+inline int my_partition(long long key) {
+    int party = ((unsigned long long) (key - INT64_MIN)) / 36028797018963967;
+    return party == polar_race::My_parties_ ? polar_race::My_parties_ - 1 : party;
+}
+
 int main() {
-    char key1[8] = {-1,-47,40,47,-23,-60,82,111};
-    char key2[8] = {-128,123,-55,-34,31,95,103,72};
-    polar_race::PolarString str1(key1, 8);
-    polar_race::PolarString str2(key2, 8);
-    std::map<polar_race::PolarString, int, PolarStringComparator> maps;
-    maps.insert(std::pair<polar_race::PolarString, int> (key1, 1));
-    maps.insert(std::pair<polar_race::PolarString, int> (key2, 2));
-    std::map<polar_race::PolarString, int>::iterator ite = maps.begin();
-    for (; ite != maps.end(); ite++) fprintf(stderr, "%d\n", ite->first.data()[0]);
+//    char key1[8] = {-1,-47,40,47,-23,-60,82,111};
+//    char key2[8] = {-128,123,-55,-34,31,95,103,72};
+//    polar_race::PolarString str1(key1, 8);
+//    polar_race::PolarString str2(key2, 8);
+//    std::map<polar_race::PolarString, int, PolarStringComparator> maps;
+//    maps.insert(std::pair<polar_race::PolarString, int> (key1, 1));
+//    maps.insert(std::pair<polar_race::PolarString, int> (key2, 2));
+//    std::map<polar_race::PolarString, int>::iterator ite = maps.begin();
+//    for (; ite != maps.end(); ite++) fprintf(stderr, "%d\n", ite->first.data()[0]);
+
+    long long tt = 3602879701896396;
+    long long key = 75416375852;
+    unsigned long long k = (unsigned long long) (INT64_MIN + tt * 256);
+    fprintf(stderr, "min : %llu, %d\n", k, my_partition(36028797018963711 - 1));
+
+    int cs[100000];
+    memset(cs, 0, sizeof(int) * 100000);
+    uint16_t fileNo = 2;
+    uint16_t offset = 5653;
+    uint32_t info = polar_race::wrap(offset, fileNo);
+    cs[(polar_race::unwrapFileNo(info) - 1) * polar_race::My_kSingleFileSize_ / polar_race::My_valuesize_
+        + polar_race::unwrapOffset(info)] = 1;
+    int t = (polar_race::unwrapFileNo(info) - 1) * polar_race::My_kSingleFileSize_ / polar_race::My_valuesize_
+            + polar_race::unwrapOffset(info);
+    fprintf(stderr, "%d, cs[%d] = %d\n", info, t, cs[t]);
 
     return 0;
 }

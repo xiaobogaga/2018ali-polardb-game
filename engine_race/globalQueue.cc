@@ -85,7 +85,7 @@ namespace polar_race {
         }
         if (fd >= 0) {
             // printInfo(stderr, "[GlobalQueue] : have read %d data for fileNo: %d under part %d\n",
-            //        fileRead, j - 1, part);
+            //        fileRead, j - 1, part);IndexStore
             close(fd);
         }
         printInfo(stderr, "[Loader] : load %d part finished with %d data\n", part, size);
@@ -184,13 +184,16 @@ namespace polar_race {
                                                       My_kSingleFileSize_ / My_valuesize_
                                                       + unwrapOffset(info)].data;
             if (part == 256) {
-                if (idx == 0) fprintf(stderr,
-                                      "[GlobalQueue]: reader[%d] read %dth data of part-256[size:%d] and get %lld, %d-%d\n",
-                                      readId, idx, (*partSize),(*k),
-                                      unwrapFileNo(info), unwrapOffset(info));
+                if (idx == 0) {
+                    fprintf(stderr,
+                            "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
+                            readId, idx, (*i), (*partSize), (*k),
+                            unwrapFileNo(info), unwrapOffset(info));
+                    indexStores[part].printMinMax();
+                }
                 else fprintf(stderr,
-                        "[GlobalQueue]: reader[%d] read %dth data of part-256 and get %lld, %d-%d\n",
-                        readId, idx, (*k), unwrapFileNo(info), unwrapOffset(info));
+                        "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256 and get %lld, %d-%d\n",
+                        readId, idx, (*i), (*k), unwrapFileNo(info), unwrapOffset(info));
             }
 
             return d;
