@@ -181,7 +181,7 @@ namespace polar_race {
 
         int temp = this->rangeCounter;
         int sameTime = 0;
-        while ( (this->rangeCounter == 1 && sameTime < 10) && (this->rangeCounter != 64) ) {
+        while ( (this->rangeCounter == 1 && sameTime < 10)) {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             if (temp == this->rangeCounter) { sameTime ++;}
             else {
@@ -195,7 +195,7 @@ namespace polar_race {
             delete[] this->mutexes;
             this->mutexes = new std::mutex[My_parties_];
             this->queue = new MessageQueue(this->store_, this->indexStore_,
-                    this->mutexes, this->rangeCounter);
+                    this->mutexes, this->rangeCounter == 1 ? 1 : 64);
         }
         this->mu_.unlock();
 
