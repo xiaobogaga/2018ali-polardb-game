@@ -61,7 +61,7 @@ namespace polar_race {
 
 
     EngineRace::~EngineRace() {
-        printInfo(stderr, "[EngineRace] : closing db. the min_value for part256 is : %lld, fileNo: %d, offset: %d\n",
+        printInfo(stderr, "[EngineRace] : closing db. the min_value for part256 is : %llu, fileNo: %d, offset: %d\n",
                 this->min, this->minFileNo, this->minOffset);
         if (db_lock_) {
             UnlockFile(db_lock_);
@@ -219,7 +219,6 @@ namespace polar_race {
         // do range query.
         long size = 0;
         int partSize = 0, j = -1;
-        long long keyPointer = -1;
         char* buf = NULL;
         char* ans = NULL;
         for (int i = 0; i < My_parties_; i++) {

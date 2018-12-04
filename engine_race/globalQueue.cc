@@ -188,7 +188,7 @@ namespace polar_race {
                 if (idx == 0) {
                     fprintf(stderr,
                             "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
-                            readId, idx, (*i), (*partSize), (*k),
+                            readId, idx, (*i), (*partSize), strToLong(*k),
                             unwrapFileNo(info), unwrapOffset(info));
                     // indexStores[part].printMinMax();
                 }

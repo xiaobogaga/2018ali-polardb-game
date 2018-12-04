@@ -76,7 +76,7 @@ namespace polar_race {
         std::mutex* mutexes;
         std::thread *timerTask;
         MessageQueue* queue;
-        long long min;
+        unsigned long long min;
         uint16_t minFileNo;
         uint16_t minOffset;
     };

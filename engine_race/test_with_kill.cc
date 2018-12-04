@@ -47,24 +47,26 @@ namespace polar_race {
         void Visit(const PolarString &key, const PolarString &value) override {
         //    fprintf(stderr, "[Visitor] : visiting %lld key \n", k);
             if (tempMaps.count(key) > 0) {
-                fprintf(stderr, "[Visitor-%d] : error! iterator duplicate keys %lld\n", party, key.data());
+                fprintf(stderr, "[Visitor-%d] : error! iterator duplicate keys %llu\n",
+                        party, strToLong(key.data()));
                 exit(1);
             }
             tempMaps.insert( std::pair<PolarString, int> (key, 1) );
             if (maps->count(key) <= 0) {
-                fprintf(stderr, "[Visitor-%d] : error! visit an unexist key %lld\n", party, key.data());
+                fprintf(stderr, "[Visitor-%d] : error! visit an unexist key %llu\n",
+                        party, strToLong(key.data()));
                 exit(1);
                 // ! isEqual(key.data(), ite->first.data())
             } else if (key.compare(ite->first) != 0) {
                 printData(ite->first.data());
                 printData(key.data());
-                fprintf(stderr, "[Visitor-%d] : error! visit an wrong order key %lld-%lld\n",
+                fprintf(stderr, "[Visitor-%d] : error! visit an wrong order key %llu-%llu\n",
                         party, strToLong(ite->first.data()), strToLong(key.data()));
                 exit(1);
             } else {
                 if ( PolarString(ite->second.data(), 4096).compare(PolarString(value)) != 0) {
                     fprintf(stderr, "[Visitor-%d] : error! find an unmatching value. %lld\n",
-                            party, key.data());
+                            party, strToLong(key.data()));
                     exit(1);
                 }
             }
