@@ -11,7 +11,7 @@
 
 namespace polar_race {
 
-    static const double My_sleepTime_ = 500.1;
+    static const double My_sleepTime_ = 1000.1;
     static const char My_kLockFile_[] = "LOCK";
     static const int My_keysize_ = 8;
 
@@ -191,7 +191,7 @@ namespace polar_race {
 
         int temp = this->rangeCounter;
         int sameTime = 0;
-        while ((this->rangeCounter == 1 && sameTime < 10)) {
+        while ((this->rangeCounter == 1 && sameTime < 100)) {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             if (temp == this->rangeCounter) { sameTime++; }
             else {
@@ -241,21 +241,29 @@ namespace polar_race {
                 ans = this->queue->get(part, i, &j, &partSize, &buf);
             }
         }
+
         printInfo(stderr, "[EngineRace-%d] : range read. [%llu, %llu) with %ld data. spend %f s\n",
                   part, low, high, size, difftime(time(NULL), range_timer));
 
-        this->mu_.lock();
+        this->endLock.lock();
         this->rangeCounter--;
         if (this->rangeCounter == 0 && this->queue != NULL) {
-            this->rangeCounter = 0;
             fprintf(stderr, "[EngineRace-%d] : clear message queue\n", part);
             delete[] this->mutexes;
             this->mutexes = NULL;
             delete this->queue;
             this->queue = NULL;
+            allended = true;
         }
-        this->mu_.unlock();
+        this->endLock.unlock();
 
+        time_t sleepTime;
+        time(&sleepTime);
+        while (!allended) {
+            std::this_thread::sleep_for(std::chrono::microseconds(100)); // sleeping 100 ms for waiting
+            // all thread finish.
+        }
+        fprintf(stderr, "[EngineRace-%d] : wait other thread end for %f s\n", difftime(time(NULL), sleepTime));
         return kSucc;
 
     }
