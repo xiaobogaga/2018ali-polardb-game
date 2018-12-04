@@ -263,7 +263,7 @@ namespace polar_race {
             std::this_thread::sleep_for(std::chrono::microseconds(100)); // sleeping 100 ms for waiting
             // all thread finish.
         }
-        fprintf(stderr, "[EngineRace-%d] : wait other thread end for %f s\n", difftime(time(NULL), sleepTime));
+        fprintf(stderr, "[EngineRace-%d] : wait other thread end for %f s\n", part, difftime(time(NULL), sleepTime));
         return kSucc;
 
     }
