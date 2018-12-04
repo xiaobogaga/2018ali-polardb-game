@@ -183,15 +183,15 @@ namespace polar_race {
             char* d = items[part % My_queueSize_][(unwrapFileNo(info) - 1) *
                                                       My_kSingleFileSize_ / My_valuesize_
                                                       + unwrapOffset(info)].data;
-//            if (part == 256) {
-//                if (idx == 0) fprintf(stderr,
-//                                      "[GlobalQueue]: reader[%d] read %dth data of part-256[size:%d] and get %lld, %d-%d\n",
-//                                      readId, idx, (*partSize),(*k),
-//                                      unwrapFileNo(info), unwrapOffset(info));
-//                else fprintf(stderr,
-//                        "[GlobalQueue]: reader[%d] read %dth data of part-256 and get %lld, %d-%d\n",
-//                        readId, idx, (*k), unwrapFileNo(info), unwrapOffset(info));
-//            }
+            if (part == 256) {
+                if (idx == 0) fprintf(stderr,
+                                      "[GlobalQueue]: reader[%d] read %dth data of part-256[size:%d] and get %lld, %d-%d\n",
+                                      readId, idx, (*partSize),(*k),
+                                      unwrapFileNo(info), unwrapOffset(info));
+                else fprintf(stderr,
+                        "[GlobalQueue]: reader[%d] read %dth data of part-256 and get %lld, %d-%d\n",
+                        readId, idx, (*k), unwrapFileNo(info), unwrapOffset(info));
+            }
 
             return d;
         } else return NULL;

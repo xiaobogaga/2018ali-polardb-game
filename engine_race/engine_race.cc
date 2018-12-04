@@ -181,10 +181,13 @@ namespace polar_race {
 
         int temp = this->rangeCounter;
         int sameTime = 0;
-        while ( (this->rangeCounter == 1 && sameTime < 10) || (this->rangeCounter != 64)) {
+        while ( (this->rangeCounter == 1 && sameTime < 10) && (this->rangeCounter != 64) ) {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             if (temp == this->rangeCounter) { sameTime ++;}
-            else temp = this->rangeCounter;
+            else {
+                temp = this->rangeCounter;
+                sameTime = 0;
+            }
         }
 
         this->mu_.lock();
