@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named testAll
+
+# Build rule for target.
+testAll: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 testAll
+.PHONY : testAll
+
+# fast build rule for target.
+testAll/fast:
+	$(MAKE) -f CMakeFiles/testAll.dir/build.make CMakeFiles/testAll.dir/build
+.PHONY : testAll/fast
+
+#=============================================================================
 # Target rules for targets named testIndexStore
 
 # Build rule for target.
@@ -377,6 +390,33 @@ engine_race/test.cc.s:
 	$(MAKE) -f CMakeFiles/test2.dir/build.make CMakeFiles/test2.dir/engine_race/test.cc.s
 .PHONY : engine_race/test.cc.s
 
+engine_race/testAll.o: engine_race/testAll.cpp.o
+
+.PHONY : engine_race/testAll.o
+
+# target to build an object file
+engine_race/testAll.cpp.o:
+	$(MAKE) -f CMakeFiles/testAll.dir/build.make CMakeFiles/testAll.dir/engine_race/testAll.cpp.o
+.PHONY : engine_race/testAll.cpp.o
+
+engine_race/testAll.i: engine_race/testAll.cpp.i
+
+.PHONY : engine_race/testAll.i
+
+# target to preprocess a source file
+engine_race/testAll.cpp.i:
+	$(MAKE) -f CMakeFiles/testAll.dir/build.make CMakeFiles/testAll.dir/engine_race/testAll.cpp.i
+.PHONY : engine_race/testAll.cpp.i
+
+engine_race/testAll.s: engine_race/testAll.cpp.s
+
+.PHONY : engine_race/testAll.s
+
+# target to generate assembly for a file
+engine_race/testAll.cpp.s:
+	$(MAKE) -f CMakeFiles/testAll.dir/build.make CMakeFiles/testAll.dir/engine_race/testAll.cpp.s
+.PHONY : engine_race/testAll.cpp.s
+
 engine_race/testIndexStore.o: engine_race/testIndexStore.cpp.o
 
 .PHONY : engine_race/testIndexStore.o
@@ -493,6 +533,7 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... testAll"
 	@echo "... testIndexStore"
 	@echo "... engine_race"
 	@echo "... radixTreeTest"
@@ -520,6 +561,9 @@ help:
 	@echo "... engine_race/test.o"
 	@echo "... engine_race/test.i"
 	@echo "... engine_race/test.s"
+	@echo "... engine_race/testAll.o"
+	@echo "... engine_race/testAll.i"
+	@echo "... engine_race/testAll.s"
 	@echo "... engine_race/testIndexStore.o"
 	@echo "... engine_race/testIndexStore.i"
 	@echo "... engine_race/testIndexStore.s"

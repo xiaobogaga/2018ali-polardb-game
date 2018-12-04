@@ -80,3 +80,6 @@ target_link_libraries(radixTreeTest ${PROJECT_NAME})
 
 add_executable(testIndexStore engine_race/testIndexStore.cpp)
 target_link_libraries(testIndexStore ${PROJECT_NAME})
+
+add_executable(testAll engine_race/testAll.cpp)
+target_link_libraries(testAll ${PROJECT_NAME})
