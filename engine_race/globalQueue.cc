@@ -49,7 +49,7 @@ namespace polar_race {
         int fileRead = 0;
         if (size > 0) {
             fd = open(FileName(dataFilePath, j++).c_str(), O_RDONLY, 0644);
-            if (fd < 0) printInfo(stderr, "[GlobalQueue] : open file failed\n");
+            if (fd < 0) printInfo(stderr, "[GlobalQueue] : ERROR. open file failed\n");
             lseek(fd, 0, SEEK_SET);
         }
         for (uint32_t i = 0; i < size; i++) {
@@ -63,7 +63,7 @@ namespace polar_race {
                         continue;  // Retry
                     }
                     close(fd);
-                //    printInfo(stderr, "[GlobalQueue] : read file failed\n");
+                    printInfo(stderr, "[GlobalQueue] : ERROR. read file failed\n");
                     return -1;
                 }
                 if (r == 0) {
@@ -75,7 +75,7 @@ namespace polar_race {
                     if (j <= fSize) {
                         fileRead = 0;
                         fd = open(FileName(dataFilePath, j++).c_str(), O_RDONLY, 0644);
-                        if (fd < 0) printInfo(stderr, "[GlobalQueue] : open file failed\n");
+                        if (fd < 0) printInfo(stderr, "[GlobalQueue] : ERROR. open file failed\n");
                         lseek(fd, 0, SEEK_SET);
                     } else break;
                 }
@@ -128,7 +128,7 @@ namespace polar_race {
         this->items = (struct QueueItem**) malloc(sizeof(struct QueueItem*) * My_queueSize_);
         for (int i = 0; i < My_queueSize_; i++) {
             this->items[i] = (struct QueueItem *) malloc(sizeof(struct QueueItem) * My_queueCapacity_);
-            if (this->items[i] == NULL) printInfo(stderr, "[MessageQueue] : malloc queueItem array failed\n");
+            if (this->items[i] == NULL) printInfo(stderr, "[MessageQueue] : ERROR. malloc queueItem array failed\n");
         }
         this->loadCon_ = new std::condition_variable[My_parties_];
         loadCon = this->loadCon_;

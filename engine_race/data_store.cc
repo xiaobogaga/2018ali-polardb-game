@@ -20,7 +20,7 @@ namespace polar_race {
     RetCode DataStore::Init() {
         if (!FileExists(dir_)
             && 0 != mkdir(dir_.c_str(), 0755)) {
-            printInfo(stderr, "[DataStore] : %s mkdir failed\n", dir_.c_str());
+            printInfo(stderr, "[DataStore] : ERROR. %s mkdir failed\n", dir_.c_str());
             return kIOError;
         }
 
@@ -28,7 +28,7 @@ namespace polar_race {
 
         if (!FileExists(this->dataFilePath) &&
             0 != mkdir(this->dataFilePath.c_str(), 0755)) {
-            printInfo(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
+            printInfo(stderr, "[DataStore] : ERROR. %s mkdir failed\n", this->dataFilePath.c_str());
             return kIOError;
         }
 
@@ -36,7 +36,7 @@ namespace polar_race {
 
         if (!FileExists(this->dataFilePath) &&
             0 != mkdir(this->dataFilePath.c_str(), 0755)) {
-            printInfo(stderr, "[DataStore] : %s mkdir failed\n", this->dataFilePath.c_str());
+            printInfo(stderr, "[DataStore] : ERROR. %s mkdir failed\n", this->dataFilePath.c_str());
             return kIOError;
         }
 
@@ -88,7 +88,7 @@ namespace polar_race {
 
         // Append write
         if (0 != FileAppend(fd_, value, My_valuesize_)) {
-            printInfo(stderr, "[DataStore] : append to file failed\n");
+            printInfo(stderr, "[DataStore] : ERROR. append to file failed\n");
             return kIOError;
         }
         (*fileNo) = cur_fileNo;
@@ -105,7 +105,7 @@ namespace polar_race {
             // todo.
             fd = open(FileName(this->dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
             if (fd < 0) {
-                printInfo(stderr, "[DataStore] : open file for read failed\n");
+                printInfo(stderr, "[DataStore] : ERROR. open file for read failed\n");
                 return kIOError;
             }
             readFiles->insert(std::pair<uint16_t, int>(fileNo, fd));
@@ -121,7 +121,7 @@ namespace polar_race {
                     continue;  // Retry
                 }
                 close(fd);
-                printInfo(stderr, "[DataStore] : read file failed\n");
+                printInfo(stderr, "[DataStore] : ERROR. read file failed\n");
                 return kIOError;
             }
             pos += r;
@@ -136,7 +136,7 @@ namespace polar_race {
         std::string file_name = FileName(this->dataFilePath, cur_fileNo);
         int fd = open(file_name.c_str(), O_APPEND | O_WRONLY | O_CREAT, 0644);
         if (fd < 0) {
-            printInfo(stderr, "[DataStore] : create file failed\n");
+            printInfo(stderr, "[DataStore] : ERROR. create file failed\n");
             return kIOError;
         }
         fd_ = fd;

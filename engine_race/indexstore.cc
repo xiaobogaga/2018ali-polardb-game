@@ -47,14 +47,14 @@ namespace polar_race {
 
         if (!FileExists(dir_)
             && 0 != mkdir(dir_.c_str(), 0755)) {
-            printInfo(stderr, "[IndexStore-%d] : %s mkdir failed\n", party, dir_.c_str());
+            printInfo(stderr, "[IndexStore-%d] : ERROR. %s mkdir failed\n", party, dir_.c_str());
             return kIOError;
         }
 
         this->indexPath_ = dir + My_indexPrefix_;
         if (!FileExists(this->indexPath_) &&
             0 != mkdir(this->indexPath_.c_str(), 0755)) {
-            printInfo(stderr, "[IndexStore-%d] : mkdir failed %s\n", party, this->indexPath_.c_str());
+            printInfo(stderr, "[IndexStore-%d] : ERROR. mkdir failed %s\n", party, this->indexPath_.c_str());
             return kIOError;
         }
         bool new_create = false;
@@ -68,7 +68,7 @@ namespace polar_race {
             if (fd >= 0) {
                 new_create = true;
                 if (posix_fallocate(fd, 0, newMapSize) != 0) {
-                    printInfo(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party);
+                    printInfo(stderr, "[IndexStore-%d] : ERROR. posix_fallocate failed\n", party);
                     close(fd);
                     return kIOError;
                 }
@@ -76,7 +76,7 @@ namespace polar_race {
         }
 
         if (fd < 0) {
-            printInfo(stderr, "[IndexStore-%d] : file %s open failed\n", party, this->fileName_.c_str());
+            printInfo(stderr, "[IndexStore-%d] : ERROR. file %s open failed\n", party, this->fileName_.c_str());
             return kIOError;
         } else {
             fileLength = GetFileLength(this->fileName_);
@@ -87,7 +87,7 @@ namespace polar_race {
         void *ptr = mmap(NULL, newMapSize, PROT_READ | PROT_WRITE,
                          MAP_SHARED, this->fd_, 0);
         if (ptr == MAP_FAILED) {
-            printInfo(stderr, "[IndexStore-%d] : MAP_FAILED\n", party);
+            printInfo(stderr, "[IndexStore-%d] : ERROR. MAP_FAILED\n", party);
             close(fd);
             return kIOError;
         }
@@ -106,23 +106,23 @@ namespace polar_race {
     void IndexStore::reAllocate() {
         // needs reallocate.
         printInfo(stderr, "[IndexStore-%d] : reallocating\n", party_);
-        if (munmap(head_, newMapSize) == -1) printInfo(stderr, "[IndexStore-%d] : unmap  failed\n", party_);
+        if (munmap(head_, newMapSize) == -1) printInfo(stderr, "[IndexStore-%d] : ERROR. unmap  failed\n", party_);
         if (posix_fallocate(this->fd_, start, My_map_size_) != 0) {
-            printInfo(stderr, "[IndexStore-%d] : posix_fallocate failed\n", party_);
+            printInfo(stderr, "[IndexStore-%d] : ERROR. posix_fallocate failed\n", party_);
             close(this->fd_);
             return;
         }
         void *ptr = mmap(NULL, My_map_size_, PROT_READ | PROT_WRITE,
                          MAP_SHARED, this->fd_, this->start);
+        if (ptr == MAP_FAILED) {
+            printInfo(stderr, "[IndexStore -%d] : ERROR. MAP_FAILED\n", party_);
+            close(this->fd_);
+            return;
+        }
         memset(ptr, 0, My_map_size_);
         this->start += My_map_size_;
         this->newMapSize = My_map_size_;
         this->sep = newMapSize / sizeof(struct Item);
-        if (ptr == MAP_FAILED) {
-            printInfo(stderr, "[IndexStore -%d] : MAP_FAILED\n", party_);
-            close(this->fd_);
-            return;
-        }
         items_ = reinterpret_cast<Item *>(ptr);
         head_ = items_;
     }
@@ -206,7 +206,7 @@ namespace polar_race {
         this->infos = (struct Info *) malloc(sizeof(struct Info) * total);
         if (this->infos == NULL) {
             printInfo(stderr,
-                    "[IndexStore-%d] : opps try to create info array to %d failed\n", party_, total);
+                    "[IndexStore-%d] : ERROR. opps try to create info array to %d failed\n", party_, total);
         }
 
         // bloom filter make this error.
@@ -240,7 +240,7 @@ namespace polar_race {
                 this->infos = (struct Info *) realloc(this->infos, sizeof(struct Info) * total1);
                 if (this->infos == NULL) {
                     printInfo(stderr,
-                            "[IndexStore-%d] : opps try to larger infos array to %d failed\n", party_, total1);
+                            "[IndexStore-%d] : ERROR. opps try to larger infos array to %d failed\n", party_, total1);
                 }
             }
             this->infos[this->size].key = strToLong(temp->key);

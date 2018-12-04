@@ -34,7 +34,7 @@ namespace polar_race {
                 this->store_[i].setParty(i);
                 ret = this->store_[i].Init();
                 if (ret != kSucc) {
-                    printInfo(stderr, "[EngineRace] : init store failed \n");
+                    printInfo(stderr, "[EngineRace] : ERROR. init store failed \n");
                 }
                 this->indexStore_[i].init(dir, i);
             }

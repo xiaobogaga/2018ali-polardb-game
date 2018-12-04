@@ -29,7 +29,7 @@ namespace polar_race {
         }
         if (! My_directStop_ ) {
             My_exceedTime_ = true;
-            printInfo(stderr, "[Timer] : exceed time and exist\n");
+            printInfo(stderr, "[Timer] : ERROR. exceed time and exist\n");
             sleep(1); // sleep for 1 second.
             exit(0);
         }
@@ -45,7 +45,7 @@ namespace polar_race {
         engine_race->resetCounter();
 
         if (0 != LockFile(name + "/" + My_kLockFile_, &(engine_race->db_lock_))) {
-            printInfo(stderr, "[EngineRace] : lock file failed\n");
+            printInfo(stderr, "[EngineRace] : ERROR. lock file failed\n");
             delete engine_race;
             return kIOError;
         }
@@ -124,7 +124,7 @@ namespace polar_race {
             if  (k <= min)  {
                 min = k;
                 this->minFileNo = fileNo;
-                this->minOffset = minOffset;
+                this->minOffset = offset;
             }
         }
 
