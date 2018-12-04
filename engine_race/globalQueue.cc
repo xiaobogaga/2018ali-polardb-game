@@ -143,7 +143,7 @@ namespace polar_race {
 
     // reading the data of i within this part, and partSize is the total size
     // of this part. for client, must iterator till partSize.
-    char *MessageQueue::get(int part, int *i, int *partSize, long long *k) {
+    char *MessageQueue::get(int readId, int part, int *i, int *partSize, long long *k) {
         int idx = (*i);
         // only may block here.
         if (!My_exceedTime_) {
@@ -180,8 +180,20 @@ namespace polar_race {
             }
             uint32_t info = 0;
             (*i) = indexStores[part].getInfoAt(idx, k, &info);
-            return items[part % My_queueSize_][(unwrapFileNo(info) - 1) *
-                                                      My_kSingleFileSize_ / My_valuesize_ + unwrapOffset(info)].data;
+            char* d = items[part % My_queueSize_][(unwrapFileNo(info) - 1) *
+                                                      My_kSingleFileSize_ / My_valuesize_
+                                                      + unwrapOffset(info)].data;
+//            if (part == 256) {
+//                if (idx == 0) fprintf(stderr,
+//                                      "[GlobalQueue]: reader[%d] read %dth data of part-256[size:%d] and get %lld, %d-%d\n",
+//                                      readId, idx, (*partSize),(*k),
+//                                      unwrapFileNo(info), unwrapOffset(info));
+//                else fprintf(stderr,
+//                        "[GlobalQueue]: reader[%d] read %dth data of part-256 and get %lld, %d-%d\n",
+//                        readId, idx, (*k), unwrapFileNo(info), unwrapOffset(info));
+//            }
+
+            return d;
         } else return NULL;
     }
 

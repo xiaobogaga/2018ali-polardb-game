@@ -11,7 +11,7 @@
 
 namespace polar_race {
 
-    static const double My_sleepTime_ = 1000.1;
+    static const double My_sleepTime_ = 500.1;
     static const char My_kLockFile_[] = "LOCK";
     static const int My_keysize_ = 8;
 
@@ -181,7 +181,7 @@ namespace polar_race {
 
         int temp = this->rangeCounter;
         int sameTime = 0;
-        while (sameTime < 10) {
+        while ( (this->rangeCounter == 1 && sameTime < 10) || (this->rangeCounter != 64)) {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
             if (temp == this->rangeCounter) { sameTime ++;}
             else temp = this->rangeCounter;
@@ -210,8 +210,16 @@ namespace polar_race {
         char* ans = NULL;
         for (int i = 0; i < My_parties_; i++) {
             j = -1;
-            printInfo(stderr, "[EngineRace-%d] : range read part %d\n", part, i);
-            ans = this->queue->get(i, &j, &partSize, &keyPointer);
+            // printInfo(stderr, "[EngineRace-%d] : range read part %d\n", part, i);
+            // it turns out there would be an error when i reach to 256. it is a little wired.
+            // lets print some detail when at 256.
+
+            if (i == 256) {
+                // we must read some information now.
+                printInfo(stderr, "[EngineRace-%d] : start read 256 part\n", part);
+            }
+
+            ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
                 else {
@@ -221,7 +229,7 @@ namespace polar_race {
                     visitor.Visit(key, value);
                     size ++;
                 }
-                ans = this->queue->get(i, &j, &partSize, &keyPointer);
+                ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
             }
         }
         printInfo(stderr, "[EngineRace-%d] : range read. [%lld, %lld) with %ld data. spend %f s\n",
@@ -258,7 +266,7 @@ namespace polar_race {
         for (int i = 0; i < My_parties_; i++) {
             j = -1;
             // printInfo(stderr, "[EngineRace] : part-%d : range read part %d\n", part, i);
-            ans = this->queue->get(i, &j, &partSize, &keyPointer);
+            ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
                 else {
@@ -268,7 +276,7 @@ namespace polar_race {
                     visitor.Visit(key, value);
                     size ++;
                 }
-                ans = this->queue->get(i, &j, &partSize, &keyPointer);
+                ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
             }
         }
         printInfo(stderr, "[EngineRace] : part-%d : range read. [%lld, %lld) with %ld data. spend %f s\n",

@@ -16,6 +16,8 @@
 #include "polar_string.h"
 #include <chrono>
 #include "config.h"
+#include <map>
+
 
 int main2 () {
     long long int sep = 288230376151711743;
@@ -26,7 +28,7 @@ int main2 () {
             min + sep - 2, sep, min, sep, larger - miner, larger, miner);
 }
 
-int main() {
+int main11() {
 
     long long min = INT64_MIN;
     long long max = INT64_MAX;
@@ -45,6 +47,26 @@ int main() {
 
     for (long long t = min + sep / 2 - 4; t < min + sep / 2 + 10; t++)
         fprintf(stderr, "%d\n", polar_race::partition(t));
+
+    return 0;
+}
+
+struct PolarStringComparator {
+    bool operator()(const polar_race::PolarString &x, const polar_race::PolarString &y) const {
+        return x.compare(y) < 0;
+    }
+};
+
+int main() {
+    char key1[8] = {-1,-47,40,47,-23,-60,82,111};
+    char key2[8] = {-128,123,-55,-34,31,95,103,72};
+    polar_race::PolarString str1(key1, 8);
+    polar_race::PolarString str2(key2, 8);
+    std::map<polar_race::PolarString, int, PolarStringComparator> maps;
+    maps.insert(std::pair<polar_race::PolarString, int> (key1, 1));
+    maps.insert(std::pair<polar_race::PolarString, int> (key2, 2));
+    std::map<polar_race::PolarString, int>::iterator ite = maps.begin();
+    for (; ite != maps.end(); ite++) fprintf(stderr, "%d\n", ite->first.data()[0]);
 
     return 0;
 }
