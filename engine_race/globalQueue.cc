@@ -184,6 +184,7 @@ namespace polar_race {
                                                       My_kSingleFileSize_ / My_valuesize_
                                                       + unwrapOffset(info)].data;
             if (part == 256) {
+
                 if (idx == 0) {
                     fprintf(stderr,
                             "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
@@ -191,9 +192,10 @@ namespace polar_race {
                             unwrapFileNo(info), unwrapOffset(info));
                     indexStores[part].printMinMax();
                 }
-                else fprintf(stderr,
-                        "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256 and get %lld, %d-%d\n",
-                        readId, idx, (*i), (*k), unwrapFileNo(info), unwrapOffset(info));
+
+//                else fprintf(stderr,
+//                        "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256 and get %lld, %d-%d\n",
+//                        readId, idx, (*i), (*k), unwrapFileNo(info), unwrapOffset(info));
             }
 
             return d;

@@ -61,7 +61,8 @@ namespace polar_race {
 
 
     EngineRace::~EngineRace() {
-        printInfo(stderr, "[EngineRace] : closing db. the min_value for part256 is : %lld\n", this->min);
+        printInfo(stderr, "[EngineRace] : closing db. the min_value for part256 is : %lld, fileNo: %d, offset: %d\n",
+                this->min, this->minFileNo, this->minOffset);
         if (db_lock_) {
             UnlockFile(db_lock_);
         }
@@ -92,9 +93,7 @@ namespace polar_race {
         int party = partition(k);
         this->mutexes[party].lock();
         // pthread_mutex_lock(&this->mutexes[party]);
-        if (party == 256) {
-            if  (k <= min) min = k;
-        }
+
         uint16_t offset = 0;
         uint16_t fileNo = 0;
         RetCode ret = store_[party].Append(v, &fileNo, &offset);
@@ -120,6 +119,15 @@ namespace polar_race {
         // assert(this->writeCounter < 6400000);
 
         // pthread_mutex_unlock(&this->mutexes[party]);
+
+        if (party == 256) {
+            if  (k <= min)  {
+                min = k;
+                this->minFileNo = fileNo;
+                this->minOffset = minOffset;
+            }
+        }
+
         this->mutexes[party].unlock();
         return ret;
     }

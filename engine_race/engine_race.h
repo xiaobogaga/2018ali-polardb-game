@@ -23,7 +23,8 @@ namespace polar_race {
 
         explicit EngineRace(const std::string &dir)
                 : db_lock_(NULL), writeCounter(0),
-                  readCounter(0), rangeCounter(0), startRange(false), queue(NULL), min(INT64_MAX) {
+                  readCounter(0), rangeCounter(0), startRange(false), queue(NULL), min(INT64_MAX), minFileNo(1),
+                  minOffset(0) {
             this->store_ = new DataStore[My_parties_];
             this->indexStore_ = new IndexStore[My_parties_];
             this->mutexes = new std::mutex[My_parties_];
@@ -76,6 +77,8 @@ namespace polar_race {
         std::thread *timerTask;
         MessageQueue* queue;
         long long min;
+        uint16_t minFileNo;
+        uint16_t minOffset;
     };
 
 }  // namespace polar_race
