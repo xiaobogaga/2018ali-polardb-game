@@ -168,7 +168,7 @@ namespace polar_race {
                     anotherLock.lock();
                     if (readCounter[readedPart + 1] == 0) {
                         printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
-                        indexStores[readedPart + 1].finalize();
+                        // indexStores[readedPart + 1].finalize();
                         readedPart += 1;
                         // clear previous data.
                         notFullCV.notify_one();
