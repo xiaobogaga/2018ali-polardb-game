@@ -143,7 +143,7 @@ namespace polar_race {
 
     // reading the data of i within this part, and partSize is the total size
     // of this part. for client, must iterator till partSize.
-    char *MessageQueue::get(int readId, int part, int *i, int *partSize, long long *k) {
+    char *MessageQueue::get(int readId, int part, int *i, int *partSize, char** k) {
         int idx = (*i);
         // only may block here.
         if (!My_exceedTime_) {
@@ -190,7 +190,7 @@ namespace polar_race {
                             "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
                             readId, idx, (*i), (*partSize), (*k),
                             unwrapFileNo(info), unwrapOffset(info));
-                    indexStores[part].printMinMax();
+                    // indexStores[part].printMinMax();
                 }
 
 //                else fprintf(stderr,

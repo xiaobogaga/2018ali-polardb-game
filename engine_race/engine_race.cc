@@ -89,7 +89,7 @@ namespace polar_race {
 
     RetCode EngineRace::Write(const PolarString &key, const PolarString &value) {
         const std::string &v = value.ToString();
-        long long k = strToLong(key.data());
+        unsigned long long k = strToLong(key.data());
         int party = partition(k);
         this->mutexes[party].lock();
         // pthread_mutex_lock(&this->mutexes[party]);
@@ -135,7 +135,7 @@ namespace polar_race {
     RetCode EngineRace::Read(const PolarString &key, std::string *value) {
         int c = readCounter.load();
         readCounter++;
-        long long k = strToLong(key.data());
+        unsigned long long k = strToLong(key.data());
         int party = partition(k);
         uint16_t fileNo = -1;
         uint16_t offset = -1;
@@ -145,7 +145,7 @@ namespace polar_race {
         // pthread_mutex_lock(&this->mutexes[party]);
 
         RetCode ret = kSucc;
-        this->indexStore_[party].get(k, &ans);
+        this->indexStore_[party].get(key, &ans);
         if (ans == 0) ret = kNotFound;
         else {
             offset = unwrapOffset(ans);
@@ -213,14 +213,14 @@ namespace polar_race {
         printInfo(stderr, "[EngineRace-%d] : start range reader, current threadSize : %d\n",
                 part, this->rangeCounter);
         time_t range_timer;
-        long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
-        long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
+        unsigned long long low = lower.size() == 0 ? 0 : strToLong(lower.data());
+        unsigned long long high = upper.size() == 0 ? UINT64_MAX : strToLong(upper.data());
         time(&range_timer);
         // do range query.
         long size = 0;
         int partSize = 0, j = -1;
         long long keyPointer = -1;
-        char buf[8];
+        char* buf = NULL;
         char* ans = NULL;
         for (int i = 0; i < My_parties_; i++) {
             j = -1;
@@ -233,20 +233,19 @@ namespace polar_race {
 //                printInfo(stderr, "[EngineRace-%d] : start read 256 part\n", part);
 //            }
 
-            ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
+            ans = this->queue->get(part, i, &j, &partSize, &buf);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
                 else {
-                    longToStr(keyPointer, buf);
                     PolarString key(buf, My_keysize_);
                     PolarString value(ans, My_valuesize_);
                     visitor.Visit(key, value);
                     size ++;
                 }
-                ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
+                ans = this->queue->get(part, i, &j, &partSize, &buf);
             }
         }
-        printInfo(stderr, "[EngineRace-%d] : range read. [%lld, %lld) with %ld data. spend %f s\n",
+        printInfo(stderr, "[EngineRace-%d] : range read. [%llu, %llu) with %ld data. spend %f s\n",
                     part, low, high, size, difftime(time(NULL), range_timer));
         return kSucc;
 
@@ -268,32 +267,30 @@ namespace polar_race {
         printInfo(stderr, "[EngineRace] : part-%d : start range read with rangeCounter : %d\n", part,
                 this->rangeCounter);
         time_t range_timer;
-        long long low = lower.size() == 0 ? INT64_MIN : strToLong(lower.data());
-        long long high = upper.size() == 0 ? INT64_MAX : strToLong(upper.data());
+        unsigned long long low = lower.size() == 0 ? 0 : strToLong(lower.data());
+        unsigned long long high = upper.size() == 0 ? UINT64_MAX : strToLong(upper.data());
         time(&range_timer);
         // do range query.
         long size = 0;
         int partSize = 0, j = -1;
-        long long keyPointer = -1;
-        char buf[8];
+        char* buf = NULL;
         char* ans = NULL;
         for (int i = 0; i < My_parties_; i++) {
             j = -1;
             // printInfo(stderr, "[EngineRace] : part-%d : range read part %d\n", part, i);
-            ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
+            ans = this->queue->get(part, i, &j, &partSize, &buf);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
                 else {
-                    longToStr(keyPointer, buf);
                     PolarString key(buf, My_keysize_);
                     PolarString value(ans, My_valuesize_);
                     visitor.Visit(key, value);
                     size ++;
                 }
-                ans = this->queue->get(part, i, &j, &partSize, &keyPointer);
+                ans = this->queue->get(part, i, &j, &partSize, &buf);
             }
         }
-        printInfo(stderr, "[EngineRace] : part-%d : range read. [%lld, %lld) with %ld data. spend %f s\n",
+        printInfo(stderr, "[EngineRace] : part-%d : range read. [%llu, %llu) with %ld data. spend %f s\n",
                 part, low, high, size, difftime(time(NULL), range_timer));
         return kSucc;
 

@@ -21,10 +21,10 @@ namespace polar_race {
 
         IndexStore(std::string &dir) : dir_(dir), party_(-1), fd_(-1), items_(NULL), head_(NULL),
                                        size(0), infos(NULL), total(My_infoArraySize_), newMapSize(0), start(0), sep(0),
-                                       table(NULL), bf(NULL), bfparameters(NULL) {}
+                                       bf(NULL), bfparameters(NULL) {}
 
         IndexStore() : party_(-1), fd_(-1), items_(NULL), head_(NULL), size(0), infos(NULL), total(My_infoArraySize_),
-                       newMapSize(0), start(0), sep(0), table(NULL), bf(NULL), bfparameters(NULL) {}
+                       newMapSize(0), start(0), sep(0), bf(NULL), bfparameters(NULL) {}
 
         RetCode init(const std::string &dir, int party);
 
@@ -34,13 +34,11 @@ namespace polar_race {
 
         void add(const PolarString &key, uint32_t info);
 
-        void get(long long key, uint32_t *ans);
+        void get(const PolarString& key, uint32_t *ans);
 
-        int getInfoAt(uint32_t i, long long* k, uint32_t* info);
+        int getInfoAt(uint32_t i, char** k, uint32_t* info);
 
         void initMaps();
-
-        void initMaps2();
 
         void reAllocate();
 
@@ -49,8 +47,8 @@ namespace polar_race {
         void initInfos();
 
         void printMinMax() {
-            printInfo(stderr, "[IndexStore] : min : %lld, max : %lld\n", this->infos[0].key,
-                    this->infos[this->size - 1].key);
+            // printInfo(stderr, "[IndexStore] : min : %lld, max : %lld\n", this->infos[0].key,
+               //     this->infos[this->size - 1].key);
         }
 
         void get2(long long key, uint32_t *ans);
@@ -71,15 +69,14 @@ namespace polar_race {
         std::string fileName_;
         int party_;
         int fd_;
-        struct Item *items_;
-        struct Item *head_;
+        struct Info *items_;
+        struct Info *head_;
         uint32_t size;
         struct Info *infos;
         uint32_t total;
         size_t newMapSize;
         size_t start;
         size_t sep;
-        MyHashTable *table;
         bloom_filter *bf;
         bloom_parameters *bfparameters;
     };

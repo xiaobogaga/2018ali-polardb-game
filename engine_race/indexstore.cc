@@ -18,7 +18,8 @@ namespace polar_race {
     int compare(const void *a, const void *b) {
         struct Info *infoA = (struct Info *) a;
         struct Info *infoB = (struct Info *) b;
-        if (infoA->key == infoB->key) {
+        int ret = memcmp(infoA->key, infoB->key, 8);
+        if (ret == 0) {
             // duplated key.
             uint16_t fileNoA = unwrapFileNo(infoA->info);
             uint16_t fileNoB = unwrapFileNo(infoB->info);
@@ -30,14 +31,13 @@ namespace polar_race {
             }
 
         }
-        return infoA->key < infoB->key ? -1 : 1;
+        return ret;
     }
 
     int bcompare(const void *a, const void *b) {
-        long long infoA = (*(long long *) a);
+        char* infoA = (char*) a;
         struct Info *infoB = (struct Info *) b;
-        if (infoA == infoB->key) return 0;
-        return infoA < infoB->key ? -1 : 1;
+        return memcmp(infoA, infoB->key, 8);
     }
 
     RetCode IndexStore::init(const std::string &dir, int party) {
@@ -95,10 +95,10 @@ namespace polar_race {
             //   printInfo(stderr, "[IndexStore] : create a new mmap \n");
             memset(ptr, 0, newMapSize);
         }
-        items_ = reinterpret_cast<Item *>(ptr);
+        items_ = reinterpret_cast<struct Info *>(ptr);
         head_ = items_;
         this->start = newMapSize;
-        this->sep = newMapSize / sizeof(struct Item);
+        this->sep = newMapSize / sizeof(struct Info);
         if (!new_create) initMaps(); // here must do that.
         return RetCode::kSucc;
     }
@@ -122,8 +122,8 @@ namespace polar_race {
         memset(ptr, 0, My_map_size_);
         this->start += My_map_size_;
         this->newMapSize = My_map_size_;
-        this->sep = newMapSize / sizeof(struct Item);
-        items_ = reinterpret_cast<Item *>(ptr);
+        this->sep = newMapSize / sizeof(struct Info);
+        items_ = reinterpret_cast<Info *>(ptr);
         head_ = items_;
     }
 
@@ -139,7 +139,7 @@ namespace polar_race {
         this->size++;
     }
 
-    void IndexStore::get(long long key, uint32_t *ans) {
+    void IndexStore::get(const PolarString& key, uint32_t *ans) {
         if (this->infos == NULL) initMaps();
 
 //        if (this->bf != NULL && !this->bf->contains(key)) {
@@ -147,11 +147,12 @@ namespace polar_race {
 //            return;
 //        }
 
-        struct Info *ret = (struct Info *) bsearch(&key, this->infos, this->size,
+        struct Info *ret = (struct Info *) bsearch(key.data(), this->infos, this->size,
                                                    sizeof(struct Info), bcompare);
 
         // make sure it is the latest.
-        while (ret != NULL && ret < (this->infos + this->size - 1) && (ret + 1)->key == key) {
+        while (ret != NULL && ret < (this->infos + this->size - 1) &&
+            memcmp( (ret + 1)->key, key.data(), 8) == 0) {
             ret++;
         }
 
@@ -164,40 +165,9 @@ namespace polar_race {
 
     }
 
-    void IndexStore::initMaps2() {
-        this->table = new MyHashTable();
-        printInfo(stderr, "[IndexStore-%d] : try to init map\n", party_);
-        time_t t;
-        time(&t);
-        struct Item *temp = head_;
-        this->size = 0;
-        while (temp->info != 0) {
-            long long k = strToLong(temp->key);
-            this->table->add(k, temp->info);
-            this->size++;
-            temp++;
-        }
-        if (fd_ >= 0) {
-            munmap(head_, newMapSize);
-            close(fd_);
-            fd_ = -1;
-            head_ = NULL;
-        }
-        printInfo(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
-                party_, this->size, difftime(time(NULL), t));
-    }
-
-    void IndexStore::get2(long long key, uint32_t *ans) {
-        if (this->table == NULL) initMaps2();
-        uint32_t ret = this->table->get(key);
-        (*ans) = ret;
-
-    }
-
-    int IndexStore::getInfoAt(uint32_t i, long long* k, uint32_t * info) {
-        long long key = this->infos[i].key;
-        (*k) = key;
-        while (i + 1 < this->size && this->infos[i + 1].key == this->infos[i].key) i++;
+    int IndexStore::getInfoAt(uint32_t i, char** k, uint32_t * info) {
+        (*k) = this->infos[i].key;
+        while (i + 1 < this->size && memcmp(this->infos[i + 1].key, this->infos[i].key, 8) == 0) i++;
         (*info) = this->infos[i].info;
         return i;
     }
@@ -229,7 +199,7 @@ namespace polar_race {
         uint32_t total1 = total;
         time_t t;
         time(&t);
-        struct Item *temp = head_;
+        struct Info *temp = head_;
         this->size = 0;
         while (temp->info != 0) {
             if (this->infos == NULL) {
@@ -243,7 +213,7 @@ namespace polar_race {
                             "[IndexStore-%d] : ERROR. opps try to larger infos array to %d failed\n", party_, total1);
                 }
             }
-            this->infos[this->size].key = strToLong(temp->key);
+            memcpy(this->infos[this->size].key, temp->key, 8);
             this->infos[this->size].info = temp->info;
             // bf->insert(this->infos[this->size].key);
             this->size++;
@@ -285,11 +255,6 @@ namespace polar_race {
         if (this->infos != NULL) {
             free(this->infos);
             this->infos = NULL;
-        }
-
-        if (this->table != NULL) {
-            delete this->table;
-            this->table = NULL;
         }
 
         if (this->bf != NULL) {
@@ -342,12 +307,6 @@ namespace polar_race {
         if (this->infos != NULL) {
             free(this->infos);
             this->infos = NULL;
-        }
-
-
-        if (this->table != NULL) {
-            delete this->table;
-            this->table = NULL;
         }
 
         if (this->bf != NULL) {

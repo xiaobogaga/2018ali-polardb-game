@@ -28,7 +28,14 @@ int main2 () {
             min + sep - 2, sep, min, sep, larger - miner, larger, miner);
 }
 
-int main11() {
+int main() {
+    char a1[1] = {-50};
+    char b1[1] = {40};
+    fprintf(stderr, "memcmp(a1: %d, b1 : %d) = %d\n", a1[0], b1[0], memcmp(a1, b1, 1));
+    return 0;
+}
+
+int main12() {
 
     long long min = INT64_MIN;
     long long max = INT64_MAX;
@@ -71,7 +78,7 @@ inline int my_partition(long long key) {
     return party == polar_race::My_parties_ ? polar_race::My_parties_ - 1 : party;
 }
 
-int main() {
+int main11() {
 //    char key1[8] = {-1,-47,40,47,-23,-60,82,111};
 //    char key2[8] = {-128,123,-55,-34,31,95,103,72};
 //    polar_race::PolarString str1(key1, 8);

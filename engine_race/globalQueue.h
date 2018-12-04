@@ -23,7 +23,7 @@ namespace polar_race {
 
         // reading the data of i within this part, and partSize is the total size
         // of this part. for client, must iterator till partSize.
-        char *get(int readId, int part, int *i, int *partSize, long long *k);
+        char *get(int readId, int part, int *i, int *partSize, char** k);
 
         ~MessageQueue() {
             printInfo(stderr, "[MessageQueue] : finilizing\n");

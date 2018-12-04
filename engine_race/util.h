@@ -27,21 +27,21 @@ namespace polar_race {
 #endif
     }
 
-    inline long long strToLong(const char *key) {
-        long long ans = 0;
+    inline unsigned long long strToLong(const char *key) {
+        unsigned long long ans = 0;
         for (int i = 0; i < 64; i++) {
-            ans |= (((long long) ((key[i / 8]) >> (7 - i % 8)) & 1) << (63 - i));
+            ans |= (((unsigned long long) ((key[i / 8]) >> (7 - i % 8)) & 1) << (63 - i));
         }
         return ans;
     }
-
-    inline void longToStr(long long key, char *ans) {
-        memset(ans, 0, sizeof(char) * 8);
-        for (int i = 0; i < 64; i++) {
-            char c = (char) (((key >> i) & 1) << (i % 8));
-            ans[7 - i / 8] |= c;
-        }
-    }
+//
+//    inline void longToStr(long long key, char *ans) {
+//        memset(ans, 0, sizeof(char) * 8);
+//        for (int i = 0; i < 64; i++) {
+//            char c = (char) (((key >> i) & 1) << (i % 8));
+//            ans[7 - i / 8] |= c;
+//        }
+//    }
 
     inline uint32_t wrap(uint16_t offset, uint16_t fileNo) {
         uint32_t ans = 0;
