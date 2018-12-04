@@ -8,7 +8,7 @@ namespace polar_race {
         result->clear();
         DIR *d = opendir(dir.c_str());
         if (d == NULL) {
-            printInfo(stderr, "[Util] : open dir %s failed\n", dir.c_str());
+            printInfo(stderr, "[Util] : ERROR. open dir %s failed\n", dir.c_str());
             return errno;
         }
         struct dirent *entry;
@@ -34,6 +34,7 @@ namespace polar_race {
 
     int FileAppend(int fd, const std::string &value, uint32_t vLen) {
         if (fd < 0) {
+            printInfo(stderr, "[Util] : ERROR. write data failed, FD < 0\n");
             return -1;
         }
         size_t value_len = vLen;
@@ -44,7 +45,7 @@ namespace polar_race {
                 if (errno == EINTR) {
                     continue;  // Retry
                 }
-                printInfo(stderr, "[Util] : write data failed, fileappend\n");
+                printInfo(stderr, "[Util] : ERROR. write data failed, fileappend\n");
                 return -1;
             }
             pos += r;
