@@ -167,7 +167,7 @@ namespace polar_race {
                     readCounter[part]--;
                     anotherLock.lock();
                     if (readCounter[readedPart + 1] == 0) {
-                        printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
+                        // printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
                         // indexStores[readedPart + 1].finalize();
                         readedPart += 1;
                         // clear previous data.
@@ -185,13 +185,13 @@ namespace polar_race {
                                                       + unwrapOffset(info)].data;
             if (part == 256) {
 
-                if (idx == 0) {
-                    fprintf(stderr,
-                            "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
-                            readId, idx, (*i), (*partSize), strToLong(*k),
-                            unwrapFileNo(info), unwrapOffset(info));
-                    // indexStores[part].printMinMax();
-                }
+//                if (idx == 0) {
+//                    fprintf(stderr,
+//                            "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
+//                            readId, idx, (*i), (*partSize), strToLong(*k),
+//                            unwrapFileNo(info), unwrapOffset(info));
+//                    // indexStores[part].printMinMax();
+//                }
 
 //                else fprintf(stderr,
 //                        "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256 and get %lld, %d-%d\n",

@@ -186,15 +186,14 @@ namespace polar_race {
 
         int part = 0;
         this->mu_.lock();
-        part = this->rangeCounter ++;
-        fprintf(stderr, "[EngineRace] : part %d coming\n", part);
+        part = this->rangeCounter++;
         this->mu_.unlock();
 
         int temp = this->rangeCounter;
         int sameTime = 0;
-        while ( (this->rangeCounter == 1 && sameTime < 10)) {
+        while ((this->rangeCounter == 1 && sameTime < 10)) {
             std::this_thread::sleep_for(std::chrono::microseconds(100));
-            if (temp == this->rangeCounter) { sameTime ++;}
+            if (temp == this->rangeCounter) { sameTime++; }
             else {
                 temp = this->rangeCounter;
                 sameTime = 0;
@@ -206,12 +205,10 @@ namespace polar_race {
             delete[] this->mutexes;
             this->mutexes = new std::mutex[My_parties_];
             this->queue = new MessageQueue(this->store_, this->indexStore_,
-                    this->mutexes, this->rangeCounter == 1 ? 1 : 64);
+                                           this->mutexes, this->rangeCounter == 1 ? 1 : 64);
         }
         this->mu_.unlock();
 
-        printInfo(stderr, "[EngineRace-%d] : start range reader, current threadSize : %d\n",
-                part, this->rangeCounter);
         time_t range_timer;
         unsigned long long low = lower.size() == 0 ? 0 : strToLong(lower.data());
         unsigned long long high = upper.size() == 0 ? UINT64_MAX : strToLong(upper.data());
@@ -219,8 +216,8 @@ namespace polar_race {
         // do range query.
         long size = 0;
         int partSize = 0, j = -1;
-        char* buf = NULL;
-        char* ans = NULL;
+        char *buf = NULL;
+        char *ans = NULL;
         for (int i = 0; i < My_parties_; i++) {
             j = -1;
             // printInfo(stderr, "[EngineRace-%d] : range read part %d\n", part, i);
@@ -239,13 +236,26 @@ namespace polar_race {
                     PolarString key(buf, My_keysize_);
                     PolarString value(ans, My_valuesize_);
                     visitor.Visit(key, value);
-                    size ++;
+                    size++;
                 }
                 ans = this->queue->get(part, i, &j, &partSize, &buf);
             }
         }
         printInfo(stderr, "[EngineRace-%d] : range read. [%llu, %llu) with %ld data. spend %f s\n",
-                    part, low, high, size, difftime(time(NULL), range_timer));
+                  part, low, high, size, difftime(time(NULL), range_timer));
+
+        this->mu_.lock();
+        this->rangeCounter--;
+        if (this->rangeCounter == 0 && this->queue != NULL) {
+            this->rangeCounter = 0;
+            fprintf(stderr, "[EngineRace-%d] : clear message queue\n", part);
+            delete[] this->mutexes;
+            this->mutexes = NULL;
+            delete this->queue;
+            this->queue = NULL;
+        }
+        this->mu_.unlock();
+
         return kSucc;
 
     }

@@ -485,12 +485,19 @@ int main(int argc, char** argv) {
     ReaderPro performanceReaderTask((EngineRace*) engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceReaderTask.startReader(threadSize, writingTime);
     fprintf(stderr , "[Tester] : end read\n");
-    fprintf(stderr , "[Tester] : start range read\n");
+
+    fprintf(stderr , "[Tester] : start range read1\n");
     delete engine;
     Engine::Open(path, &engine);
     RangePro performanceRangeTask((EngineRace*) engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
     performanceRangeTask.startRange(threadSize, writingTime);
-    fprintf(stderr , "[Tester] : end range read\n");
+    fprintf(stderr , "[Tester] : end range read1\n");
+
+    fprintf(stderr , "[Tester] : start range read2\n");
+    RangePro performanceRangeTask2((EngineRace*) engine, performanceWriterTask.getMaps(), performanceWriterTask.getKeys());
+    performanceRangeTask2.startRange(threadSize, writingTime);
+    fprintf(stderr , "[Tester] : end range read2\n");
+
     delete engine; // finilize.
     free(keys);
     free(values);
