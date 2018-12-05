@@ -4,7 +4,6 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <vector>
-#include "util.h"
 #include "data_store.h"
 
 namespace polar_race {
@@ -103,7 +102,7 @@ namespace polar_race {
         if (readFiles->count(fileNo) <= 0) {
             // open with o_direct to avoid system pagecache.
             // todo.
-            fd = open(FileName(this->dataFilePath, fileNo).c_str(), O_RDONLY, 0644);
+            fd = open(FileName(this->dataFilePath, fileNo).c_str(), O_DIRECT | O_RDONLY, 0644);
             if (fd < 0) {
                 printInfo(stderr, "[DataStore] : ERROR. open file for read failed\n");
                 return kIOError;

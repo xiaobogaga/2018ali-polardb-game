@@ -11,7 +11,7 @@
 
 namespace polar_race {
 
-    static const double My_sleepTime_ = 1000.1;
+    static const double My_sleepTime_ = 600.1;
     static const char My_kLockFile_[] = "LOCK";
     static const int My_keysize_ = 8;
 
@@ -183,7 +183,6 @@ namespace polar_race {
 
     RetCode EngineRace::Range(const PolarString &lower, const PolarString &upper,
                               Visitor &visitor) {
-
         int part = 0;
         this->mu_.lock();
         part = this->rangeCounter++;
@@ -228,7 +227,6 @@ namespace polar_race {
 //                // we must read some information now.
 //                printInfo(stderr, "[EngineRace-%d] : start read 256 part\n", part);
 //            }
-
             ans = this->queue->get(part, i, &j, &partSize, &buf);
             for (j++; j <= partSize; j++) {
                 if (ans == NULL) break;
@@ -260,10 +258,11 @@ namespace polar_race {
         time_t sleepTime;
         time(&sleepTime);
         while (!allended) {
-            std::this_thread::sleep_for(std::chrono::microseconds(100)); // sleeping 100 ms for waiting
+            std::this_thread::yield();
+            std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time)); // sleeping 100 ms for waiting
             // all thread finish.
         }
-        fprintf(stderr, "[EngineRace-%d] : wait other thread end for %f s\n", part, difftime(time(NULL), sleepTime));
+        printInfo(stderr, "[EngineRace-%d] : wait other thread end for %f s\n", part, difftime(time(NULL), sleepTime));
         return kSucc;
 
     }

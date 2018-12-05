@@ -9,6 +9,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 #include "data_store.h"
 #include "indexstore.h"
 #include "config.h"

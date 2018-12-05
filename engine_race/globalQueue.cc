@@ -9,8 +9,13 @@ namespace polar_race {
     std::condition_variable notFullCV;
     std::mutex* mutexLocks;
     int realItemSizes[My_parties_];
-    int loaded = 0;
-    int readedPart = -1;
+    // just declare as volatile is not enough
+    // needs to be atomic_int.
+    // volatile int loaded = 0;
+    // volatile int readedPart = -1;
+    // change here.
+    volatile int loaded;
+    volatile int readedPart;
     std::condition_variable* loadCon;
     static const char My_kDataFilePrefix_[] = "DATA_";
 
@@ -18,7 +23,7 @@ namespace polar_race {
         return dir + "/" + My_kDataFilePrefix_ + std::to_string(fileno);
     }
 
-    bool isPartCanLoad(int part) {
+    bool isPartCanLoad(int part, int readedPart) {
         return (part - readedPart) <= My_queueSize_;
     }
 
@@ -29,7 +34,8 @@ namespace polar_race {
     void initParams() {
         loaded = 0;
         readedPart = -1;
-        memset(realItemSizes, 0, sizeof(int) * My_parties_);
+        // memset(realItemSizes, 0, sizeof(int) * My_parties_);
+        for (int i = 0; i < My_parties_; i++) realItemSizes[i] = -1;
     }
 
     /**
@@ -39,6 +45,8 @@ namespace polar_race {
  * @return
  */
     int load(int part, struct QueueItem *data, DataStore *dataStore, IndexStore *indexStore) {
+        time_t calc;
+        time(&calc);
         if (indexStore->getInfo() == NULL) indexStore->initMaps();
         uint32_t size = indexStore->getSize();
         int j = 1;
@@ -88,7 +96,8 @@ namespace polar_race {
             //        fileRead, j - 1, part);IndexStore
             close(fd);
         }
-        printInfo(stderr, "[Loader] : load %d part finished with %d data\n", part, size);
+        printInfo(stderr, "[Loader] : load %d part finished with %d data and spend %f s\n",
+                part, size, difftime(time(NULL), calc));
         return size;
     }
 
@@ -97,10 +106,14 @@ namespace polar_race {
      */
     void loaderMethod(DataStore *stores, IndexStore *indexStore, struct QueueItem** items) {
         for (int i = 0; i < My_parties_; i++) {
-            std::unique_lock<std::mutex> lck(mutexLocks[i]);
-            while (!isPartCanLoad(i)) {
+            // std::unique_lock<std::mutex> lck(mutexLocks[i]);
+            while (!isPartCanLoad(i, readedPart)) {
                 if (My_exceedTime_) return;
-                notFullCV.wait(lck);
+                // notFullCV.wait(lck);
+                // wait or using computation.
+                // let it out cpu.
+                std::this_thread::yield();
+                std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
             }
             // now we can load the data.
             // start loader data;
@@ -108,13 +121,12 @@ namespace polar_race {
             struct QueueItem *data = items[i % My_queueSize_];
             // loading all data to queue.
             realItemSizes[i] = load(i, data, &stores[i], &indexStore[i]);
-            if (realItemSizes[i] <= 0) {
-                // readedPart += 1;
-            }
-            loaded += 1;
-            loadCon[i].notify_all(); // is notify one here ? or notify all ?
-        }
 
+            // change here.
+            // loaded += 1;
+            // loadCon[i].notify_all(); // is notify one here ? or notify all ?
+            loaded ++;
+        }
     }
 
 
@@ -133,12 +145,11 @@ namespace polar_race {
         this->loadCon_ = new std::condition_variable[My_parties_];
         loadCon = this->loadCon_;
         initParams(); // call initParams here.
-
-        this->loader = new std::thread(loaderMethod, this->stores,
-                                       this->indexStores, this->items);
         for (int i = 0; i < My_parties_; i++) {
             readCounter[i] = threadSize;
         }
+        this->loader = new std::thread(loaderMethod, this->stores,
+                                       this->indexStores, this->items);
     }
 
     // reading the data of i within this part, and partSize is the total size
@@ -148,14 +159,30 @@ namespace polar_race {
         // only may block here.
         if (!My_exceedTime_) {
             if (idx == -1 || (idx == (*partSize))) { // read the first data of part.
-                std::unique_lock<std::mutex> lck(mutexLocks[part]);
-                while (!isPartReady(loaded, part)) {
+
+//                std::unique_lock<std::mutex> lck(mutexLocks[part]);
+//                while (!isPartReady(loaded, part)) {
+//                    if (My_exceedTime_) {
+//                        (*partSize) = 0;
+//                        return 0;
+//                    }
+//
+//                    loadCon[part].wait(lck);
+//                    // here we need to avoid using lock and condition variable.
+//                }
+
+//here we try to use cas, we use realItemSizes[part] >= 0 to make sure part is loaded.
+                while (!isPartReady(loaded, part) && realItemSizes[part] < 0) {
                     if (My_exceedTime_) {
                         (*partSize) = 0;
                         return 0;
                     }
-                    loadCon[part].wait(lck);
+                    // sleep current thread.
+                    std::this_thread::yield();
+                    std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
                 }
+
+
                 // when data is coming.
                 if (idx == -1) {
                     (*i) = 0;
@@ -164,41 +191,25 @@ namespace polar_race {
                 idx = (*i);
                 if (idx == (*partSize)) {
                     // here must block, since lck lock might not used because idx != -1.
-                    readCounter[part]--;
                     anotherLock.lock();
+                    readCounter[part]--;
                     if (readCounter[readedPart + 1] == 0) {
                         // printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
                         // indexStores[readedPart + 1].finalize();
-                        readedPart += 1;
-                        // clear previous data.
-                        notFullCV.notify_one();
+                        readedPart ++;
+                        // notFullCV.notify_one();
                     }
                     anotherLock.unlock();
                     // here must block.
                     return NULL;
+
                 }
             }
             uint32_t info = 0;
             (*i) = indexStores[part].getInfoAt(idx, k, &info);
-            char* d = items[part % My_queueSize_][(unwrapFileNo(info) - 1) *
+            return items[part % My_queueSize_][(unwrapFileNo(info) - 1) *
                                                       My_kSingleFileSize_ / My_valuesize_
                                                       + unwrapOffset(info)].data;
-            if (part == 256) {
-
-//                if (idx == 0) {
-//                    fprintf(stderr,
-//                            "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256[size:%d] and get %lld, %d-%d\n",
-//                            readId, idx, (*i), (*partSize), strToLong(*k),
-//                            unwrapFileNo(info), unwrapOffset(info));
-//                    // indexStores[part].printMinMax();
-//                }
-
-//                else fprintf(stderr,
-//                        "[GlobalQueue]: reader[%d] read %dth data, nextLoc[%d] of part-256 and get %lld, %d-%d\n",
-//                        readId, idx, (*i), (*k), unwrapFileNo(info), unwrapOffset(info));
-            }
-
-            return d;
         } else return NULL;
     }
 

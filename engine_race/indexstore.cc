@@ -237,12 +237,12 @@ namespace polar_race {
 //            printInfo(stderr, "[IndexStore-%d] : %lld, %d, %d\n", party_, this->infos[i].key,
 //                    unwrapOffset(this->infos[i].info), unwrapFileNo(this->infos[i].info));
 //        }
-        printInfo(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
-                party_, this->size, difftime(time(NULL), t));
+        // printInfo(stderr, "[IndexStore-%d] : init radix_tree finished, total: %d data, taken %f s\n",
+           //     party_, this->size, difftime(time(NULL), t));
     }
 
     void IndexStore::finalize() {
-        printInfo(stderr, "[IndexStore-%d] : finalize index store with size %d\n", party_,this->size);
+        // printInfo(stderr, "[IndexStore-%d] : finalize index store with size %d\n", party_,this->size);
         if (fd_ >= 0) {
             // items_ = NULL;
             munmap(head_, newMapSize);
@@ -251,19 +251,16 @@ namespace polar_race {
             close(fd_);
             fd_ = -1;
         }
-
         if (this->infos != NULL) {
             free(this->infos);
             this->infos = NULL;
         }
-
         if (this->bf != NULL) {
             delete this->bf;
             this->bf = NULL;
             delete this->bfparameters;
             this->bfparameters = NULL;
         }
-
 
     }
 

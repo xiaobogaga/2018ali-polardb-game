@@ -472,7 +472,7 @@ int main(int argc, char** argv) {
     ret = system("rm -rf /tmp/test_dump/*");
     EngineRace::Open(path, &engine);
     WriterTask performanceWriterTask((EngineRace*) engine);
-    writingTime = 500;
+    writingTime = 1600;
     keys = (char*) malloc(sizeof(char) * 8 * writingTime * threadSize);
     values = (char*) malloc(sizeof(char) * 4096 * writingTime * threadSize);
     readKeys = (char*) malloc(sizeof(char) * 8 * writingTime * threadSize);

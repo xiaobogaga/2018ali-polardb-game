@@ -10,6 +10,8 @@
 #include <map>
 #include "../include/engine.h"
 #include "config.h"
+#include <malloc.h>
+#include "util.h"
 
 namespace polar_race {
 
@@ -21,6 +23,8 @@ namespace polar_race {
             cur_fileNo = 0;
             cur_offset = 0;
             readFiles = NULL;
+            buf = (char *) memalign(getpagesize(), My_valuesize_);
+            if (buf == NULL) printInfo(stderr, "[DataStore] : error, memalign failed\n");
         }
 
         DataStore() {
@@ -28,6 +32,8 @@ namespace polar_race {
             cur_fileNo = 0;
             cur_offset = 0;
             readFiles = NULL;
+            buf = (char *) memalign(getpagesize(), My_valuesize_);
+            if (buf == NULL) printInfo(stderr, "[DataStore] : error, memalign failed\n");
         }
 
         void setDir(const std::string dir) {
@@ -38,6 +44,11 @@ namespace polar_race {
             // printInfo(stderr, "[DataStore-%d] : finilized\n", party);
             if (fd_ >= 0) {
                 close(fd_);
+                fd_ = -1;
+            }
+            if (buf != NULL) {
+                free(buf);
+                buf = NULL;
             }
             if (readFiles != NULL && !readFiles->empty()) {
                 for (std::map<uint16_t, int>::iterator it = readFiles->begin(); it != readFiles->end(); ++it)
@@ -72,7 +83,8 @@ namespace polar_race {
         RetCode OpenCurFile();
         int party;
         // todo
-        char buf[My_valuesize_]; // for concurrent read error.
+        // char buf[My_valuesize_]; // for concurrent read error.
+        char* buf;
     };
 
 }  // namespace polar_race

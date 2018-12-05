@@ -27,6 +27,7 @@ namespace polar_race {
     static const int My_infoArraySize_ = 1024 * 128;
     static const int My_queueCapacity_ = 1024 * 128;
     static const int My_queueSize_ = 2;
+    static const int thread_spin_time = 10;
 
     extern volatile bool My_directStop_;
     extern volatile bool My_exceedTime_;
