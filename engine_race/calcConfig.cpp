@@ -43,7 +43,7 @@ int main() {
                     "static const int My_map_size_ = %d;\n"
                     "static const int My_infoArraySize_ = %d;\n"
                     "static const int My_queueCapacity_ = %d;\n"
-                    , My_queueSize_, My_kSingleFileSize_, My_parties_, My_map_size_,
+                    , newQueueSize, My_kSingleFileSize_, My_parties_, My_map_size_,
                     My_infoArraySize_, My_queueCapacity_);
 
     fprintf(stderr, "sep : %llu", sep);

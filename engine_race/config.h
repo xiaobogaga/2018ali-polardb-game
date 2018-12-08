@@ -21,7 +21,7 @@ namespace polar_race {
 //     const int queueCapacity = 1024 * 128;
 //     const int queueSize = 2;
 
-    static const int My_queueSize_ = 2;
+    static const int My_queueSize_ = 16;
     static const int My_kSingleFileSize_ = 16777216;
     static const int My_parties_ = 4096;
     static const int My_map_size_ = 196608;
