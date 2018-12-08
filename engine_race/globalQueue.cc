@@ -6,8 +6,8 @@
 
 namespace polar_race {
 
-    std::condition_variable notFullCV;
-    std::mutex* mutexLocks;
+    // std::condition_variable notFullCV;
+    // std::mutex* mutexLocks;
     int realItemSizes[My_parties_];
     // just declare as volatile is not enough
     // needs to be atomic_int.
@@ -112,8 +112,8 @@ namespace polar_race {
                 // notFullCV.wait(lck);
                 // wait or using computation.
                 // let it out cpu.
-                std::this_thread::yield();
-                std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
+                // std::this_thread::yield();
+                // std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
             }
             // now we can load the data.
             // start loader data;
@@ -134,7 +134,7 @@ namespace polar_race {
             std::mutex* mutexes, int threadSize) {
         printInfo(stderr, "[MessageQueue] : try to creating a message queue instance. with threadSize : %d\n"
                 , threadSize);
-        mutexLocks = mutexes;
+        // mutexLocks = mutexes;
         this->stores = stores_;
         this->indexStores = indexStores_;
         this->items = (struct QueueItem**) malloc(sizeof(struct QueueItem*) * My_queueSize_);
@@ -178,8 +178,8 @@ namespace polar_race {
                         return 0;
                     }
                     // sleep current thread.
-                    std::this_thread::yield();
-                    std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
+                    // std::this_thread::yield();
+                    // std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
                 }
 
 

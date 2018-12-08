@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named testConfig
+
+# Build rule for target.
+testConfig: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 testConfig
+.PHONY : testConfig
+
+# fast build rule for target.
+testConfig/fast:
+	$(MAKE) -f CMakeFiles/testConfig.dir/build.make CMakeFiles/testConfig.dir/build
+.PHONY : testConfig/fast
+
+#=============================================================================
 # Target rules for targets named testAll
 
 # Build rule for target.
@@ -200,6 +213,33 @@ tempTest: cmake_check_build_system
 tempTest/fast:
 	$(MAKE) -f CMakeFiles/tempTest.dir/build.make CMakeFiles/tempTest.dir/build
 .PHONY : tempTest/fast
+
+engine_race/calcConfig.o: engine_race/calcConfig.cpp.o
+
+.PHONY : engine_race/calcConfig.o
+
+# target to build an object file
+engine_race/calcConfig.cpp.o:
+	$(MAKE) -f CMakeFiles/testConfig.dir/build.make CMakeFiles/testConfig.dir/engine_race/calcConfig.cpp.o
+.PHONY : engine_race/calcConfig.cpp.o
+
+engine_race/calcConfig.i: engine_race/calcConfig.cpp.i
+
+.PHONY : engine_race/calcConfig.i
+
+# target to preprocess a source file
+engine_race/calcConfig.cpp.i:
+	$(MAKE) -f CMakeFiles/testConfig.dir/build.make CMakeFiles/testConfig.dir/engine_race/calcConfig.cpp.i
+.PHONY : engine_race/calcConfig.cpp.i
+
+engine_race/calcConfig.s: engine_race/calcConfig.cpp.s
+
+.PHONY : engine_race/calcConfig.s
+
+# target to generate assembly for a file
+engine_race/calcConfig.cpp.s:
+	$(MAKE) -f CMakeFiles/testConfig.dir/build.make CMakeFiles/testConfig.dir/engine_race/calcConfig.cpp.s
+.PHONY : engine_race/calcConfig.cpp.s
 
 engine_race/config.o: engine_race/config.cc.o
 
@@ -533,6 +573,7 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... testConfig"
 	@echo "... testAll"
 	@echo "... testIndexStore"
 	@echo "... engine_race"
@@ -540,6 +581,9 @@ help:
 	@echo "... test3"
 	@echo "... test2"
 	@echo "... tempTest"
+	@echo "... engine_race/calcConfig.o"
+	@echo "... engine_race/calcConfig.i"
+	@echo "... engine_race/calcConfig.s"
 	@echo "... engine_race/config.o"
 	@echo "... engine_race/config.i"
 	@echo "... engine_race/config.s"

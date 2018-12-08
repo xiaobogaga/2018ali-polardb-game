@@ -83,3 +83,6 @@ target_link_libraries(testIndexStore ${PROJECT_NAME})
 
 add_executable(testAll engine_race/testAll.cpp)
 target_link_libraries(testAll ${PROJECT_NAME})
+
+add_executable(testConfig engine_race/calcConfig.cpp)
+target_link_libraries(testConfig ${PROJECT_NAME})
