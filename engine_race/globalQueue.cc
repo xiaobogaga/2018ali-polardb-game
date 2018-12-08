@@ -6,8 +6,8 @@
 
 namespace polar_race {
 
-    // std::condition_variable notFullCV;
-    // std::mutex* mutexLocks;
+    std::condition_variable notFullCV;
+    std::mutex* mutexLocks;
     int realItemSizes[My_parties_];
     // just declare as volatile is not enough
     // needs to be atomic_int.
@@ -106,10 +106,10 @@ namespace polar_race {
      */
     void loaderMethod(DataStore *stores, IndexStore *indexStore, struct QueueItem** items) {
         for (int i = 0; i < My_parties_; i++) {
-            // std::unique_lock<std::mutex> lck(mutexLocks[i]);
+            std::unique_lock<std::mutex> lck(mutexLocks[i]);
             while (!isPartCanLoad(i, readedPart)) {
                 if (My_exceedTime_) return;
-                // notFullCV.wait(lck);
+                notFullCV.wait(lck);
                 // wait or using computation.
                 // let it out cpu.
                 // std::this_thread::yield();
@@ -124,8 +124,8 @@ namespace polar_race {
 
             // change here.
             // loaded += 1;
-            // loadCon[i].notify_all(); // is notify one here ? or notify all ?
             loaded ++;
+            loadCon[i].notify_all(); // is notify one here ? or notify all ?
         }
     }
 
@@ -134,7 +134,7 @@ namespace polar_race {
             std::mutex* mutexes, int threadSize) {
         printInfo(stderr, "[MessageQueue] : try to creating a message queue instance. with threadSize : %d\n"
                 , threadSize);
-        // mutexLocks = mutexes;
+        mutexLocks = mutexes;
         this->stores = stores_;
         this->indexStores = indexStores_;
         this->items = (struct QueueItem**) malloc(sizeof(struct QueueItem*) * My_queueSize_);
@@ -160,27 +160,27 @@ namespace polar_race {
         if (!My_exceedTime_) {
             if (idx == -1 || (idx == (*partSize))) { // read the first data of part.
 
-//                std::unique_lock<std::mutex> lck(mutexLocks[part]);
-//                while (!isPartReady(loaded, part)) {
-//                    if (My_exceedTime_) {
-//                        (*partSize) = 0;
-//                        return 0;
-//                    }
-//
-//                    loadCon[part].wait(lck);
-//                    // here we need to avoid using lock and condition variable.
-//                }
-
-//here we try to use cas, we use realItemSizes[part] >= 0 to make sure part is loaded.
-                while (!isPartReady(loaded, part) && realItemSizes[part] < 0) {
+                std::unique_lock<std::mutex> lck(mutexLocks[part]);
+                while (!isPartReady(loaded, part)) {
                     if (My_exceedTime_) {
                         (*partSize) = 0;
                         return 0;
                     }
-                    // sleep current thread.
-                    // std::this_thread::yield();
-                    // std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
+
+                    loadCon[part].wait(lck);
+//                    // here we need to avoid using lock and condition variable.
                 }
+
+//here we try to use cas, we use realItemSizes[part] >= 0 to make sure part is loaded.
+//                while (!isPartReady(loaded, part) && realItemSizes[part] < 0) {
+//                    if (My_exceedTime_) {
+//                        (*partSize) = 0;
+//                        return 0;
+//                    }
+//                    // sleep current thread.
+//                    // std::this_thread::yield();
+//                    // std::this_thread::sleep_for(std::chrono::microseconds(thread_spin_time));
+//                }
 
 
                 // when data is coming.
@@ -197,7 +197,7 @@ namespace polar_race {
                         // printInfo(stderr, "[GlobalQueue] : finalized %d part\n", readedPart + 1);
                         // indexStores[readedPart + 1].finalize();
                         readedPart ++;
-                        // notFullCV.notify_one();
+                        notFullCV.notify_one();
                     }
                     anotherLock.unlock();
                     // here must block.

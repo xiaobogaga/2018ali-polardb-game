@@ -120,13 +120,13 @@ namespace polar_race {
 
         // pthread_mutex_unlock(&this->mutexes[party]);
 
-        if (party == 256) {
-            if  (k <= min)  {
-                min = k;
-                this->minFileNo = fileNo;
-                this->minOffset = offset;
-            }
-        }
+//        if (party == 256) {
+//            if  (k <= min)  {
+//                min = k;
+//                this->minFileNo = fileNo;
+//                this->minOffset = offset;
+//            }
+//        }
 
         this->mutexes[party].unlock();
         return ret;
