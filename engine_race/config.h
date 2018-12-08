@@ -21,12 +21,12 @@ namespace polar_race {
 //     const int queueCapacity = 1024 * 128;
 //     const int queueSize = 2;
 
-    static const int My_parties_ = 512;
-    static const int My_kSingleFileSize_ = 1024 * 1024 * 128;
-    static const int My_map_size_ = 1024 * 512 * 3;
-    static const int My_infoArraySize_ = 1024 * 128;
-    static const int My_queueCapacity_ = 1024 * 128;
     static const int My_queueSize_ = 2;
+    static const int My_kSingleFileSize_ = 16777216;
+    static const int My_parties_ = 4096;
+    static const int My_map_size_ = 196608;
+    static const int My_infoArraySize_ = 16384;
+    static const int My_queueCapacity_ = 16384;
     static const int thread_spin_time = 10;
 
     extern volatile bool My_directStop_;
@@ -45,7 +45,7 @@ namespace polar_race {
 
 
     inline int partition(unsigned long long key) {
-        int party = (key / (unsigned long long) 36028797018963967);
+        int party = (key / (unsigned long long) 4503599627370495);
         return party == My_parties_ ? My_parties_ - 1 : party;
     }
 

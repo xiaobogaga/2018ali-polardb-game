@@ -23,7 +23,7 @@ int main() {
 
     // lets calc here.
 
-    int newQueueSize = 2;
+    int newQueueSize = 16;
     int times = newQueueSize / My_queueSize_;
     My_kSingleFileSize_ = My_kSingleFileSize_ / (times);
     My_parties_ = My_parties_ * times;
