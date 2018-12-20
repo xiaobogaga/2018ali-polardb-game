@@ -1,4 +1,4 @@
-the 2018 ali polardb game. see here for more information.
+the 2018 ali polardb game. see [here](https://tianchi.aliyun.com/programming/introduction.htm?spm=5176.11165261.5678.1.2b7378eeGvMcZj&raceId=231689) for more information.
 
 my base idea for this game is : 
 
