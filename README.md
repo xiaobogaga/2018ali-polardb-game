@@ -1,18 +1,11 @@
-## All you have to do:
+the 2018 ali polardb game. see here for more information.
 
-Complete engine_race/engine_race.[h,cc], and execute
+my base idea for this game is : 
 
-```
-make
-```
-to build your own engine
+* partition the key for multi threads.
 
-## Example for you
+* <b> Writing strategy :</b> key value write seperately. key writing uses mapped file, and value writing use pagecache, both are write-ahead.
 
-For quick start, we have already implemented a simple
-example engine in engine_example, you can view it and execute
+* <b> Reading strategy :</b> read key file and then sort the keys. when a search query coming, first find the partition of this key by using partition function, then find the value file and offset by binary search on the keys, after getting offset and value file, just do random read.
 
-```
-make TARGET_ENGINE=engine_example
-```
-to build this example engine
+* <b> Range query strategy :</b> one thread reads the keys and data file, then the data would be used as a global queue, we guaranteed that a partition can be holder in memory, all readers would share this queue, when all readered finished this partition, then the thread would read next partition. 
