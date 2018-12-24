@@ -6,6 +6,6 @@ my base idea for this game is :
 
 * <b> Writing strategy :</b> key value write seperately. key writing uses mapped file, and value writing use pagecache, both are write-ahead.
 
-* <b> Reading strategy :</b> read key file and then sort the keys. when a search query coming, first find the partition of this key by using partition function, then find the value file and offset by binary search on the keys, after getting offset and value file, just do random read.
+* <b> Reading strategy :</b> read key file and then sort the keys, this is ok since all keys can be kept under 2G memory. when a search query coming, first find the partition of this key by using partition function, then find the value file and offset by binary search on the keys, after getting offset and value file, just do random read.
 
 * <b> Range query strategy :</b> one thread reads the keys and data file, then the data would be used as a global queue, we guaranteed that a partition can be holder in memory, all readers would share this queue, when all readered finished this partition, then the thread would read next partition. 
